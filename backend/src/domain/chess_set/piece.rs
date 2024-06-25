@@ -1,10 +1,18 @@
-#[derive(Copy, Clone, Debug)]
+use std::fmt;
+
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Colour {
     Black,
     White,
 }
 
-#[derive(Copy, Clone, Debug)]
+impl fmt::Display for Colour {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum PieceType {
     Bishop,
     King,
@@ -14,8 +22,20 @@ pub enum PieceType {
     Queen,
 }
 
-#[derive(Copy, Clone, Debug)]
+impl fmt::Display for PieceType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub struct Piece {
     pub colour: Colour,
     pub piece_type: PieceType,
+}
+
+impl fmt::Display for Piece {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{} {}", self.colour, self.piece_type)
+    }
 }
