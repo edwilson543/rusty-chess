@@ -1,3 +1,4 @@
+use core::array;
 use std::fmt;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
@@ -18,6 +19,22 @@ impl fmt::Display for File {
     }
 }
 
+impl File {
+    pub fn iter() -> array::IntoIter<Self, 8> {
+        [
+            File::A,
+            File::B,
+            File::C,
+            File::D,
+            File::E,
+            File::F,
+            File::G,
+            File::H,
+        ]
+        .into_iter()
+    }
+}
+
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub enum Rank {
     ONE,
@@ -33,6 +50,22 @@ pub enum Rank {
 impl fmt::Display for Rank {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{:?}", self)
+    }
+}
+
+impl Rank {
+    pub fn iter() -> array::IntoIter<Self, 8> {
+        [
+            Rank::ONE,
+            Rank::TWO,
+            Rank::THREE,
+            Rank::FOUR,
+            Rank::FIVE,
+            Rank::SIX,
+            Rank::SEVEN,
+            Rank::EIGHT,
+        ]
+        .into_iter()
     }
 }
 
