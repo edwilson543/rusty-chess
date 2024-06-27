@@ -11,7 +11,16 @@ enum Command {
 #[derive(thiserror::Error, Debug, PartialEq)]
 enum CommandHandlingError {
     #[error("{0}")]
-    BoardActionError(chess_set::ChessboardActionError),
+    ChessboardActionError(chess_set::ChessboardActionError),
+
+    #[error("The game has already ended.")]
+    GameHasAlreadyEnded,
+
+    #[error("Move is out of turn - it's currently {0}'s turn.")]
+    PlayIsOutOfTurn(chess_set::Colour),
+
+    #[error("{0}")]
+    MoveValidationError(rulebook::MoveValidationError),
 }
 
 #[derive(Debug, PartialEq)]
@@ -62,7 +71,7 @@ impl Game {
             Command::MakeOrdinaryMove {
                 from_square,
                 to_square,
-            } => self.make_ply(from_square, to_square),
+            } => self.make_move(&from_square, &to_square, &to_play_colour),
         } {
             return Err(handling_error);
         }
@@ -79,13 +88,29 @@ impl Game {
 
     fn make_move(
         &mut self,
-        from_square: chess_set::Square,
-        to_square: chess_set::Square,
+        from_square: &chess_set::Square,
+        to_square: &chess_set::Square,
+        to_play_colour: &chess_set::Colour,
     ) -> Result<(), CommandHandlingError> {
-        // TODO -> validate ply using rulebook.
+        // Check the move isn't out of turn.
+        let Some(piece) = self.get_piece_at_square(&from_square) else {
+            return Err(CommandHandlingError::ChessboardActionError(
+                chess_set::ChessboardActionError::SquareIsEmpty(from_square.clone()),
+            ));
+        };
+        if !(piece.get_colour() == to_play_colour) {
+            return Err(CommandHandlingError::PlayIsOutOfTurn(*to_play_colour));
+        };
+
+        // Validate the move against the rules and move the piece.
+        if let Err(error) =
+            rulebook::validate_move(&self.chessboard, &piece, &from_square, &to_square)
+        {
+            return Err(CommandHandlingError::MoveValidationError(error));
+        };
         match self.chessboard.move_piece(&from_square, &to_square) {
             Ok(()) => Ok(()),
-            Err(err) => Err(CommandHandlingError::BoardActionError(err)),
+            Err(error) => Err(CommandHandlingError::ChessboardActionError(error)),
         }
     }
 }
@@ -96,7 +121,6 @@ mod tests {
     #[cfg(test)]
     mod command_handler_tests {
         use super::super::*;
-        use crate::domain::gameplay::chess_set::ChessboardActionError;
 
         #[test]
         fn can_make_1e4_opening() {
@@ -148,8 +172,8 @@ mod tests {
 
             let result = game.handle_command(opening_move);
 
-            let expected_error = CommandHandlingError::BoardActionError(
-                ChessboardActionError::SquareIsEmpty(from_square),
+            let expected_error = CommandHandlingError::ChessboardActionError(
+                chess_set::ChessboardActionError::SquareIsEmpty(from_square),
             );
             assert_eq!(result, Err(expected_error));
             assert_eq!(game.get_piece_at_square(&from_square), None);

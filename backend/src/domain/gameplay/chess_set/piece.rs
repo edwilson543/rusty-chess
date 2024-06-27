@@ -21,7 +21,7 @@ impl Colour {
     }
 }
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum PieceType {
     Bishop,
     King,
@@ -61,6 +61,10 @@ impl Piece {
     // Queries.
     pub fn get_colour(&self) -> &Colour {
         &self.colour
+    }
+
+    pub fn get_piece_type(&self) -> &PieceType {
+        &self.piece_type
     }
 }
 
