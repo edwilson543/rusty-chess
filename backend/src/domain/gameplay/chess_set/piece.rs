@@ -12,6 +12,15 @@ impl fmt::Display for Colour {
     }
 }
 
+impl Colour {
+    pub fn swap(&self) -> Self {
+        match self {
+            Colour::White => Colour::Black,
+            Colour::Black => Colour::White,
+        }
+    }
+}
+
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum PieceType {
     Bishop,
@@ -52,5 +61,23 @@ impl Piece {
     // Queries.
     pub fn get_colour(&self) -> &Colour {
         &self.colour
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    #[cfg(test)]
+    mod colour_tests {
+        use super::super::*;
+
+        #[test]
+        fn white_swaps_to_black() {
+            assert_eq!(Colour::White.swap(), Colour::Black)
+        }
+
+        #[test]
+        fn black_swaps_to_white() {
+            assert_eq!(Colour::Black.swap(), Colour::White)
+        }
     }
 }
