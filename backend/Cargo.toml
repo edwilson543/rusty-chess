@@ -5,3 +5,6 @@ edition = "2021"
 
 [dependencies]
 thiserror = "1.0.61"
+
+[dev-dependencies]
+rstest = "0.21.0"
