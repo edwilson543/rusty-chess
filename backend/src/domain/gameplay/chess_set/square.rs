@@ -33,6 +33,19 @@ impl File {
         ]
         .into_iter()
     }
+
+    pub fn value(&self) -> i8 {
+        match self {
+            File::A => 1,
+            File::B => 2,
+            File::C => 3,
+            File::D => 4,
+            File::E => 5,
+            File::F => 6,
+            File::G => 7,
+            File::H => 8,
+        }
+    }
 }
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
@@ -67,6 +80,19 @@ impl Rank {
         ]
         .into_iter()
     }
+
+    pub fn value(&self) -> i8 {
+        match self {
+            Rank::ONE => 1,
+            Rank::TWO => 2,
+            Rank::THREE => 3,
+            Rank::FOUR => 4,
+            Rank::FIVE => 5,
+            Rank::SIX => 6,
+            Rank::SEVEN => 7,
+            Rank::EIGHT => 8,
+        }
+    }
 }
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
@@ -87,5 +113,13 @@ impl Square {
             rank: rank,
             file: file,
         }
+    }
+
+    pub fn get_rank(&self) -> &Rank {
+        &self.rank
+    }
+
+    pub fn get_file(&self) -> &File {
+        &self.file
     }
 }

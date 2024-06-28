@@ -1,6 +1,5 @@
 use crate::domain::gameplay::chess_set;
 use std::fmt;
-use std::fmt::Formatter;
 use thiserror;
 
 #[derive(thiserror::Error, Debug, PartialEq)]
@@ -11,7 +10,7 @@ pub enum MoveValidationError {
 }
 
 impl fmt::Display for MoveValidationError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{:?}", self)
     }
 }
@@ -103,7 +102,7 @@ mod tests {
             let to_square = chess_set::Square::new(chess_set::Rank::THREE, chess_set::File::A);
             let other_piece =
                 chess_set::Piece::new(piece.get_colour().clone(), chess_set::PieceType::Pawn);
-            chessboard.add_piece(other_piece, &to_square);
+            let _ = chessboard.add_piece(other_piece, &to_square);
 
             let result = validate_move(&chessboard, &piece, &from_square, &to_square);
 
@@ -119,7 +118,7 @@ mod tests {
             let to_square = chess_set::Square::new(chess_set::Rank::THREE, chess_set::File::B);
             let black_king =
                 chess_set::Piece::new(chess_set::Colour::Black, chess_set::PieceType::King);
-            chessboard.add_piece(black_king, &to_square);
+            let _ = chessboard.add_piece(black_king, &to_square);
 
             let result = validate_move(&chessboard, &white_pawn, &from_square, &to_square);
 
