@@ -1,4 +1,5 @@
 use crate::domain::gameplay::chess_set;
+use std::cmp;
 use std::fmt;
 use std::ops;
 
@@ -67,6 +68,29 @@ impl Translation {
             vector: vector,
             scale_factor: 1,
         }
+    }
+}
+
+/// Euclid's algorithm, extended to support negative numbers.
+fn greatest_common_divisor(a: i8, b: i8) -> i8 {
+    let (a_abs, b_abs) = (a.abs(), b.abs());
+    if a_abs == b_abs {
+        return a_abs;
+    };
+
+    let higher = cmp::max(a_abs, b_abs);
+    let lower = cmp::min(a_abs, b_abs);
+
+    if lower == 0 {
+        return higher
+    };
+
+    let difference = higher - lower;
+
+    if difference == lower {
+        lower
+    } else {
+        greatest_common_divisor(difference, lower)
     }
 }
 
@@ -143,5 +167,30 @@ mod tests {
 
         // TODO
         fn multiple_square_moves_in_a_wonky_line() {}
+    }
+
+    #[cfg(test)]
+    mod greatest_common_divisor_tests {
+        use super::super::*;
+        use rstest::rstest;
+
+        #[rstest]
+        #[case::zero_first(7, 0, 7)]
+        #[case::zero_second(0, 5, 5)]
+        #[case::prime_numbers(13, 11, 1)]
+        #[case::same_number(31, 31, 31)]
+        #[case::multiples_of_three(9, 12, 3)]
+        #[case::order_does_not_matter(12, 9, 3)]
+        #[case::multiples_of_two(6, 8, 2)]
+        #[case::negative_number_first(-6, 8, 2)]
+        #[case::negative_number_second(6, -8, 2)]
+        #[case::both_numbers_negative(-6, -8, 2)]
+        fn correctly_calculates_greatest_common_divisor(
+            #[case] a: i8,
+            #[case] b: i8,
+            #[case] gcd: i8,
+        ) {
+            assert_eq!(greatest_common_divisor(a, b), gcd);
+        }
     }
 }
