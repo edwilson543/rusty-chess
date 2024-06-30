@@ -1,9 +1,9 @@
-use super::super::{move_rule, translation};
+use super::super::{common, move_rule, translation};
 use std::vec;
 
 pub fn get_pawn_move_rules() -> vec::IntoIter<Box<dyn move_rule::MoveRule>> {
     let one_square_forwards_rule =
-        move_rule::SingleSquareMove::new(translation::ChessVector::new(0, 1));
+        common::SingleSquareMove::new(translation::ChessVector::new(0, 1));
 
     let rules = vec![
         Box::new(one_square_forwards_rule) as Box<dyn move_rule::MoveRule>,

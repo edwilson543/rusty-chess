@@ -1,3 +1,4 @@
+mod common;
 mod move_rule;
 mod pieces;
 mod translation;
