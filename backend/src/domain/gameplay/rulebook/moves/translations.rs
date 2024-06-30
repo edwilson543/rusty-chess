@@ -22,21 +22,14 @@ pub struct Translation {
     scalar: u8,
 }
 
-pub fn is_move_allowed_for_piece(
-    piece: &chess_set::Piece,
-    from_square: &chess_set::Square,
-    to_square: &chess_set::Square,
-) {
-}
-
 impl Translation {
     pub fn new(
         from_square: &chess_set::Square,
         to_square: &chess_set::Square,
         piece_colour: &chess_set::Colour,
     ) -> Self {
-        let x_unscaled = to_square.get_file().value() - from_square.get_file().value();
-        let y_unscaled = to_square.get_rank().value() - from_square.get_rank().value();
+        let x_unscaled = to_square.get_file().index() - from_square.get_file().index();
+        let y_unscaled = to_square.get_rank().index() - from_square.get_rank().index();
 
         // max(gcd, 1) is taken here to avoid dividing by zero.
         let scalar = cmp::max(greatest_common_divisor(x_unscaled, y_unscaled), 1);

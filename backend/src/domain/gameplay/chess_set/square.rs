@@ -28,7 +28,7 @@ impl Rank {
         .into_iter()
     }
 
-    pub fn value(&self) -> i8 {
+    pub fn index(&self) -> i8 {
         match self {
             Rank::ONE => 1,
             Rank::TWO => 2,
@@ -69,7 +69,7 @@ impl File {
         .into_iter()
     }
 
-    pub fn value(&self) -> i8 {
+    pub fn index(&self) -> i8 {
         match self {
             File::A => 1,
             File::B => 2,
