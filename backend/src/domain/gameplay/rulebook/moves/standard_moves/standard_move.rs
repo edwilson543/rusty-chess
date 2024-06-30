@@ -1,5 +1,5 @@
+use super::translations;
 use crate::domain::gameplay::chess_set;
-use crate::domain::gameplay::rulebook::moves::translations;
 use std::fmt;
 
 /// A standard move of a single piece from one square to another.

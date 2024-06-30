@@ -63,10 +63,12 @@ struct PermittedTranslation {
 }
 
 impl PermittedTranslation {
-    pub fn is_translation_allowed_for_piece()
+    pub fn is_translation_allowed_for_piece() -> bool {
+        return false;
+    }
 
     fn is_allowed() -> bool {
-        return false
+        return false;
     }
 }
 
@@ -118,9 +120,9 @@ mod tests {
     #[cfg(test)]
     mod translation_new_tests {
         use super::super::{
-            chess_set::Colour, chess_set::File, chess_set::Rank, chess_set::Square,
+            chess_set::Colour, chess_set::File, chess_set::Rank, chess_set::Square, ChessVector,
+            Translation,
         };
-        use crate::domain::gameplay::rulebook::moves::translations::{ChessVector, Translation};
         use crate::testing::factories;
         use rstest::rstest;
 
