@@ -103,9 +103,8 @@ impl Game {
         };
 
         // Validate the move against the rules and move the piece.
-        if let Err(error) =
-            rulebook::validate_move(&self.chessboard, &piece, &from_square, &to_square)
-        {
+        let move_ = rulebook::Move::new(&piece, &from_square, &to_square);
+        if let Err(error) = move_.validate(&self.chessboard) {
             return Err(CommandHandlingError::MoveValidationError(error));
         };
         match self.chessboard.move_piece(&from_square, &to_square) {

@@ -9,32 +9,15 @@ struct ChessVector {
     y: i8,
 }
 
-impl fmt::Display for ChessVector {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "({}, {})", self.x, self.y)
-    }
-}
-
 impl ChessVector {
     pub fn new(x: i8, y: i8) -> Self {
         Self { x: x, y: y }
     }
 }
 
-impl ops::Mul<i8> for ChessVector {
-    type Output = ChessVector;
-
-    fn mul(self, rhs: i8) -> Self::Output {
-        Self {
-            x: self.x * rhs,
-            y: self.y * rhs,
-        }
-    }
-}
-
 /// Geometric representation of a chess move, used to simplify validation logic.
 #[derive(Debug, PartialEq)]
-struct Translation {
+pub struct Translation {
     vector: ChessVector,
     scalar: u8,
 }
@@ -47,7 +30,7 @@ pub fn is_move_allowed_for_piece(
 }
 
 impl Translation {
-    fn new(
+    pub fn new(
         from_square: &chess_set::Square,
         to_square: &chess_set::Square,
         piece_colour: &chess_set::Colour,
@@ -55,7 +38,8 @@ impl Translation {
         let x_unscaled = to_square.get_file().value() - from_square.get_file().value();
         let y_unscaled = to_square.get_rank().value() - from_square.get_rank().value();
 
-        let scalar = greatest_common_divisor(x_unscaled, y_unscaled);
+        // max(gcd, 1) is taken here to avoid dividing by zero.
+        let scalar = cmp::max(greatest_common_divisor(x_unscaled, y_unscaled), 1);
         let x = x_unscaled / scalar;
         let y = y_unscaled / scalar;
 
@@ -98,6 +82,25 @@ fn greatest_common_divisor(a: i8, b: i8) -> i8 {
     }
 }
 
+// Trait implementations.
+
+impl ops::Mul<i8> for ChessVector {
+    type Output = ChessVector;
+
+    fn mul(self, rhs: i8) -> Self::Output {
+        Self {
+            x: self.x * rhs,
+            y: self.y * rhs,
+        }
+    }
+}
+
+impl fmt::Display for ChessVector {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "({}, {})", self.x, self.y)
+    }
+}
+
 #[cfg(test)]
 mod tests {
 
@@ -107,6 +110,7 @@ mod tests {
             chess_set::Colour, chess_set::File, chess_set::Rank, chess_set::Square,
         };
         use crate::domain::gameplay::rulebook::moves::translations::{ChessVector, Translation};
+        use crate::testing::factories;
         use rstest::rstest;
 
         #[rstest]
@@ -150,7 +154,7 @@ mod tests {
             Square::new(Rank::SEVEN, File::G),
             ChessVector::new(-1, 1)
         )]
-        fn single_square_moves_white(
+        fn single_square_moves(
             #[case] from_square: Square,
             #[case] to_square: Square,
             #[case] expected_vector: ChessVector,
@@ -307,6 +311,15 @@ mod tests {
             assert_eq!(black_translation.vector, expected_vector * -1);
             assert_eq!(black_translation.scalar, expected_scalar_factor);
         }
+
+        #[test]
+        fn move_to_same_square_does_not_panic() {
+            let square = factories::some_square();
+            let translation = Translation::new(&square, &square, &Colour::White);
+
+            assert_eq!(translation.vector, ChessVector::new(0, 0),);
+            assert_eq!(translation.scalar, 1);
+        }
     }
 
     #[cfg(test)]
@@ -315,6 +328,7 @@ mod tests {
         use rstest::rstest;
 
         #[rstest]
+        #[case::both_zero(0, 0, 0)]
         #[case::zero_first(7, 0, 7)]
         #[case::zero_second(0, 5, 5)]
         #[case::prime_numbers(13, 11, 1)]
