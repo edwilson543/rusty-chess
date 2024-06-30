@@ -23,7 +23,12 @@ pub struct Translation {
 }
 
 impl Translation {
-    pub fn new(
+    // Factories.
+    pub fn new(vector: ChessVector, scalar: u8) -> Self {
+        Self { vector, scalar }
+    }
+
+    pub fn from_move(
         from_square: &chess_set::Square,
         to_square: &chess_set::Square,
         piece_colour: &chess_set::Colour,
@@ -172,12 +177,14 @@ mod tests {
             #[case] to_square: Square,
             #[case] expected_vector: ChessVector,
         ) {
-            let white_translation = Translation::new(&from_square, &to_square, &Colour::White);
+            let white_translation =
+                Translation::from_move(&from_square, &to_square, &Colour::White);
 
             assert_eq!(white_translation.vector, expected_vector);
             assert_eq!(white_translation.scalar, 1);
 
-            let black_translation = Translation::new(&from_square, &to_square, &Colour::Black);
+            let black_translation =
+                Translation::from_move(&from_square, &to_square, &Colour::Black);
 
             assert_eq!(black_translation.vector, expected_vector * -1);
             assert_eq!(black_translation.scalar, 1);
@@ -238,12 +245,14 @@ mod tests {
             #[case] expected_vector: ChessVector,
             #[case] expected_scalar: u8,
         ) {
-            let white_translation = Translation::new(&from_square, &to_square, &Colour::White);
+            let white_translation =
+                Translation::from_move(&from_square, &to_square, &Colour::White);
 
             assert_eq!(white_translation.vector, expected_vector);
             assert_eq!(white_translation.scalar, expected_scalar);
 
-            let black_translation = Translation::new(&from_square, &to_square, &Colour::Black);
+            let black_translation =
+                Translation::from_move(&from_square, &to_square, &Colour::Black);
 
             assert_eq!(black_translation.vector, expected_vector * -1);
             assert_eq!(black_translation.scalar, expected_scalar);
@@ -295,12 +304,14 @@ mod tests {
             #[case] to_square: Square,
             #[case] expected_vector: ChessVector,
         ) {
-            let white_translation = Translation::new(&from_square, &to_square, &Colour::White);
+            let white_translation =
+                Translation::from_move(&from_square, &to_square, &Colour::White);
 
             assert_eq!(white_translation.vector, expected_vector);
             assert_eq!(white_translation.scalar, 1);
 
-            let black_translation = Translation::new(&from_square, &to_square, &Colour::Black);
+            let black_translation =
+                Translation::from_move(&from_square, &to_square, &Colour::Black);
 
             assert_eq!(black_translation.vector, expected_vector * -1);
             assert_eq!(black_translation.scalar, 1);
@@ -314,12 +325,14 @@ mod tests {
             let expected_vector = ChessVector::new(-1, 2);
             let expected_scalar_factor = 2;
 
-            let white_translation = Translation::new(&from_square, &to_square, &Colour::White);
+            let white_translation =
+                Translation::from_move(&from_square, &to_square, &Colour::White);
 
             assert_eq!(white_translation.vector, expected_vector);
             assert_eq!(white_translation.scalar, expected_scalar_factor);
 
-            let black_translation = Translation::new(&from_square, &to_square, &Colour::Black);
+            let black_translation =
+                Translation::from_move(&from_square, &to_square, &Colour::Black);
 
             assert_eq!(black_translation.vector, expected_vector * -1);
             assert_eq!(black_translation.scalar, expected_scalar_factor);
@@ -328,7 +341,7 @@ mod tests {
         #[test]
         fn move_to_same_square_does_not_panic() {
             let square = factories::some_square();
-            let translation = Translation::new(&square, &square, &Colour::White);
+            let translation = Translation::from_move(&square, &square, &Colour::White);
 
             assert_eq!(translation.vector, ChessVector::new(0, 0),);
             assert_eq!(translation.scalar, 1);

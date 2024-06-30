@@ -24,7 +24,7 @@ impl<'a> Move<'a> {
         to_square: &'a chess_set::Square,
     ) -> Self {
         let translation =
-            translations::Translation::new(from_square, to_square, piece.get_colour());
+            translations::Translation::from_move(from_square, to_square, piece.get_colour());
 
         Self {
             piece: piece,
