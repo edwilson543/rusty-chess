@@ -69,6 +69,8 @@ impl<'a> Move<'a> {
     }
 }
 
+// Trait implementations.
+
 impl fmt::Display for MoveValidationError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{:?}", self)

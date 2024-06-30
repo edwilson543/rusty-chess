@@ -6,12 +6,6 @@ pub enum Colour {
     White,
 }
 
-impl fmt::Display for Colour {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}", self)
-    }
-}
-
 impl Colour {
     pub fn swap(&self) -> Self {
         match self {
@@ -31,22 +25,10 @@ pub enum PieceType {
     Queen,
 }
 
-impl fmt::Display for PieceType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}", self)
-    }
-}
-
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct Piece {
     colour: Colour,
     piece_type: PieceType,
-}
-
-impl fmt::Display for Piece {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{} {}", self.colour, self.piece_type)
-    }
 }
 
 impl Piece {
@@ -65,6 +47,26 @@ impl Piece {
 
     pub fn get_piece_type(&self) -> &PieceType {
         &self.piece_type
+    }
+}
+
+// Trait implementations.
+
+impl fmt::Display for Colour {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+
+impl fmt::Display for PieceType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+
+impl fmt::Display for Piece {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{} {}", self.colour, self.piece_type)
     }
 }
 
