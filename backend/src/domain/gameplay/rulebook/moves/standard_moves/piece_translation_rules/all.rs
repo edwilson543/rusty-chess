@@ -1,9 +1,10 @@
-use super::super::{translation_rule, translations};
+use super::super::translation_rule;
 use crate::domain::gameplay::chess_set;
+use std::vec;
 
 pub fn get_translation_rules_for_piece(
     piece_type: &chess_set::PieceType,
-) -> Vec<translation_rule::TranslationRule> {
+) -> vec::IntoIter<Box<dyn translation_rule::TranslationRule>> {
     panic!("todo")
     // match piece_type {
     //     chess_set::PieceType::Pawn => PAWN_TRANSLATION_RULES,

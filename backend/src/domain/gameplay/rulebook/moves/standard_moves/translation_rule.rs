@@ -1,19 +1,24 @@
 use super::translations;
 
-/// Mechanism for defining what direction each piece can move in, and how far.
-pub struct TranslationRule {
+/// Mechanism for defining whether a certain translation is allowed..
+pub trait TranslationRule {
+    fn allows_translation(&self, translation: &translations::Translation) -> bool;
+}
+
+pub struct BasicTranslationRule {
     vector: translations::ChessVector,
     scalable: bool,
 }
 
-impl TranslationRule {
-    // Factories.
+impl BasicTranslationRule {
     pub fn new(vector: translations::ChessVector, scalable: bool) -> Self {
         Self { vector, scalable }
     }
+}
 
+impl TranslationRule for BasicTranslationRule {
     // Queries.
-    pub fn allows_translation(&self, translation: &translations::Translation) -> bool {
+    fn allows_translation(&self, translation: &translations::Translation) -> bool {
         let vectors_match = self.vector == translation.vector;
         let scale_allowed = self.scalable || translation.scalar == 1;
         vectors_match && scale_allowed
@@ -39,7 +44,7 @@ mod tests {
         ) {
             let translation = translations::Translation::new(vector, 1);
 
-            let translation_rule = TranslationRule::new(vector.clone(), scalable);
+            let translation_rule = BasicTranslationRule::new(vector.clone(), scalable);
 
             assert!(translation_rule.allows_translation(&translation));
         }
@@ -54,7 +59,7 @@ mod tests {
             let translation = translations::Translation::new(vector, 1);
 
             let different_vector = translations::ChessVector::new(-1, 1);
-            let translation_rule = TranslationRule::new(different_vector, scalable);
+            let translation_rule = BasicTranslationRule::new(different_vector, scalable);
 
             assert!(!translation_rule.allows_translation(&translation));
         }
@@ -64,7 +69,7 @@ mod tests {
             let vector = translations::ChessVector::new(1, 0);
             let translation = translations::Translation::new(vector, 7);
 
-            let translation_rule = TranslationRule::new(vector.clone(), true);
+            let translation_rule = BasicTranslationRule::new(vector.clone(), true);
 
             assert!(translation_rule.allows_translation(&translation));
         }
@@ -74,7 +79,7 @@ mod tests {
             let vector = translations::ChessVector::new(0, -1);
             let translation = translations::Translation::new(vector, 3);
 
-            let translation_rule = TranslationRule::new(vector.clone(), false);
+            let translation_rule = BasicTranslationRule::new(vector.clone(), false);
 
             assert!(!translation_rule.allows_translation(&translation));
         }
@@ -85,7 +90,7 @@ mod tests {
             let translation = translations::Translation::new(vector, 3);
 
             let different_vector = translations::ChessVector::new(-1, 0);
-            let translation_rule = TranslationRule::new(different_vector, true);
+            let translation_rule = BasicTranslationRule::new(different_vector, true);
 
             assert!(!translation_rule.allows_translation(&translation));
         }

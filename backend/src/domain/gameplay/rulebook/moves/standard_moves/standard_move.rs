@@ -1,4 +1,4 @@
-use super::{piece_translation_rules, translations};
+use super::{piece_translation_rules, translation_rule, translations};
 use crate::domain::gameplay::chess_set;
 use std::fmt;
 
@@ -72,12 +72,13 @@ impl<'a> Move<'a> {
 
     fn validate_translation_is_legal(&self) -> Result<(), MoveValidationError> {
         let piece_type = self.piece.get_piece_type();
-        let translation_rules =
+        let mut translation_rules =
             piece_translation_rules::get_translation_rules_for_piece(piece_type);
 
-        let permitted_by_translation_rules = translation_rules
-            .into_iter()
-            .any(|rule| rule.allows_translation(&self.translation));
+        let permitted_by_translation_rules =
+            translation_rules.any(|rule: Box<dyn translation_rule::TranslationRule>| {
+                rule.allows_translation(&self.translation)
+            });
 
         let can_jump = piece_type == &chess_set::PieceType::Knight;
         let is_obstructed = self.translation.is_obstructed() && !can_jump;
