@@ -1,33 +1,7 @@
 use super::translations;
-use crate::domain::gameplay::chess_set;
-
-// etc.
-
-// TODO -> maybe not translation in the signature - maybe just square.
-// pub fn is_translation_legal(
-//     translation: translations::Translation,
-//     piece_type: &chess_set::PieceType,
-// ) -> bool {
-//     let translation_rules = get_translation_rules_for_piece(piece_type);
-//     let permitted_by_translation_rules = translation_rules
-//         .into_iter()
-//         .any(|rule| rule.allows_translation(translation));
-//
-//     let can_jump = piece_type == chess_set::PieceType::Knight;
-//     let is_obstructed = translation.is_obstructed() && !can_jump;
-//
-//     permitted_by_translation_rules && !is_obstructed
-// }
-
-const PAWN_TRANSLATION_RULES: Vec<translations::Translation> = vec![];
-
-// fn get_translation_rules_for_piece(
-//     piece_type: &chess_set::PieceType,
-// ) -> Vec<translations::Translation> {
-// }
 
 /// Mechanism for defining what direction each piece can move in, and how far.
-struct TranslationRule {
+pub struct TranslationRule {
     vector: translations::ChessVector,
     scalable: bool,
 }

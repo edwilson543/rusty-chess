@@ -17,12 +17,12 @@ impl Colour {
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum PieceType {
-    Bishop,
-    King,
-    Knight,
     Pawn, // For convenience, pawns are modelled as pieces within the chess set.
+    Knight,
+    Bishop,
     Rook,
     Queen,
+    King,
 }
 
 #[derive(Copy, Clone, Debug, PartialEq)]

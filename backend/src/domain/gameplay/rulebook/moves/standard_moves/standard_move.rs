@@ -1,4 +1,4 @@
-use super::translations;
+use super::{piece_translation_rules, translations};
 use crate::domain::gameplay::chess_set;
 use std::fmt;
 
@@ -15,6 +15,7 @@ pub enum MoveValidationError {
     CannotMovePieceToSameSquare,
     CannotCaptureOwnPiece,
     CannotCaptureOpponentKing,
+    MoveIsNotLegalForPiece,
 }
 
 impl<'a> Move<'a> {
@@ -43,7 +44,10 @@ impl<'a> Move<'a> {
             return Err(error);
         }
 
-        // TODO -> validate translation.
+        if let Err(error) = self.validate_translation_is_legal() {
+            return Err(error);
+        }
+
         Ok(())
     }
 
@@ -64,6 +68,24 @@ impl<'a> Move<'a> {
         };
 
         Ok(())
+    }
+
+    fn validate_translation_is_legal(&self) -> Result<(), MoveValidationError> {
+        let piece_type = self.piece.get_piece_type();
+        let translation_rules =
+            piece_translation_rules::get_translation_rules_for_piece(piece_type);
+
+        let permitted_by_translation_rules = translation_rules
+            .into_iter()
+            .any(|rule| rule.allows_translation(&self.translation));
+
+        let can_jump = piece_type == &chess_set::PieceType::Knight;
+        let is_obstructed = self.translation.is_obstructed() && !can_jump;
+
+        match permitted_by_translation_rules && !is_obstructed {
+            true => Ok(()),
+            false => Err(MoveValidationError::MoveIsNotLegalForPiece),
+        }
     }
 }
 

@@ -46,7 +46,7 @@ impl Translation {
 
     // Queries.
 
-    pub fn is_obstructed() -> bool {
+    pub fn is_obstructed(&self) -> bool {
         // TODO.
         return false;
     }
