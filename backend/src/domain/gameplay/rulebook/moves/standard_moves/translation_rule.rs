@@ -5,23 +5,37 @@ pub trait TranslationRule {
     fn allows_translation(&self, translation: &translations::Translation) -> bool;
 }
 
-pub struct BasicTranslationRule {
+// Re-usable translation rules.
+
+pub struct SingleSquareTranslation {
     vector: translations::ChessVector,
-    scalable: bool,
 }
 
-impl BasicTranslationRule {
-    pub fn new(vector: translations::ChessVector, scalable: bool) -> Self {
-        Self { vector, scalable }
+pub struct MultiSquareTranslation {
+    vector: translations::ChessVector,
+}
+
+impl SingleSquareTranslation {
+    pub fn new(vector: translations::ChessVector) -> Self {
+        Self { vector }
     }
 }
 
-impl TranslationRule for BasicTranslationRule {
-    // Queries.
+impl TranslationRule for SingleSquareTranslation {
     fn allows_translation(&self, translation: &translations::Translation) -> bool {
-        let vectors_match = self.vector == translation.vector;
-        let scale_allowed = self.scalable || translation.scalar == 1;
-        vectors_match && scale_allowed
+        self.vector == translation.vector && translation.scalar == 1 && !translation.is_obstructed()
+    }
+}
+
+impl MultiSquareTranslation {
+    pub fn new(vector: translations::ChessVector) -> Self {
+        Self { vector}
+    }
+}
+
+impl TranslationRule for MultiSquareTranslation {
+    fn allows_translation(&self, translation: &translations::Translation) -> bool {
+        self.vector == translation.vector && !translation.is_obstructed()
     }
 }
 
@@ -29,68 +43,71 @@ impl TranslationRule for BasicTranslationRule {
 mod tests {
 
     #[cfg(test)]
-    mod translation_rule_is_allowed_tests {
+    mod single_square_translation_tests {
         use super::super::*;
         use rstest::rstest;
 
         #[rstest]
-        #[case::scalable_single_square(true, translations::ChessVector::new(0, -1))]
-        #[case::not_scalable_single_square(false, translations::ChessVector::new(0, -1))]
-        #[case::scalable_multi_square(true, translations::ChessVector::new(2, 1))]
-        #[case::not_scalable_multi_square(false, translations::ChessVector::new(2, 1))]
-        fn allows_unscaled_translation_when_vector_matches_translation_rule(
-            #[case] scalable: bool,
+        #[case::forwards(translations::ChessVector::new(0, 1))]
+        #[case::diagonal(translations::ChessVector::new(-1, 1))]
+        fn allows_single_square_translation_matching_vector(
             #[case] vector: translations::ChessVector,
         ) {
             let translation = translations::Translation::new(vector, 1);
 
-            let translation_rule = BasicTranslationRule::new(vector.clone(), scalable);
+            let translation_rule = SingleSquareTranslation::new(vector.clone());
 
             assert!(translation_rule.allows_translation(&translation));
         }
 
-        #[rstest]
-        #[case::sclable(true)]
-        #[case::not_scalable(false)]
-        fn disallows_unscaled_translation_when_vector_does_not_match_translation_rule(
-            #[case] scalable: bool,
-        ) {
+        #[test]
+        fn disallows_single_square_translation_not_matching_vector() {
             let vector = translations::ChessVector::new(1, -1);
             let translation = translations::Translation::new(vector, 1);
 
             let different_vector = translations::ChessVector::new(-1, 1);
-            let translation_rule = BasicTranslationRule::new(different_vector, scalable);
+            let translation_rule = SingleSquareTranslation::new(different_vector);
 
             assert!(!translation_rule.allows_translation(&translation));
         }
 
         #[test]
-        fn allows_scaled_translation_when_translation_rule_is_scalable() {
-            let vector = translations::ChessVector::new(1, 0);
-            let translation = translations::Translation::new(vector, 7);
+        fn disallows_multi_square_translation_matching_vector() {
+            let vector = translations::ChessVector::new(1, -1);
+            let translation = translations::Translation::new(vector, 3);
 
-            let translation_rule = BasicTranslationRule::new(vector.clone(), true);
+            let translation_rule = SingleSquareTranslation::new(vector.clone());
+
+            assert!(!translation_rule.allows_translation(&translation));
+        }
+    }
+
+    #[cfg(test)]
+    mod multi_square_translation_tests {
+        use super::super::*;
+        use rstest::rstest;
+
+        #[rstest]
+        #[case::single_square_forwards(translations::ChessVector::new(0, 1), 1)]
+        #[case::multi_square_right(translations::ChessVector::new(1, 0), 7)]
+        #[case::multi_square_diagonal(translations::ChessVector::new(-1, 1), 3)]
+        fn allows_single_square_translation_matching_vector(
+            #[case] vector: translations::ChessVector, #[case] scalar: u8
+        ) {
+            let translation = translations::Translation::new(vector, scalar);
+
+            let translation_rule = MultiSquareTranslation::new(vector.clone());
 
             assert!(translation_rule.allows_translation(&translation));
         }
 
         #[test]
-        fn disallows_scaled_translation_for_when_translation_rule_is_not_scalable() {
+        fn disallows_translation_not_matching_vector() {
             let vector = translations::ChessVector::new(0, -1);
             let translation = translations::Translation::new(vector, 3);
 
-            let translation_rule = BasicTranslationRule::new(vector.clone(), false);
-
-            assert!(!translation_rule.allows_translation(&translation));
-        }
-
-        #[test]
-        fn disallows_scaled_translation_when_vector_does_not_match_translation_rule() {
-            let vector = translations::ChessVector::new(0, -1);
-            let translation = translations::Translation::new(vector, 3);
-
-            let different_vector = translations::ChessVector::new(-1, 0);
-            let translation_rule = BasicTranslationRule::new(different_vector, true);
+            let different_vector = translations::ChessVector::new(1, 0);
+            let translation_rule = MultiSquareTranslation::new(different_vector);
 
             assert!(!translation_rule.allows_translation(&translation));
         }
