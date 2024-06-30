@@ -1,4 +1,6 @@
-pub mod castle;
-pub mod en_passant;
-pub mod pawn_promotion;
-pub mod standard_moves;
+mod move_;
+mod pieces;
+mod rule;
+mod translation;
+
+pub use move_::{validate_move, MoveValidationError};

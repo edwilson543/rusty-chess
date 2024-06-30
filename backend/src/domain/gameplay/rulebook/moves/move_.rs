@@ -1,13 +1,13 @@
-use super::{piece_translation_rules, translation_rule, translations};
+use super::{pieces, rule, translation};
 use crate::domain::gameplay::chess_set;
 use std::fmt;
 
-/// A standard move of a single piece from one square to another.
+/// Move a single piece from one square to another.
 pub struct Move<'a> {
     piece: &'a chess_set::Piece,
     from_square: &'a chess_set::Square,
     to_square: &'a chess_set::Square,
-    translation: translations::Translation,
+    pub translation: translation::Translation,
 }
 
 #[derive(thiserror::Error, Debug, PartialEq)]
@@ -18,6 +18,16 @@ pub enum MoveValidationError {
     MoveIsNotLegalForPiece,
 }
 
+pub fn validate_move(
+    chessboard: &chess_set::Chessboard,
+    piece: &chess_set::Piece,
+    from_square: &chess_set::Square,
+    to_square: &chess_set::Square,
+) -> Result<(), MoveValidationError> {
+    let move_ = Move::new(&piece, &from_square, &to_square);
+    move_.validate(&chessboard)
+}
+
 impl<'a> Move<'a> {
     pub fn new(
         piece: &'a chess_set::Piece,
@@ -25,7 +35,7 @@ impl<'a> Move<'a> {
         to_square: &'a chess_set::Square,
     ) -> Self {
         let translation =
-            translations::Translation::from_move(from_square, to_square, piece.get_colour());
+            translation::Translation::from_move(from_square, to_square, piece.get_colour());
 
         Self {
             piece: piece,
@@ -35,7 +45,7 @@ impl<'a> Move<'a> {
         }
     }
 
-    pub fn validate(&self, chessboard: &chess_set::Chessboard) -> Result<(), MoveValidationError> {
+    fn validate(&self, chessboard: &chess_set::Chessboard) -> Result<(), MoveValidationError> {
         if self.from_square == self.to_square {
             return Err(MoveValidationError::CannotMovePieceToSameSquare);
         };
@@ -72,13 +82,10 @@ impl<'a> Move<'a> {
 
     fn validate_translation_is_legal(&self) -> Result<(), MoveValidationError> {
         let piece_type = self.piece.get_piece_type();
-        let mut translation_rules =
-            piece_translation_rules::get_translation_rules_for_piece(piece_type);
+        let mut translation_rules = pieces::get_rules_for_piece(piece_type);
 
         let permitted_by_translation_rules =
-            translation_rules.any(|rule: Box<dyn translation_rule::TranslationRule>| {
-                rule.allows_translation(&self.translation)
-            });
+            translation_rules.any(|rule: Box<dyn rule::Rule>| rule.allows_move(&self));
 
         let can_jump = piece_type == &chess_set::PieceType::Knight;
         let is_obstructed = self.translation.is_obstructed() && !can_jump;
@@ -109,9 +116,8 @@ mod tests {
         let from_square = chess_set::Square::new(chess_set::Rank::TWO, chess_set::File::A);
         let to_square = chess_set::Square::new(chess_set::Rank::THREE, chess_set::File::A);
         let piece = chessboard.get_piece(&from_square).unwrap();
-        let move_ = Move::new(&piece, &from_square, &to_square);
 
-        let result = move_.validate(&chessboard);
+        let result = validate_move(&chessboard, &piece, &from_square, &to_square);
 
         assert_eq!(result, Ok(()));
     }
@@ -127,9 +133,8 @@ mod tests {
             let chessboard = factories::chessboard();
             let square = chess_set::Square::new(chess_set::Rank::TWO, chess_set::File::A);
             let piece = chessboard.get_piece(&square).unwrap();
-            let move_ = Move::new(&piece, &square, &square);
 
-            let result = move_.validate(&chessboard);
+            let result = validate_move(&chessboard, &piece, &square, &square);
 
             assert_eq!(
                 result,
@@ -148,9 +153,7 @@ mod tests {
                 chess_set::Piece::new(piece.get_colour().clone(), chess_set::PieceType::Pawn);
             let _ = chessboard.add_piece(other_piece, &to_square);
 
-            let move_ = Move::new(&piece, &from_square, &to_square);
-
-            let result = move_.validate(&chessboard);
+            let result = validate_move(&chessboard, &piece, &from_square, &to_square);
 
             assert_eq!(result, Err(MoveValidationError::CannotCaptureOwnPiece));
         }
@@ -166,9 +169,7 @@ mod tests {
                 chess_set::Piece::new(chess_set::Colour::Black, chess_set::PieceType::King);
             let _ = chessboard.add_piece(black_king, &to_square);
 
-            let move_ = Move::new(&white_pawn, &from_square, &to_square);
-
-            let result = move_.validate(&chessboard);
+            let result = validate_move(&chessboard, &white_pawn, &from_square, &to_square);
 
             assert_eq!(result, Err(MoveValidationError::CannotCaptureOpponentKing));
         }
