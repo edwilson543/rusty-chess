@@ -1,9 +1,5 @@
-struct PermittedTranslation;
-
-impl PermittedTranslation {
-    // pub fn get_for_piece() -> Vec<PermittedTranslation> {}
-    //
-    // fn get_for_pawn() -> Vec<PermittedTranslation> {}
-
-    // etc. single dispatch?
+pub fn is_translation_allowed_for_piece() -> bool {
+    // Check translation is allowed for piece.
+    // Check translation is unobstructed (if not a knight).
+    false
 }

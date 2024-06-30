@@ -43,9 +43,7 @@ impl<'a> Move<'a> {
             return Err(error);
         }
 
-        // Check translation is allowed for piece.
-        // Check translation is unobstructed (if not a knight).
-        // Check would not be left in check.
+        // TODO -> validate translation.
         Ok(())
     }
 

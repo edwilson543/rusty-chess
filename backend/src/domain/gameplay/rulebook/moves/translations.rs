@@ -50,6 +50,24 @@ impl Translation {
             scalar: scalar as u8,
         }
     }
+
+    pub fn is_obstructed() -> bool {
+        // TODO.
+        return false;
+    }
+}
+
+struct PermittedTranslation {
+    vector: ChessVector,
+    scalable: bool,
+}
+
+impl PermittedTranslation {
+    pub fn is_translation_allowed_for_piece()
+
+    fn is_allowed() -> bool {
+        return false
+    }
 }
 
 /// Euclid's algorithm, extended to support negative numbers.
