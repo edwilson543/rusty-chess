@@ -3,23 +3,11 @@ use std::cmp;
 use std::fmt;
 use std::ops;
 
-#[derive(Debug, PartialEq)]
-struct ChessVector {
-    x: i8,
-    y: i8,
-}
-
-impl ChessVector {
-    pub fn new(x: i8, y: i8) -> Self {
-        Self { x: x, y: y }
-    }
-}
-
 /// Geometric representation of a chess move, used to simplify validation logic.
 #[derive(Debug, PartialEq)]
 pub struct Translation {
-    vector: ChessVector,
-    scalar: u8,
+    pub vector: ChessVector,
+    pub scalar: u8,
 }
 
 impl Translation {
@@ -56,24 +44,23 @@ impl Translation {
         }
     }
 
+    // Queries.
+
     pub fn is_obstructed() -> bool {
         // TODO.
         return false;
     }
 }
 
-struct PermittedTranslation {
-    vector: ChessVector,
-    scalable: bool,
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub struct ChessVector {
+    x: i8,
+    y: i8,
 }
 
-impl PermittedTranslation {
-    pub fn is_translation_allowed_for_piece() -> bool {
-        return false;
-    }
-
-    fn is_allowed() -> bool {
-        return false;
+impl ChessVector {
+    pub fn new(x: i8, y: i8) -> Self {
+        Self { x: x, y: y }
     }
 }
 
