@@ -12,7 +12,7 @@ pub struct Translation {
 
 impl Translation {
     // Factories.
-    pub fn new(vector: ChessVector, scalar: u8) -> Self {
+    fn new(vector: ChessVector, scalar: u8) -> Self {
         Self { vector, scalar }
     }
 

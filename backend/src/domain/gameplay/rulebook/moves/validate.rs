@@ -1,14 +1,6 @@
-use super::{pieces, rule, translation};
 use crate::domain::gameplay::chess_set;
+use crate::domain::gameplay::rulebook::moves::{move_rule, pieces};
 use std::fmt;
-
-/// Move a single piece from one square to another.
-pub struct Move<'a> {
-    piece: &'a chess_set::Piece,
-    from_square: &'a chess_set::Square,
-    to_square: &'a chess_set::Square,
-    pub translation: translation::Translation,
-}
 
 #[derive(thiserror::Error, Debug, PartialEq)]
 pub enum MoveValidationError {
@@ -24,76 +16,52 @@ pub fn validate_move(
     from_square: &chess_set::Square,
     to_square: &chess_set::Square,
 ) -> Result<(), MoveValidationError> {
-    let move_ = Move::new(&piece, &from_square, &to_square);
-    move_.validate(&chessboard)
+    if from_square == to_square {
+        return Err(MoveValidationError::CannotMovePieceToSameSquare);
+    };
+
+    if let Err(error) = validate_occupant_of_target_square(chessboard, piece, to_square) {
+        return Err(error);
+    }
+
+    let move_ = move_rule::Move::new(piece, from_square, to_square);
+    if let Err(error) = validate_move_is_legal_legal(move_) {
+        return Err(error);
+    }
+
+    Ok(())
 }
 
-impl<'a> Move<'a> {
-    pub fn new(
-        piece: &'a chess_set::Piece,
-        from_square: &'a chess_set::Square,
-        to_square: &'a chess_set::Square,
-    ) -> Self {
-        let translation =
-            translation::Translation::from_move(from_square, to_square, piece.get_colour());
+fn validate_occupant_of_target_square(
+    chessboard: &chess_set::Chessboard,
+    piece: &chess_set::Piece,
+    to_square: &chess_set::Square,
+) -> Result<(), MoveValidationError> {
+    let Some(opponent_piece) = chessboard.get_piece(to_square) else {
+        return Ok(());
+    };
 
-        Self {
-            piece: piece,
-            from_square: from_square,
-            to_square: to_square,
-            translation: translation,
-        }
-    }
+    if opponent_piece.get_colour() == piece.get_colour() {
+        return Err(MoveValidationError::CannotCaptureOwnPiece);
+    };
 
-    fn validate(&self, chessboard: &chess_set::Chessboard) -> Result<(), MoveValidationError> {
-        if self.from_square == self.to_square {
-            return Err(MoveValidationError::CannotMovePieceToSameSquare);
-        };
+    if opponent_piece.get_piece_type() == &chess_set::PieceType::King {
+        return Err(MoveValidationError::CannotCaptureOpponentKing);
+    };
 
-        if let Err(error) = self.validate_occupant_of_target_square(chessboard) {
-            return Err(error);
-        }
+    Ok(())
+}
 
-        if let Err(error) = self.validate_translation_is_legal() {
-            return Err(error);
-        }
+fn validate_move_is_legal_legal(move_: move_rule::Move) -> Result<(), MoveValidationError> {
+    let piece_type = move_.piece.get_piece_type();
+    let mut translation_rules = pieces::get_rules_for_piece(piece_type);
 
-        Ok(())
-    }
+    let permitted_by_translation_rules =
+        translation_rules.any(|rule: Box<dyn move_rule::MoveRule>| rule.allows_move(&move_));
 
-    fn validate_occupant_of_target_square(
-        &self,
-        chessboard: &chess_set::Chessboard,
-    ) -> Result<(), MoveValidationError> {
-        let Some(opponent_piece) = chessboard.get_piece(self.to_square) else {
-            return Ok(());
-        };
-
-        if opponent_piece.get_colour() == self.piece.get_colour() {
-            return Err(MoveValidationError::CannotCaptureOwnPiece);
-        };
-
-        if opponent_piece.get_piece_type() == &chess_set::PieceType::King {
-            return Err(MoveValidationError::CannotCaptureOpponentKing);
-        };
-
-        Ok(())
-    }
-
-    fn validate_translation_is_legal(&self) -> Result<(), MoveValidationError> {
-        let piece_type = self.piece.get_piece_type();
-        let mut translation_rules = pieces::get_rules_for_piece(piece_type);
-
-        let permitted_by_translation_rules =
-            translation_rules.any(|rule: Box<dyn rule::Rule>| rule.allows_move(&self));
-
-        let can_jump = piece_type == &chess_set::PieceType::Knight;
-        let is_obstructed = self.translation.is_obstructed() && !can_jump;
-
-        match permitted_by_translation_rules && !is_obstructed {
-            true => Ok(()),
-            false => Err(MoveValidationError::MoveIsNotLegalForPiece),
-        }
+    match permitted_by_translation_rules {
+        true => Ok(()),
+        false => Err(MoveValidationError::MoveIsNotLegalForPiece),
     }
 }
 

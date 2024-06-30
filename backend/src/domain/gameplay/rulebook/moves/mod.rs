@@ -1,6 +1,6 @@
-mod move_;
+mod move_rule;
 mod pieces;
-mod rule;
 mod translation;
+mod validate;
 
-pub use move_::{validate_move, MoveValidationError};
+pub use validate::{validate_move, MoveValidationError};

@@ -1,9 +1,35 @@
-use super::move_;
 use super::translation;
+use crate::domain::gameplay::chess_set;
+
+/// A move of a single piece from one square to another.
+pub struct Move<'a> {
+    pub piece: &'a chess_set::Piece,
+    pub from_square: &'a chess_set::Square,
+    pub to_square: &'a chess_set::Square,
+    pub translation: translation::Translation,
+}
+
+impl<'a> Move<'a> {
+    pub fn new(
+        piece: &'a chess_set::Piece,
+        from_square: &'a chess_set::Square,
+        to_square: &'a chess_set::Square,
+    ) -> Self {
+        let translation =
+            translation::Translation::from_move(from_square, to_square, piece.get_colour());
+
+        Self {
+            piece: piece,
+            from_square: from_square,
+            to_square: to_square,
+            translation: translation,
+        }
+    }
+}
 
 /// Mechanism for defining whether a certain translation is allowed.
-pub trait Rule {
-    fn allows_move(&self, move_: &move_::Move) -> bool;
+pub trait MoveRule {
+    fn allows_move(&self, move_: &Move) -> bool;
 }
 
 // Re-usable translation rules.
@@ -22,8 +48,8 @@ impl SingleSquareMove {
     }
 }
 
-impl Rule for SingleSquareMove {
-    fn allows_move(&self, move_: &move_::Move) -> bool {
+impl MoveRule for SingleSquareMove {
+    fn allows_move(&self, move_: &Move) -> bool {
         let translation = &move_.translation;
         self.vector == translation.vector && translation.scalar == 1 && !translation.is_obstructed()
     }
@@ -35,8 +61,8 @@ impl MultiSquareMove {
     }
 }
 
-impl Rule for MultiSquareMove {
-    fn allows_move(&self, move_: &move_::Move) -> bool {
+impl MoveRule for MultiSquareMove {
+    fn allows_move(&self, move_: &Move) -> bool {
         let translation = &move_.translation;
         self.vector == translation.vector && !translation.is_obstructed()
     }
@@ -49,7 +75,6 @@ mod tests {
     mod single_square_translation_tests {
         use super::super::*;
         use crate::domain::gameplay::chess_set::{File, Rank, Square};
-        use crate::domain::gameplay::rulebook::moves::move_::Move;
         use crate::domain::gameplay::rulebook::moves::translation;
         use crate::testing::factories;
 
@@ -96,7 +121,6 @@ mod tests {
     mod multi_square_translation_tests {
         use super::super::*;
         use crate::domain::gameplay::chess_set::{File, Rank, Square};
-        use crate::domain::gameplay::rulebook::moves::move_::Move;
         use crate::testing::factories;
 
         fn allows_multi_square_move() {
