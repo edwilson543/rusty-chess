@@ -2,29 +2,29 @@ use super::translation;
 use crate::domain::gameplay::chess_set;
 
 /// A move of a single piece from one square to another.
-pub struct Move<'a> {
-    pub chessboard: &'a chess_set::Chessboard,
-    pub piece: &'a chess_set::Piece,
-    pub from_square: &'a chess_set::Square,
-    pub to_square: &'a chess_set::Square,
+pub struct Move {
+    pub chessboard: chess_set::Chessboard,
+    pub piece: chess_set::Piece,
+    pub from_square: chess_set::Square,
+    pub to_square: chess_set::Square,
     pub translation: translation::Translation,
 }
 
-impl<'a> Move<'a> {
+impl Move {
     pub fn new(
-        chessboard: &'a chess_set::Chessboard,
-        piece: &'a chess_set::Piece,
-        from_square: &'a chess_set::Square,
-        to_square: &'a chess_set::Square,
+        chessboard: &chess_set::Chessboard,
+        piece: &chess_set::Piece,
+        from_square: &chess_set::Square,
+        to_square: &chess_set::Square,
     ) -> Self {
         let translation =
             translation::Translation::from_move(from_square, to_square, piece.get_colour());
 
         Self {
-            chessboard: chessboard,
-            piece: piece,
-            from_square: from_square,
-            to_square: to_square,
+            chessboard: chessboard.clone(),
+            piece: piece.clone(),
+            from_square: from_square.clone(),
+            to_square: to_square.clone(),
             translation: translation,
         }
     }

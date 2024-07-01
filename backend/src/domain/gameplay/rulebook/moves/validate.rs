@@ -15,7 +15,7 @@ pub fn validate_move(
     piece: &chess_set::Piece,
     from_square: &chess_set::Square,
     to_square: &chess_set::Square,
-) -> Result<(), MoveValidationError> {
+) -> Result<move_rule::Move, MoveValidationError> {
     if from_square == to_square {
         return Err(MoveValidationError::CannotMovePieceToSameSquare);
     };
@@ -25,11 +25,11 @@ pub fn validate_move(
     }
 
     let move_ = move_rule::Move::new(chessboard, piece, from_square, to_square);
-    if let Err(error) = validate_move_is_legal(move_) {
+    if let Err(error) = validate_move_is_legal(&move_) {
         return Err(error);
     }
 
-    Ok(())
+    Ok(move_)
 }
 
 fn validate_occupant_of_target_square(
@@ -52,7 +52,7 @@ fn validate_occupant_of_target_square(
     Ok(())
 }
 
-fn validate_move_is_legal(move_: move_rule::Move) -> Result<(), MoveValidationError> {
+fn validate_move_is_legal(move_: &move_rule::Move) -> Result<(), MoveValidationError> {
     let piece_type = move_.piece.get_piece_type();
     let mut move_rules = pieces::get_rules_for_piece(piece_type);
 
@@ -87,7 +87,7 @@ mod tests {
 
         let result = validate_move(&chessboard, &piece, &from_square, &to_square);
 
-        assert_eq!(result, Ok(()));
+        assert!(result.is_ok());
     }
 
     #[cfg(test)]
@@ -104,10 +104,11 @@ mod tests {
 
             let result = validate_move(&chessboard, &piece, &square, &square);
 
-            assert_eq!(
-                result,
-                Err(MoveValidationError::CannotMovePieceToSameSquare)
-            );
+            let expected_error = MoveValidationError::CannotMovePieceToSameSquare;
+            match result {
+                Err(error) => assert_eq!(error, expected_error),
+                Ok(validated_move) => assert!(false),
+            }
         }
 
         #[test]
@@ -123,7 +124,11 @@ mod tests {
 
             let result = validate_move(&chessboard, &piece, &from_square, &to_square);
 
-            assert_eq!(result, Err(MoveValidationError::CannotCaptureOwnPiece));
+            let expected_error = MoveValidationError::CannotCaptureOwnPiece;
+            match result {
+                Err(error) => assert_eq!(error, expected_error),
+                Ok(validated_move) => assert!(false),
+            }
         }
 
         #[test]
@@ -139,7 +144,11 @@ mod tests {
 
             let result = validate_move(&chessboard, &white_pawn, &from_square, &to_square);
 
-            assert_eq!(result, Err(MoveValidationError::CannotCaptureOpponentKing));
+            let expected_error = MoveValidationError::CannotCaptureOpponentKing;
+            match result {
+                Err(error) => assert_eq!(error, expected_error),
+                Ok(validated_move) => assert!(false),
+            }
         }
     }
 }

@@ -55,7 +55,7 @@ fn is_first_move_for_pawn(move_: &move_rule::Move) -> bool {
 }
 
 fn is_square_occupied_by_opponent_piece(move_: &move_rule::Move) -> bool {
-    let Some(piece) = move_.chessboard.get_piece(move_.to_square) else {
+    let Some(piece) = move_.chessboard.get_piece(&move_.to_square) else {
         return false;
     };
     piece.get_colour() != move_.piece.get_colour()
