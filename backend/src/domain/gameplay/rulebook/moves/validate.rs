@@ -107,7 +107,7 @@ mod tests {
             let expected_error = MoveValidationError::CannotMovePieceToSameSquare;
             match result {
                 Err(error) => assert_eq!(error, expected_error),
-                Ok(validated_move) => assert!(false),
+                Ok(_) => assert!(false),
             }
         }
 
@@ -127,7 +127,7 @@ mod tests {
             let expected_error = MoveValidationError::CannotCaptureOwnPiece;
             match result {
                 Err(error) => assert_eq!(error, expected_error),
-                Ok(validated_move) => assert!(false),
+                Ok(_) => assert!(false),
             }
         }
 
@@ -147,7 +147,7 @@ mod tests {
             let expected_error = MoveValidationError::CannotCaptureOpponentKing;
             match result {
                 Err(error) => assert_eq!(error, expected_error),
-                Ok(validated_move) => assert!(false),
+                Ok(_) => assert!(false),
             }
         }
     }

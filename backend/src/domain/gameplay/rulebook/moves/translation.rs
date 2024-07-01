@@ -12,10 +12,6 @@ pub struct Translation {
 
 impl Translation {
     // Factories.
-    fn new(vector: ChessVector, scalar: u8) -> Self {
-        Self { vector, scalar }
-    }
-
     pub fn from_move(
         from_square: &chess_set::Square,
         to_square: &chess_set::Square,
