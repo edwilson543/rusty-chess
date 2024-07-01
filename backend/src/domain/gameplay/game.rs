@@ -1,27 +1,6 @@
+use super::commands::{Command, CommandHandlingError};
 use crate::domain::gameplay::chess_set;
 use crate::domain::gameplay::rulebook;
-
-enum Command {
-    MakeStandardMove {
-        from_square: chess_set::Square,
-        to_square: chess_set::Square,
-    },
-}
-
-#[derive(thiserror::Error, Debug, PartialEq)]
-enum CommandHandlingError {
-    #[error("{0}")]
-    ChessboardActionError(chess_set::ChessboardActionError),
-
-    #[error("The game has already ended.")]
-    GameHasAlreadyEnded,
-
-    #[error("Move is out of turn - it's currently {0}'s turn.")]
-    PlayIsOutOfTurn(chess_set::Colour),
-
-    #[error("{0}")]
-    MoveValidationError(rulebook::MoveValidationError),
-}
 
 #[derive(Debug, PartialEq)]
 enum GameStatus {
@@ -37,9 +16,8 @@ struct Game {
     command_history: Vec<Command>,
 }
 
+// Public interface.
 impl Game {
-    // Factories.
-
     pub fn new() -> Self {
         let starting_position = rulebook::get_official_starting_position();
         let chessboard = chess_set::Chessboard::new(starting_position);
@@ -50,14 +28,6 @@ impl Game {
             status: GameStatus::ToPlay(chess_set::Colour::White),
         }
     }
-
-    // Queries.
-
-    fn get_piece_at_square(&self, square: &chess_set::Square) -> Option<chess_set::Piece> {
-        self.chessboard.get_piece(square)
-    }
-
-    // Mutators.
 
     pub fn handle_command(
         &mut self,
@@ -79,6 +49,13 @@ impl Game {
         self.command_history.push(command);
         self.progress_game_status(to_play_colour);
         Ok(&self.status)
+    }
+}
+
+// Private interface.
+impl Game {
+    fn get_piece_at_square(&self, square: &chess_set::Square) -> Option<chess_set::Piece> {
+        self.chessboard.get_piece(square)
     }
 
     fn progress_game_status(&mut self, just_played_colour: chess_set::Colour) {
@@ -119,7 +96,7 @@ impl Game {
 mod tests {
 
     #[cfg(test)]
-    mod command_handler_tests {
+    mod handle_command_tests {
         use super::super::*;
 
         #[test]
