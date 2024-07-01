@@ -14,7 +14,7 @@ impl SingleSquareMove {
 impl move_rule::MoveRule for SingleSquareMove {
     fn allows_move(&self, move_: &move_rule::Move) -> bool {
         let translation = &move_.translation;
-        self.vector == translation.vector && translation.scalar == 1 && !translation.is_obstructed()
+        self.vector == translation.vector && translation.scalar == 1
     }
 }
 
