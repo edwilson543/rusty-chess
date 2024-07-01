@@ -3,14 +3,14 @@ use crate::domain::gameplay::chess_set;
 use std::vec;
 
 pub fn get_pawn_move_rules() -> vec::IntoIter<Box<dyn move_rule::MoveRule>> {
-    let one_square_forwards_rule =
+    let one_square_forwards_move =
         common::SingleSquareMove::new(translation::ChessVector::new(0, 1));
 
+    // Note: En passant is implemented elsewhere.
     let rules = vec![
-        // En passant is implemented elsewhere.
-        Box::new(one_square_forwards_rule) as Box<dyn move_rule::MoveRule>,
+        Box::new(one_square_forwards_move) as Box<dyn move_rule::MoveRule>,
         Box::new(TwoSquaresForwardMove) as Box<dyn move_rule::MoveRule>,
-        // TODO -> pawn capture!
+        Box::new(ForwardsDiagonalCapture) as Box<dyn move_rule::MoveRule>,
     ];
 
     rules.into_iter()
@@ -30,11 +30,35 @@ impl move_rule::MoveRule for TwoSquaresForwardMove {
     }
 }
 
-fn is_first_move_for_pawn(move_: &move_rule::Move) -> bool {
-    match move_.piece.get_colour() {
-        chess_set::Colour::White => move_.from_square.get_rank() == &chess_set::Rank::TWO,
-        chess_set::Colour::Black => move_.from_square.get_rank() == &chess_set::Rank::SEVEN,
+struct ForwardsDiagonalCapture;
+
+impl move_rule::MoveRule for ForwardsDiagonalCapture {
+    fn allows_move(&self, move_: &move_rule::Move) -> bool {
+        let forwards_and_right = translation::ChessVector::new(1, 1);
+        let forwards_and_left = translation::ChessVector::new(-1, 1);
+
+        let is_forwards_diagonal = move_.translation.vector == forwards_and_right
+            || move_.translation.vector == forwards_and_left;
+
+        let is_capture = is_square_occupied_by_opponent_piece(move_);
+
+        is_forwards_diagonal && move_.translation.scalar == 1 && is_capture
     }
+}
+
+fn is_first_move_for_pawn(move_: &move_rule::Move) -> bool {
+    let starting_rank = match move_.piece.get_colour() {
+        chess_set::Colour::White => &chess_set::Rank::TWO,
+        chess_set::Colour::Black => &chess_set::Rank::SEVEN,
+    };
+    move_.from_square.get_rank() == starting_rank
+}
+
+fn is_square_occupied_by_opponent_piece(move_: &move_rule::Move) -> bool {
+    let Some(piece) = move_.chessboard.get_piece(move_.to_square) else {
+        return false;
+    };
+    piece.get_colour() != move_.piece.get_colour()
 }
 
 #[cfg(test)]
@@ -99,13 +123,38 @@ mod tests {
     }
 
     #[test]
-    fn can_capture_diagonally() {
-        // TODO -> test both directions.
+    fn white_can_capture_diagonally() {
+        let from_square = Square::new(Rank::TWO, File::F);
+        let to_square = Square::new(Rank::THREE, File::E);
+        let white_pawn = Piece::new(Colour::White, PieceType::Pawn);
+
+        let mut chessboard = factories::chessboard();
+        let black_pawn = Piece::new(Colour::Black, PieceType::Pawn);
+        chessboard.add_piece(black_pawn, &to_square);
+
+        let move_ = Move::new(&chessboard, &white_pawn, &from_square, &to_square);
+
+        assert!(is_move_allowed(&move_));
+    }
+
+    #[test]
+    fn black_can_capture_diagonally() {
+        let from_square = Square::new(Rank::SEVEN, File::D);
+        let to_square = Square::new(Rank::SIX, File::E);
+        let black_pawn = Piece::new(Colour::Black, PieceType::Pawn);
+
+        let mut chessboard = factories::chessboard();
+        let white_pawn = Piece::new(Colour::White, PieceType::Pawn);
+        chessboard.add_piece(white_pawn, &to_square);
+
+        let move_ = Move::new(&chessboard, &black_pawn, &from_square, &to_square);
+
+        assert!(is_move_allowed(&move_));
     }
 
     // Disallowed
     #[test]
-    fn cannot_move_SIDEWAYS() {
+    fn cannot_move_sideways() {
         let from_square = Square::new(Rank::THREE, File::F);
         let to_square = Square::new(Rank::THREE, File::E);
         let pawn = Piece::new(Colour::White, PieceType::Pawn);
