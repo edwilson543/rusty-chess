@@ -1,0 +1,127 @@
+use core::array;
+use std::fmt;
+
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
+pub enum Rank {
+    One,
+    Two,
+    Three,
+    Four,
+    Five,
+    Six,
+    Seven,
+    Eight,
+}
+
+impl Rank {
+    pub fn iter() -> array::IntoIter<Self, 8> {
+        [
+            Rank::One,
+            Rank::Two,
+            Rank::Three,
+            Rank::Four,
+            Rank::Five,
+            Rank::Six,
+            Rank::Seven,
+            Rank::Eight,
+        ]
+        .into_iter()
+    }
+
+    pub fn index(&self) -> i8 {
+        match self {
+            Rank::One => 1,
+            Rank::Two => 2,
+            Rank::Three => 3,
+            Rank::Four => 4,
+            Rank::Five => 5,
+            Rank::Six => 6,
+            Rank::Seven => 7,
+            Rank::Eight => 8,
+        }
+    }
+}
+
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
+pub enum File {
+    A,
+    B,
+    C,
+    D,
+    E,
+    F,
+    G,
+    H,
+}
+
+impl File {
+    pub fn iter() -> array::IntoIter<Self, 8> {
+        [
+            File::A,
+            File::B,
+            File::C,
+            File::D,
+            File::E,
+            File::F,
+            File::G,
+            File::H,
+        ]
+        .into_iter()
+    }
+
+    pub fn index(&self) -> i8 {
+        match self {
+            File::A => 1,
+            File::B => 2,
+            File::C => 3,
+            File::D => 4,
+            File::E => 5,
+            File::F => 6,
+            File::G => 7,
+            File::H => 8,
+        }
+    }
+}
+
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
+pub struct Square {
+    rank: Rank,
+    file: File,
+}
+
+impl Square {
+    pub fn new(rank: Rank, file: File) -> Self {
+        Self {
+            rank: rank,
+            file: file,
+        }
+    }
+
+    pub fn get_rank(&self) -> &Rank {
+        &self.rank
+    }
+
+    pub fn get_file(&self) -> &File {
+        &self.file
+    }
+}
+
+// Trait implementations.
+
+impl fmt::Display for Rank {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+
+impl fmt::Display for File {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+
+impl fmt::Display for Square {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}, {}", self.file, self.rank)
+    }
+}
