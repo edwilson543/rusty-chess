@@ -2,7 +2,7 @@
 pub struct Player {}
 
 impl Player {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Self {}
     }
 }

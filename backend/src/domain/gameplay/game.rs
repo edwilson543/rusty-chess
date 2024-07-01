@@ -1,4 +1,5 @@
 use super::commands::{Command, CommandHandlingError};
+use super::player::Player;
 use crate::domain::gameplay::chess_set;
 use crate::domain::gameplay::rulebook;
 
@@ -10,7 +11,9 @@ enum GameStatus {
 }
 
 /// Event sourced representation of a game of chess.
-struct Game {
+pub struct Game {
+    white_player: Player,
+    black_player: Player,
     chessboard: chess_set::Chessboard,
     status: GameStatus,
     command_history: Vec<Command>,
@@ -18,11 +21,13 @@ struct Game {
 
 // Public interface.
 impl Game {
-    pub fn new() -> Self {
+    pub fn new(white_player: Player, black_player: Player) -> Self {
         let starting_position = rulebook::get_official_starting_position();
         let chessboard = chess_set::Chessboard::new(starting_position);
 
         Self {
+            white_player: white_player,
+            black_player: black_player,
             chessboard: chessboard,
             command_history: vec![],
             status: GameStatus::ToPlay(chess_set::Colour::White),
@@ -98,10 +103,11 @@ mod tests {
     #[cfg(test)]
     mod handle_command_tests {
         use super::super::*;
+        use crate::testing::factories;
 
         #[test]
         fn can_make_1e4_opening() {
-            let mut game = Game::new();
+            let mut game = factories::game();
 
             let from_square = chess_set::Square::new(chess_set::Rank::TWO, chess_set::File::E);
             let to_square = chess_set::Square::new(chess_set::Rank::FOUR, chess_set::File::E);
@@ -119,7 +125,7 @@ mod tests {
 
         #[test]
         fn errors_for_opening_made_by_black() {
-            let mut game = Game::new();
+            let mut game = factories::game();
 
             let from_square = chess_set::Square::new(chess_set::Rank::SEVEN, chess_set::File::C);
             let to_square = chess_set::Square::new(chess_set::Rank::SIX, chess_set::File::C);
@@ -138,7 +144,7 @@ mod tests {
 
         #[test]
         fn errors_for_opening_from_empty_square() {
-            let mut game = Game::new();
+            let mut game = factories::game();
 
             let from_square = chess_set::Square::new(chess_set::Rank::THREE, chess_set::File::H);
             let to_square = chess_set::Square::new(chess_set::Rank::FOUR, chess_set::File::H);
