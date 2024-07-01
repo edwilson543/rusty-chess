@@ -2,7 +2,7 @@ use crate::domain::gameplay::{chess_set, rulebook};
 use thiserror;
 
 pub enum Command {
-    MakeStandardMove {
+    MakeMove {
         from_square: chess_set::Square,
         to_square: chess_set::Square,
     },

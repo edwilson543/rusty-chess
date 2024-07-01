@@ -43,7 +43,7 @@ impl Game {
         };
 
         if let Err(handling_error) = match command {
-            Command::MakeStandardMove {
+            Command::MakeMove {
                 from_square,
                 to_square,
             } => self.make_move(&from_square, &to_square, &to_play_colour),
@@ -111,7 +111,7 @@ mod tests {
 
             let from_square = chess_set::Square::new(chess_set::Rank::TWO, chess_set::File::E);
             let to_square = chess_set::Square::new(chess_set::Rank::FOUR, chess_set::File::E);
-            let opening_move = Command::MakeStandardMove {
+            let opening_move = Command::MakeMove {
                 from_square,
                 to_square,
             };
@@ -129,7 +129,7 @@ mod tests {
 
             let from_square = chess_set::Square::new(chess_set::Rank::SEVEN, chess_set::File::C);
             let to_square = chess_set::Square::new(chess_set::Rank::SIX, chess_set::File::C);
-            let opening_move = Command::MakeStandardMove {
+            let opening_move = Command::MakeMove {
                 from_square,
                 to_square,
             };
@@ -148,7 +148,7 @@ mod tests {
 
             let from_square = chess_set::Square::new(chess_set::Rank::THREE, chess_set::File::H);
             let to_square = chess_set::Square::new(chess_set::Rank::FOUR, chess_set::File::H);
-            let opening_move = Command::MakeStandardMove {
+            let opening_move = Command::MakeMove {
                 from_square,
                 to_square,
             };
