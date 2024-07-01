@@ -81,8 +81,8 @@ mod tests {
     #[test]
     fn can_move_piece_to_empty_square() {
         let chessboard = factories::chessboard();
-        let from_square = chess_set::Square::new(chess_set::Rank::TWO, chess_set::File::A);
-        let to_square = chess_set::Square::new(chess_set::Rank::THREE, chess_set::File::A);
+        let from_square = chess_set::Square::new(chess_set::Rank::Two, chess_set::File::A);
+        let to_square = chess_set::Square::new(chess_set::Rank::Three, chess_set::File::A);
         let piece = chessboard.get_piece(&from_square).unwrap();
 
         let result = validate_move(&chessboard, &piece, &from_square, &to_square);
@@ -99,7 +99,7 @@ mod tests {
         #[test]
         fn cannot_move_piece_to_same_square() {
             let chessboard = factories::chessboard();
-            let square = chess_set::Square::new(chess_set::Rank::TWO, chess_set::File::A);
+            let square = chess_set::Square::new(chess_set::Rank::Two, chess_set::File::A);
             let piece = chessboard.get_piece(&square).unwrap();
 
             let result = validate_move(&chessboard, &piece, &square, &square);
@@ -113,10 +113,10 @@ mod tests {
         #[test]
         fn cannot_move_piece_to_square_occupied_by_another_piece_of_the_same_colour() {
             let mut chessboard = factories::chessboard();
-            let from_square = chess_set::Square::new(chess_set::Rank::TWO, chess_set::File::A);
+            let from_square = chess_set::Square::new(chess_set::Rank::Two, chess_set::File::A);
             let piece = chessboard.get_piece(&from_square).unwrap();
 
-            let to_square = chess_set::Square::new(chess_set::Rank::THREE, chess_set::File::A);
+            let to_square = chess_set::Square::new(chess_set::Rank::Three, chess_set::File::A);
             let other_piece =
                 chess_set::Piece::new(piece.get_colour().clone(), chess_set::PieceType::Pawn);
             let _ = chessboard.add_piece(other_piece, &to_square);
@@ -129,10 +129,10 @@ mod tests {
         #[test]
         fn cannot_capture_opponent_king() {
             let mut chessboard = factories::chessboard();
-            let from_square = chess_set::Square::new(chess_set::Rank::TWO, chess_set::File::A);
+            let from_square = chess_set::Square::new(chess_set::Rank::Two, chess_set::File::A);
             let white_pawn = chessboard.get_piece(&from_square).unwrap();
 
-            let to_square = chess_set::Square::new(chess_set::Rank::THREE, chess_set::File::B);
+            let to_square = chess_set::Square::new(chess_set::Rank::Three, chess_set::File::B);
             let black_king =
                 chess_set::Piece::new(chess_set::Colour::Black, chess_set::PieceType::King);
             let _ = chessboard.add_piece(black_king, &to_square);

@@ -28,8 +28,8 @@ mod tests {
 
     #[test]
     fn allows_multi_square_move_forward_white() {
-        let from_square = Square::new(Rank::ONE, File::A);
-        let to_square = Square::new(Rank::THREE, File::A);
+        let from_square = Square::new(Rank::One, File::A);
+        let to_square = Square::new(Rank::Three, File::A);
         let piece = Piece::new(Colour::White, PieceType::Rook);
 
         let chessboard = factories::chessboard();
@@ -42,8 +42,8 @@ mod tests {
 
     #[test]
     fn allows_multi_square_move_forward_back() {
-        let from_square = Square::new(Rank::FIVE, File::D);
-        let to_square = Square::new(Rank::THREE, File::D);
+        let from_square = Square::new(Rank::Five, File::D);
+        let to_square = Square::new(Rank::Three, File::D);
         let piece = Piece::new(Colour::Black, PieceType::Rook);
 
         let chessboard = factories::chessboard();
@@ -56,8 +56,8 @@ mod tests {
 
     #[test]
     fn disallows_move_in_wrong_direction() {
-        let from_square = Square::new(Rank::ONE, File::A);
-        let to_square = Square::new(Rank::THREE, File::C);
+        let from_square = Square::new(Rank::One, File::A);
+        let to_square = Square::new(Rank::Three, File::C);
         let piece = factories::some_piece();
 
         let chessboard = factories::chessboard();

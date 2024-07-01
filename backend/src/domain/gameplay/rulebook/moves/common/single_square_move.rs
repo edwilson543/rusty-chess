@@ -28,8 +28,8 @@ mod single_square_translation_tests {
 
     #[test]
     fn allows_single_square_move_white() {
-        let from_square = Square::new(Rank::ONE, File::A);
-        let to_square = Square::new(Rank::TWO, File::A);
+        let from_square = Square::new(Rank::One, File::A);
+        let to_square = Square::new(Rank::Two, File::A);
         let piece = Piece::new(Colour::White, PieceType::Pawn);
 
         let chessboard = factories::chessboard();
@@ -43,8 +43,8 @@ mod single_square_translation_tests {
 
     #[test]
     fn allows_single_square_move_black() {
-        let from_square = Square::new(Rank::TWO, File::A);
-        let to_square = Square::new(Rank::ONE, File::A);
+        let from_square = Square::new(Rank::Two, File::A);
+        let to_square = Square::new(Rank::One, File::A);
         let piece = Piece::new(Colour::Black, PieceType::Pawn);
 
         let chessboard = factories::chessboard();
@@ -58,8 +58,8 @@ mod single_square_translation_tests {
 
     #[test]
     fn disallows_single_square_move_in_wrong_direction() {
-        let from_square = Square::new(Rank::ONE, File::A);
-        let to_square = Square::new(Rank::TWO, File::A);
+        let from_square = Square::new(Rank::One, File::A);
+        let to_square = Square::new(Rank::Two, File::A);
         let piece = factories::some_piece();
 
         let chessboard = factories::chessboard();
@@ -73,8 +73,8 @@ mod single_square_translation_tests {
 
     #[test]
     fn disallows_multi_square_translation_matching_vector() {
-        let from_square = Square::new(Rank::ONE, File::A);
-        let to_square = Square::new(Rank::ONE, File::C);
+        let from_square = Square::new(Rank::One, File::A);
+        let to_square = Square::new(Rank::One, File::C);
         let piece = factories::some_piece();
 
         let chessboard = factories::chessboard();

@@ -3,41 +3,41 @@ use std::fmt;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub enum Rank {
-    ONE,
-    TWO,
-    THREE,
-    FOUR,
-    FIVE,
-    SIX,
-    SEVEN,
-    EIGHT,
+    One,
+    Two,
+    Three,
+    Four,
+    Five,
+    Six,
+    Seven,
+    Eight,
 }
 
 impl Rank {
     pub fn iter() -> array::IntoIter<Self, 8> {
         [
-            Rank::ONE,
-            Rank::TWO,
-            Rank::THREE,
-            Rank::FOUR,
-            Rank::FIVE,
-            Rank::SIX,
-            Rank::SEVEN,
-            Rank::EIGHT,
+            Rank::One,
+            Rank::Two,
+            Rank::Three,
+            Rank::Four,
+            Rank::Five,
+            Rank::Six,
+            Rank::Seven,
+            Rank::Eight,
         ]
         .into_iter()
     }
 
     pub fn index(&self) -> i8 {
         match self {
-            Rank::ONE => 1,
-            Rank::TWO => 2,
-            Rank::THREE => 3,
-            Rank::FOUR => 4,
-            Rank::FIVE => 5,
-            Rank::SIX => 6,
-            Rank::SEVEN => 7,
-            Rank::EIGHT => 8,
+            Rank::One => 1,
+            Rank::Two => 2,
+            Rank::Three => 3,
+            Rank::Four => 4,
+            Rank::Five => 5,
+            Rank::Six => 6,
+            Rank::Seven => 7,
+            Rank::Eight => 8,
         }
     }
 }

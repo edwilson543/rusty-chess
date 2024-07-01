@@ -9,20 +9,20 @@ pub fn get_official_starting_position() -> HashMap<chess_set::Square, chess_set:
         // Add the pieces.
         let piece_type = home_rank[index];
 
-        let square = chess_set::Square::new(chess_set::Rank::ONE, file);
+        let square = chess_set::Square::new(chess_set::Rank::One, file);
         let white_piece = chess_set::Piece::new(chess_set::Colour::White, piece_type);
         starting_position.insert(square, white_piece);
 
-        let square = chess_set::Square::new(chess_set::Rank::EIGHT, file);
+        let square = chess_set::Square::new(chess_set::Rank::Eight, file);
         let black_piece = chess_set::Piece::new(chess_set::Colour::Black, piece_type);
         starting_position.insert(square, black_piece);
 
         // Add the pawns.
-        let square = chess_set::Square::new(chess_set::Rank::TWO, file);
+        let square = chess_set::Square::new(chess_set::Rank::Two, file);
         let pawn = chess_set::Piece::new(chess_set::Colour::White, chess_set::PieceType::Pawn);
         starting_position.insert(square, pawn);
 
-        let square = chess_set::Square::new(chess_set::Rank::SEVEN, file);
+        let square = chess_set::Square::new(chess_set::Rank::Seven, file);
         let pawn = chess_set::Piece::new(chess_set::Colour::Black, chess_set::PieceType::Pawn);
         starting_position.insert(square, pawn);
     }
@@ -56,15 +56,15 @@ mod tests {
 
         let spot_checks = [
             (
-                Square::new(Rank::ONE, File::A),
+                Square::new(Rank::One, File::A),
                 Piece::new(Colour::White, PieceType::Rook),
             ),
             (
-                Square::new(Rank::TWO, File::E),
+                Square::new(Rank::Two, File::E),
                 Piece::new(Colour::White, PieceType::Pawn),
             ),
             (
-                Square::new(Rank::EIGHT, File::D),
+                Square::new(Rank::Eight, File::D),
                 Piece::new(Colour::Black, PieceType::Queen),
             ),
         ];

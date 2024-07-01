@@ -48,8 +48,8 @@ impl move_rule::MoveRule for ForwardsDiagonalCapture {
 
 fn is_first_move_for_pawn(move_: &move_rule::Move) -> bool {
     let starting_rank = match move_.piece.get_colour() {
-        chess_set::Colour::White => &chess_set::Rank::TWO,
-        chess_set::Colour::Black => &chess_set::Rank::SEVEN,
+        chess_set::Colour::White => &chess_set::Rank::Two,
+        chess_set::Colour::Black => &chess_set::Rank::Seven,
     };
     move_.from_square.get_rank() == starting_rank
 }
@@ -76,8 +76,8 @@ mod tests {
     // Allowed.
     #[test]
     fn white_can_move_single_square_forwards() {
-        let from_square = Square::new(Rank::TWO, File::F);
-        let to_square = Square::new(Rank::THREE, File::F);
+        let from_square = Square::new(Rank::Two, File::F);
+        let to_square = Square::new(Rank::Three, File::F);
         let pawn = Piece::new(Colour::White, PieceType::Pawn);
 
         let chessboard = factories::chessboard();
@@ -88,8 +88,8 @@ mod tests {
 
     #[test]
     fn black_can_move_single_square_forwards() {
-        let from_square = Square::new(Rank::SEVEN, File::C);
-        let to_square = Square::new(Rank::SIX, File::C);
+        let from_square = Square::new(Rank::Seven, File::C);
+        let to_square = Square::new(Rank::Six, File::C);
         let pawn = Piece::new(Colour::Black, PieceType::Pawn);
 
         let chessboard = factories::chessboard();
@@ -100,8 +100,8 @@ mod tests {
 
     #[test]
     fn white_can_move_two_squares_forwards_from_starting_square() {
-        let from_square = Square::new(Rank::TWO, File::A);
-        let to_square = Square::new(Rank::FOUR, File::A);
+        let from_square = Square::new(Rank::Two, File::A);
+        let to_square = Square::new(Rank::Four, File::A);
         let pawn = Piece::new(Colour::White, PieceType::Pawn);
 
         let chessboard = factories::chessboard();
@@ -112,8 +112,8 @@ mod tests {
 
     #[test]
     fn black_can_move_two_squares_forwards_from_starting_square() {
-        let from_square = Square::new(Rank::SEVEN, File::E);
-        let to_square = Square::new(Rank::FIVE, File::E);
+        let from_square = Square::new(Rank::Seven, File::E);
+        let to_square = Square::new(Rank::Five, File::E);
         let pawn = Piece::new(Colour::Black, PieceType::Pawn);
 
         let chessboard = factories::chessboard();
@@ -124,8 +124,8 @@ mod tests {
 
     #[test]
     fn white_can_capture_diagonally() {
-        let from_square = Square::new(Rank::TWO, File::F);
-        let to_square = Square::new(Rank::THREE, File::E);
+        let from_square = Square::new(Rank::Two, File::F);
+        let to_square = Square::new(Rank::Three, File::E);
         let white_pawn = Piece::new(Colour::White, PieceType::Pawn);
 
         let mut chessboard = factories::chessboard();
@@ -139,8 +139,8 @@ mod tests {
 
     #[test]
     fn black_can_capture_diagonally() {
-        let from_square = Square::new(Rank::SEVEN, File::D);
-        let to_square = Square::new(Rank::SIX, File::E);
+        let from_square = Square::new(Rank::Seven, File::D);
+        let to_square = Square::new(Rank::Six, File::E);
         let black_pawn = Piece::new(Colour::Black, PieceType::Pawn);
 
         let mut chessboard = factories::chessboard();
@@ -155,8 +155,8 @@ mod tests {
     // Disallowed
     #[test]
     fn cannot_move_sideways() {
-        let from_square = Square::new(Rank::THREE, File::F);
-        let to_square = Square::new(Rank::THREE, File::E);
+        let from_square = Square::new(Rank::Three, File::F);
+        let to_square = Square::new(Rank::Three, File::E);
         let pawn = Piece::new(Colour::White, PieceType::Pawn);
 
         let chessboard = factories::chessboard();
@@ -167,8 +167,8 @@ mod tests {
 
     #[test]
     fn cannot_move_diagonally_without_capture() {
-        let from_square = Square::new(Rank::TWO, File::F);
-        let to_square = Square::new(Rank::THREE, File::E);
+        let from_square = Square::new(Rank::Two, File::F);
+        let to_square = Square::new(Rank::Three, File::E);
         let pawn = Piece::new(Colour::White, PieceType::Pawn);
 
         let chessboard = factories::chessboard();
@@ -179,8 +179,8 @@ mod tests {
 
     #[test]
     fn cannot_move_two_squares_forwards_when_has_already_moved() {
-        let from_square = Square::new(Rank::SIX, File::C);
-        let to_square = Square::new(Rank::FOUR, File::C);
+        let from_square = Square::new(Rank::Six, File::C);
+        let to_square = Square::new(Rank::Four, File::C);
         let pawn = Piece::new(Colour::Black, PieceType::Pawn);
 
         let chessboard = factories::chessboard();
@@ -191,8 +191,8 @@ mod tests {
 
     #[test]
     fn cannot_move_multiple_squares_forward() {
-        let from_square = Square::new(Rank::TWO, File::B);
-        let to_square = Square::new(Rank::FIVE, File::B);
+        let from_square = Square::new(Rank::Two, File::B);
+        let to_square = Square::new(Rank::Five, File::B);
         let pawn = Piece::new(Colour::Black, PieceType::Pawn);
 
         let chessboard = factories::chessboard();

@@ -120,43 +120,43 @@ mod tests {
 
         #[rstest]
         #[case::forwards(
-            Square::new(Rank::ONE, File::A),
-            Square::new(Rank::TWO, File::A),
+            Square::new(Rank::One, File::A),
+            Square::new(Rank::Two, File::A),
             ChessVector::new(0, 1)
         )]
         #[case::forwards_and_right(
-            Square::new(Rank::THREE, File::C),
-            Square::new(Rank::FOUR, File::D),
+            Square::new(Rank::Three, File::C),
+            Square::new(Rank::Four, File::D),
             ChessVector::new(1, 1)
         )]
         #[case::right(
-            Square::new(Rank::SEVEN, File::F),
-            Square::new(Rank::SEVEN, File::G),
+            Square::new(Rank::Seven, File::F),
+            Square::new(Rank::Seven, File::G),
             ChessVector::new(1, 0)
         )]
         #[case::backwards_and_right(
-            Square::new(Rank::TWO, File::B),
-            Square::new(Rank::ONE, File::C),
+            Square::new(Rank::Two, File::B),
+            Square::new(Rank::One, File::C),
             ChessVector::new(1, -1)
         )]
         #[case::backwards(
-            Square::new(Rank::FIVE, File::E),
-            Square::new(Rank::FOUR, File::E),
+            Square::new(Rank::Five, File::E),
+            Square::new(Rank::Four, File::E),
             ChessVector::new(0, -1)
         )]
         #[case::backwards_and_left(
-            Square::new(Rank::EIGHT, File::H),
-            Square::new(Rank::SEVEN, File::G),
+            Square::new(Rank::Eight, File::H),
+            Square::new(Rank::Seven, File::G),
             ChessVector::new(-1, -1)
         )]
         #[case::left(
-            Square::new(Rank::FOUR, File::D),
-            Square::new(Rank::FOUR, File::C),
+            Square::new(Rank::Four, File::D),
+            Square::new(Rank::Four, File::C),
             ChessVector::new(-1, 0)
         )]
         #[case::forward_and_left(
-            Square::new(Rank::SIX, File::H),
-            Square::new(Rank::SEVEN, File::G),
+            Square::new(Rank::Six, File::H),
+            Square::new(Rank::Seven, File::G),
             ChessVector::new(-1, 1)
         )]
         fn single_square_moves(
@@ -179,50 +179,50 @@ mod tests {
 
         #[rstest]
         #[case::forwards(
-            Square::new(Rank::ONE, File::A),
-            Square::new(Rank::THREE, File::A),
+            Square::new(Rank::One, File::A),
+            Square::new(Rank::Three, File::A),
             ChessVector::new(0, 1),
             2
         )]
         #[case::forwards_and_right(
-            Square::new(Rank::THREE, File::C),
-            Square::new(Rank::SIX, File::F),
+            Square::new(Rank::Three, File::C),
+            Square::new(Rank::Six, File::F),
             ChessVector::new(1, 1),
             3
         )]
         #[case::right(
-            Square::new(Rank::SEVEN, File::D),
-            Square::new(Rank::SEVEN, File::H),
+            Square::new(Rank::Seven, File::D),
+            Square::new(Rank::Seven, File::H),
             ChessVector::new(1, 0),
             4
         )]
         #[case::backwards_and_right(
-            Square::new(Rank::SIX, File::A),
-            Square::new(Rank::ONE, File::F),
+            Square::new(Rank::Six, File::A),
+            Square::new(Rank::One, File::F),
             ChessVector::new(1, -1),
             5,
         )]
         #[case::backwards(
-            Square::new(Rank::SEVEN, File::G),
-            Square::new(Rank::TWO, File::G),
+            Square::new(Rank::Seven, File::G),
+            Square::new(Rank::Two, File::G),
             ChessVector::new(0, -1),
             5,
         )]
         #[case::backwards_and_left(
-            Square::new(Rank::EIGHT, File::G),
-            Square::new(Rank::TWO, File::A),
+            Square::new(Rank::Eight, File::G),
+            Square::new(Rank::Two, File::A),
             ChessVector::new(-1, -1),
             6,
         )]
         #[case::left(
-            Square::new(Rank::THREE, File::H),
-            Square::new(Rank::THREE, File::A),
+            Square::new(Rank::Three, File::H),
+            Square::new(Rank::Three, File::A),
             ChessVector::new(-1, 0),
             7,
         )]
         #[case::forward_and_left(
-            Square::new(Rank::FOUR, File::F),
-            Square::new(Rank::EIGHT, File::B),
+            Square::new(Rank::Four, File::F),
+            Square::new(Rank::Eight, File::B),
             ChessVector::new(-1, 1),
             4,
         )]
@@ -247,43 +247,43 @@ mod tests {
 
         #[rstest]
         #[case::forwards_two_right_one(
-            Square::new(Rank::ONE, File::A),
-            Square::new(Rank::THREE, File::B),
+            Square::new(Rank::One, File::A),
+            Square::new(Rank::Three, File::B),
             ChessVector::new(1, 2)
         )]
         #[case::forwards_one_right_two(
-            Square::new(Rank::THREE, File::C),
-            Square::new(Rank::FOUR, File::E),
+            Square::new(Rank::Three, File::C),
+            Square::new(Rank::Four, File::E),
             ChessVector::new(2, 1)
         )]
         #[case::backwards_one_right_two(
-            Square::new(Rank::THREE, File::C),
-            Square::new(Rank::TWO, File::E),
+            Square::new(Rank::Three, File::C),
+            Square::new(Rank::Two, File::E),
             ChessVector::new(2, -1),
         )]
         #[case::backwards_two_right_one(
-            Square::new(Rank::SIX, File::A),
-            Square::new(Rank::FOUR, File::B),
+            Square::new(Rank::Six, File::A),
+            Square::new(Rank::Four, File::B),
             ChessVector::new(1, -2),
         )]
         #[case::backwards_two_left_one(
-            Square::new(Rank::SEVEN, File::G),
-            Square::new(Rank::FIVE, File::F),
+            Square::new(Rank::Seven, File::G),
+            Square::new(Rank::Five, File::F),
             ChessVector::new(-1, -2),
         )]
         #[case::backwards_one_left_two(
-            Square::new(Rank::EIGHT, File::G),
-            Square::new(Rank::SEVEN, File::E),
+            Square::new(Rank::Eight, File::G),
+            Square::new(Rank::Seven, File::E),
             ChessVector::new(-2, -1),
         )]
         #[case::forwards_one_left_two(
-            Square::new(Rank::THREE, File::H),
-            Square::new(Rank::FOUR, File::F),
+            Square::new(Rank::Three, File::H),
+            Square::new(Rank::Four, File::F),
             ChessVector::new(-2, 1),
         )]
         #[case::forwards_two_left_one(
-            Square::new(Rank::FOUR, File::F),
-            Square::new(Rank::SIX, File::E),
+            Square::new(Rank::Four, File::F),
+            Square::new(Rank::Six, File::E),
             ChessVector::new(-1, 2),
         )]
         fn multiple_square_moves_in_a_wonky_line_scalar_factor_one(
@@ -306,8 +306,8 @@ mod tests {
 
         #[test]
         fn multiple_square_moves_in_a_wonky_line_with_scalar_factor() {
-            let from_square = Square::new(Rank::THREE, File::E);
-            let to_square = Square::new(Rank::SEVEN, File::C);
+            let from_square = Square::new(Rank::Three, File::E);
+            let to_square = Square::new(Rank::Seven, File::C);
 
             let expected_vector = ChessVector::new(-1, 2);
             let expected_scalar_factor = 2;
