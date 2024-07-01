@@ -25,7 +25,7 @@ pub fn validate_move(
     }
 
     let move_ = move_rule::Move::new(piece, from_square, to_square);
-    if let Err(error) = validate_move_is_legal_legal(move_) {
+    if let Err(error) = validate_move_is_legal(move_) {
         return Err(error);
     }
 
@@ -52,7 +52,7 @@ fn validate_occupant_of_target_square(
     Ok(())
 }
 
-fn validate_move_is_legal_legal(move_: move_rule::Move) -> Result<(), MoveValidationError> {
+fn validate_move_is_legal(move_: move_rule::Move) -> Result<(), MoveValidationError> {
     let piece_type = move_.piece.get_piece_type();
     let mut move_rules = pieces::get_rules_for_piece(piece_type);
 

@@ -1,4 +1,5 @@
 mod castle;
+mod en_passant;
 mod moves;
 mod starting_position;
 
