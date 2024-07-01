@@ -3,6 +3,7 @@ use crate::domain::gameplay::chess_set;
 
 /// A move of a single piece from one square to another.
 pub struct Move<'a> {
+    pub chessboard: &'a chess_set::Chessboard,
     pub piece: &'a chess_set::Piece,
     pub from_square: &'a chess_set::Square,
     pub to_square: &'a chess_set::Square,
@@ -11,6 +12,7 @@ pub struct Move<'a> {
 
 impl<'a> Move<'a> {
     pub fn new(
+        chessboard: &'a chess_set::Chessboard,
         piece: &'a chess_set::Piece,
         from_square: &'a chess_set::Square,
         to_square: &'a chess_set::Square,
@@ -19,6 +21,7 @@ impl<'a> Move<'a> {
             translation::Translation::from_move(from_square, to_square, piece.get_colour());
 
         Self {
+            chessboard: chessboard,
             piece: piece,
             from_square: from_square,
             to_square: to_square,

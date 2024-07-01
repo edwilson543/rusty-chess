@@ -24,7 +24,7 @@ pub fn validate_move(
         return Err(error);
     }
 
-    let move_ = move_rule::Move::new(piece, from_square, to_square);
+    let move_ = move_rule::Move::new(chessboard, piece, from_square, to_square);
     if let Err(error) = validate_move_is_legal(move_) {
         return Err(error);
     }

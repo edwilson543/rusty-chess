@@ -31,7 +31,9 @@ mod single_square_translation_tests {
         let from_square = Square::new(Rank::ONE, File::A);
         let to_square = Square::new(Rank::TWO, File::A);
         let piece = Piece::new(Colour::White, PieceType::Pawn);
-        let move_ = Move::new(&piece, &from_square, &to_square);
+
+        let chessboard = factories::chessboard();
+        let move_ = Move::new(&chessboard, &piece, &from_square, &to_square);
 
         let vector = translation::ChessVector::new(0, 1);
         let rule = SingleSquareMove::new(vector);
@@ -44,7 +46,9 @@ mod single_square_translation_tests {
         let from_square = Square::new(Rank::TWO, File::A);
         let to_square = Square::new(Rank::ONE, File::A);
         let piece = Piece::new(Colour::Black, PieceType::Pawn);
-        let move_ = Move::new(&piece, &from_square, &to_square);
+
+        let chessboard = factories::chessboard();
+        let move_ = Move::new(&chessboard, &piece, &from_square, &to_square);
 
         let vector = translation::ChessVector::new(0, 1);
         let rule = SingleSquareMove::new(vector);
@@ -57,7 +61,9 @@ mod single_square_translation_tests {
         let from_square = Square::new(Rank::ONE, File::A);
         let to_square = Square::new(Rank::TWO, File::A);
         let piece = factories::some_piece();
-        let move_ = Move::new(&piece, &from_square, &to_square);
+
+        let chessboard = factories::chessboard();
+        let move_ = Move::new(&chessboard, &piece, &from_square, &to_square);
 
         let vector = translation::ChessVector::new(1, 0);
         let rule = SingleSquareMove::new(vector);
@@ -70,7 +76,9 @@ mod single_square_translation_tests {
         let from_square = Square::new(Rank::ONE, File::A);
         let to_square = Square::new(Rank::ONE, File::C);
         let piece = factories::some_piece();
-        let move_ = Move::new(&piece, &from_square, &to_square);
+
+        let chessboard = factories::chessboard();
+        let move_ = Move::new(&chessboard, &piece, &from_square, &to_square);
 
         let vector = translation::ChessVector::new(1, 0);
         let rule = SingleSquareMove::new(vector);

@@ -31,7 +31,9 @@ mod tests {
         let from_square = Square::new(Rank::ONE, File::A);
         let to_square = Square::new(Rank::THREE, File::A);
         let piece = Piece::new(Colour::White, PieceType::Rook);
-        let move_ = Move::new(&piece, &from_square, &to_square);
+
+        let chessboard = factories::chessboard();
+        let move_ = Move::new(&chessboard, &piece, &from_square, &to_square);
 
         let rule = MultiSquareMove::new(translation::ChessVector::new(0, 1));
 
@@ -43,7 +45,9 @@ mod tests {
         let from_square = Square::new(Rank::FIVE, File::D);
         let to_square = Square::new(Rank::THREE, File::D);
         let piece = Piece::new(Colour::Black, PieceType::Rook);
-        let move_ = Move::new(&piece, &from_square, &to_square);
+
+        let chessboard = factories::chessboard();
+        let move_ = Move::new(&chessboard, &piece, &from_square, &to_square);
 
         let rule = MultiSquareMove::new(translation::ChessVector::new(0, 1));
 
@@ -55,7 +59,9 @@ mod tests {
         let from_square = Square::new(Rank::ONE, File::A);
         let to_square = Square::new(Rank::THREE, File::C);
         let piece = factories::some_piece();
-        let move_ = Move::new(&piece, &from_square, &to_square);
+
+        let chessboard = factories::chessboard();
+        let move_ = Move::new(&chessboard, &piece, &from_square, &to_square);
 
         let vector = translation::ChessVector::new(0, -1);
         let rule = MultiSquareMove::new(vector);
