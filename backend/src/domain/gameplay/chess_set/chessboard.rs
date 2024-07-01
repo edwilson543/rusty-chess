@@ -79,7 +79,7 @@ impl Chessboard {
         Ok(())
     }
 
-    fn remove_piece(
+    pub fn remove_piece(
         &mut self,
         from_square: &chess_set::Square,
     ) -> Result<chess_set::Piece, ChessboardActionError> {

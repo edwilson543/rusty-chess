@@ -3,6 +3,7 @@ use crate::domain::gameplay::rulebook;
 
 pub enum GameMove {
     OrdinaryMove(rulebook::Move),
+    EnPassant(rulebook::EnPassant),
 }
 
 #[derive(thiserror::Error, Debug, PartialEq)]
@@ -20,6 +21,9 @@ pub enum GameError {
     MoveValidationError(rulebook::MoveValidationError),
 
     #[error("{0}")]
+    EnPassantValidationError(rulebook::EnPassantValidationError),
+
+    #[error("{0}")]
     ChessboardActionError(chess_set::ChessboardActionError),
 }
 
@@ -34,7 +38,7 @@ pub enum GameStatus {
 pub struct Game {
     chessboard: chess_set::Chessboard,
     status: GameStatus,
-    move_history: Vec<GameMove>,
+    history: Vec<GameMove>,
 }
 
 // Public interface.
@@ -45,7 +49,7 @@ impl Game {
 
         Self {
             chessboard: chessboard,
-            move_history: vec![],
+            history: vec![],
             status: GameStatus::ToPlay(chess_set::Colour::White),
         }
     }
@@ -76,8 +80,48 @@ impl Game {
             Ok(()) => {}
         };
 
-        self.move_history
-            .push(GameMove::OrdinaryMove(validated_move));
+        self.history.push(GameMove::OrdinaryMove(validated_move));
+        self.progress_game_status();
+        Ok(&self.status)
+    }
+
+    pub fn make_en_passant(
+        &mut self,
+        player: &chess_set::Colour,
+        from_square: &chess_set::Square,
+        to_square: &chess_set::Square,
+    ) -> Result<&GameStatus, GameError> {
+        if let Err(error) = self.check_if_play_is_out_of_turn(player) {
+            return Err(error);
+        }
+
+        let pawn = match self.check_piece_at_square_belongs_to_player(player, from_square) {
+            Ok(pawn) => pawn,
+            Err(error) => return Err(error),
+        };
+
+        let GameMove::OrdinaryMove(previous_move) = self.history.last().unwrap() else {
+            return Err(GameError::EnPassantValidationError(
+                rulebook::EnPassantValidationError::OnlyAllowedAfterDoubleAdvancement,
+            ));
+        };
+
+        let en_passant =
+            match rulebook::validate_en_passant(&pawn, from_square, to_square, previous_move) {
+                Ok(en_passant) => en_passant,
+                Err(error) => return Err(GameError::EnPassantValidationError(error)),
+            };
+
+        match self.chessboard.remove_piece(&previous_move.from_square) {
+            Err(error) => return Err(GameError::ChessboardActionError(error)),
+            Ok(_) => {}
+        };
+        match self.chessboard.move_piece(&from_square, &to_square) {
+            Err(error) => return Err(GameError::ChessboardActionError(error)),
+            Ok(()) => {}
+        };
+
+        self.history.push(GameMove::EnPassant(en_passant));
         self.progress_game_status();
         Ok(&self.status)
     }
@@ -122,7 +166,7 @@ impl Game {
         if !(piece.get_colour() == player) {
             return Err(GameError::CannotMoveOpponentPiece(*player));
         };
-        Ok((piece))
+        Ok(piece)
     }
 }
 

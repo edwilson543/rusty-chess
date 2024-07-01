@@ -17,6 +17,27 @@ pub struct EnPassant {
     translation: moves::Translation,
 }
 
+pub fn validate_en_passant(
+    piece: &chess_set::Piece,
+    from_square: &chess_set::Square,
+    to_square: &chess_set::Square,
+    previous_move: &moves::Move,
+) -> Result<EnPassant, EnPassantValidationError> {
+    if !(piece.get_piece_type() == &chess_set::PieceType::Pawn) {
+        return Err(EnPassantValidationError::OnlyAllowedForPawns);
+    }
+    if !is_double_pawn_advancement(previous_move) {
+        return Err(EnPassantValidationError::OnlyAllowedAfterDoubleAdvancement);
+    }
+
+    let en_passant = EnPassant::new(piece, from_square, to_square);
+    if !target_square_is_valid(&en_passant, previous_move) {
+        return Err(EnPassantValidationError::InvalidTargetSquare);
+    };
+
+    return Ok(en_passant);
+}
+
 impl EnPassant {
     pub fn new(
         pawn: &chess_set::Piece,
@@ -32,41 +53,26 @@ impl EnPassant {
             translation: translation,
         }
     }
-
-    pub fn validate(&self, previous_move: &moves::Move) -> Result<(), EnPassantValidationError> {
-        if !(self.pawn.get_piece_type() == &chess_set::PieceType::Pawn) {
-            return Err(EnPassantValidationError::OnlyAllowedForPawns);
-        }
-        if !previous_move_was_double_pawn_advancement(previous_move) {
-            return Err(EnPassantValidationError::OnlyAllowedAfterDoubleAdvancement);
-        }
-
-        if !self.target_square_is_valid(previous_move) {
-            return Err(EnPassantValidationError::InvalidTargetSquare);
-        };
-
-        return Ok(());
-    }
-
-    // En passant is only allowed to the middle square of a double pawn advancement.
-    fn target_square_is_valid(&self, previous_move: &moves::Move) -> bool {
-        let forwards_and_right = moves::ChessVector::new(1, 1);
-        let forwards_and_left = moves::ChessVector::new(-1, 1);
-
-        let move_is_diagonal = self.translation.vector == forwards_and_right
-            || self.translation.vector == forwards_and_left;
-
-        let is_to_correct_file = self.to_square.get_file() == previous_move.to_square.get_file();
-        move_is_diagonal && self.translation.scalar == 1 && is_to_correct_file
-    }
 }
 
-// En passant is only allowed immediately following a double pawn advancement.
-fn previous_move_was_double_pawn_advancement(previous_move: &moves::Move) -> bool {
+// En passant is only allowed immediately after the opponent makes a double pawn advancement.
+fn is_double_pawn_advancement(previous_move: &moves::Move) -> bool {
     let was_pawn = previous_move.piece.get_piece_type() == &chess_set::PieceType::Pawn;
     // Pawns can only move two squares if it is forwards, so no need to check direction.
     let was_double_advancement = previous_move.translation.scalar == 2;
     was_double_advancement && was_pawn
+}
+
+// En passant is only allowed to the middle square of a double pawn advancement.
+fn target_square_is_valid(en_passant: &EnPassant, previous_move: &moves::Move) -> bool {
+    let forwards_and_right = moves::ChessVector::new(1, 1);
+    let forwards_and_left = moves::ChessVector::new(-1, 1);
+
+    let move_is_diagonal = en_passant.translation.vector == forwards_and_right
+        || en_passant.translation.vector == forwards_and_left;
+
+    let is_to_correct_file = en_passant.to_square.get_file() == previous_move.to_square.get_file();
+    move_is_diagonal && en_passant.translation.scalar == 1 && is_to_correct_file
 }
 
 // Trait implementations.
