@@ -130,7 +130,7 @@ mod tests {
 
         let mut chessboard = factories::chessboard();
         let black_pawn = Piece::new(Colour::Black, PieceType::Pawn);
-        chessboard.add_piece(black_pawn, &to_square);
+        let _ = chessboard.add_piece(black_pawn, &to_square);
 
         let chess_move = Move::new(&chessboard, &white_pawn, &from_square, &to_square);
 
@@ -145,7 +145,7 @@ mod tests {
 
         let mut chessboard = factories::chessboard();
         let white_pawn = Piece::new(Colour::White, PieceType::Pawn);
-        chessboard.add_piece(white_pawn, &to_square);
+        let _ = chessboard.add_piece(white_pawn, &to_square);
 
         let chess_move = Move::new(&chessboard, &black_pawn, &from_square, &to_square);
 
