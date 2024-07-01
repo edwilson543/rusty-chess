@@ -82,3 +82,5 @@ impl fmt::Display for EnPassantValidationError {
         write!(f, "{:?}", self)
     }
 }
+
+// TODO -> add unit tests for error paths.
