@@ -32,5 +32,5 @@ impl Move {
 
 /// Mechanism for defining whether a certain translation is allowed.
 pub trait MoveRule {
-    fn allows_move(&self, move_: &Move) -> bool;
+    fn allows_move(&self, chess_move: &Move) -> bool;
 }

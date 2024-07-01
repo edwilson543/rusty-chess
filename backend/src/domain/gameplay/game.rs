@@ -1,6 +1,11 @@
 use crate::domain::gameplay::chess_set;
 use crate::domain::gameplay::rulebook;
 
+
+pub enum GameMove {
+    OrdinaryMove(rulebook::Move),
+}
+
 #[derive(thiserror::Error, Debug, PartialEq)]
 pub enum MoveError {
     #[error("The game has already ended.")]
@@ -30,7 +35,7 @@ pub enum GameStatus {
 pub struct Game {
     chessboard: chess_set::Chessboard,
     status: GameStatus,
-    move_history: Vec<rulebook::Move>,
+    move_history: Vec<GameMove>,
 }
 
 // Public interface.
@@ -83,7 +88,7 @@ impl Game {
             _ => {}
         };
 
-        self.move_history.push(validated_move);
+        self.move_history.push(GameMove::OrdinaryMove(validated_move));
         self.progress_game_status();
         Ok(&self.status)
     }
