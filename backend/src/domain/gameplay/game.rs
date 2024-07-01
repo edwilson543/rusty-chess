@@ -1,13 +1,12 @@
 use crate::domain::gameplay::chess_set;
 use crate::domain::gameplay::rulebook;
 
-
 pub enum GameMove {
     OrdinaryMove(rulebook::Move),
 }
 
 #[derive(thiserror::Error, Debug, PartialEq)]
-pub enum MoveError {
+pub enum GameError {
     #[error("The game has already ended.")]
     GameHasAlreadyEnded,
 
@@ -51,44 +50,34 @@ impl Game {
         }
     }
 
-    pub fn make_move(
+    pub fn make_ordinary_move(
         &mut self,
         player: &chess_set::Colour,
         from_square: &chess_set::Square,
         to_square: &chess_set::Square,
-    ) -> Result<&GameStatus, MoveError> {
-        // Check the move isn't out of turn.
-        let GameStatus::ToPlay(to_play_colour) = self.status else {
-            return Err(MoveError::GameHasAlreadyEnded);
-        };
-        if !(player == &to_play_colour) {
-            return Err(MoveError::PlayIsOutOfTurn(to_play_colour.clone()));
+    ) -> Result<&GameStatus, GameError> {
+        if let Err(error) = self.check_if_play_is_out_of_turn(player) {
+            return Err(error);
         }
 
-        // Check the player is moving a piece of their own colour.
-        let Some(piece) = self.get_piece_at_square(&from_square) else {
-            return Err(MoveError::ChessboardActionError(
-                chess_set::ChessboardActionError::SquareIsEmpty(from_square.clone()),
-            ));
-        };
-        if !(piece.get_colour() == &to_play_colour) {
-            return Err(MoveError::CannotMoveOpponentPiece(*player));
+        let piece = match self.check_piece_at_square_belongs_to_player(player, from_square) {
+            Ok(piece) => piece,
+            Err(error) => return Err(error),
         };
 
-        // Check the move against the rulebook.
         let validated_move =
             match rulebook::validate_move(&self.chessboard, &piece, &from_square, &to_square) {
                 Ok(validated_move) => validated_move,
-                Err(error) => return Err(MoveError::MoveValidationError(error)),
+                Err(error) => return Err(GameError::MoveValidationError(error)),
             };
 
-        // Finally, move the piece.
         match self.chessboard.move_piece(&from_square, &to_square) {
-            Err(error) => return Err(MoveError::ChessboardActionError(error)),
-            _ => {}
+            Err(error) => return Err(GameError::ChessboardActionError(error)),
+            Ok(()) => {}
         };
 
-        self.move_history.push(GameMove::OrdinaryMove(validated_move));
+        self.move_history
+            .push(GameMove::OrdinaryMove(validated_move));
         self.progress_game_status();
         Ok(&self.status)
     }
@@ -96,16 +85,44 @@ impl Game {
 
 // Private interface.
 impl Game {
-    fn get_piece_at_square(&self, square: &chess_set::Square) -> Option<chess_set::Piece> {
-        self.chessboard.get_piece(square)
-    }
-
+    // Mutators.
     fn progress_game_status(&mut self) {
         // TODO - check for win / draw using rulebook.
         self.status = match self.status {
             GameStatus::ToPlay(colour) => GameStatus::ToPlay(colour.swap()),
             _ => panic!("TODO."),
         };
+    }
+
+    // Queries.
+    fn get_piece_at_square(&self, square: &chess_set::Square) -> Option<chess_set::Piece> {
+        self.chessboard.get_piece(square)
+    }
+
+    fn check_if_play_is_out_of_turn(&self, player: &chess_set::Colour) -> Result<(), GameError> {
+        let GameStatus::ToPlay(to_play_colour) = self.status else {
+            return Err(GameError::GameHasAlreadyEnded);
+        };
+        if !(player == &to_play_colour) {
+            return Err(GameError::PlayIsOutOfTurn(to_play_colour.clone()));
+        };
+        Ok(())
+    }
+
+    fn check_piece_at_square_belongs_to_player(
+        &self,
+        player: &chess_set::Colour,
+        square: &chess_set::Square,
+    ) -> Result<chess_set::Piece, GameError> {
+        let Some(piece) = self.get_piece_at_square(square) else {
+            return Err(GameError::ChessboardActionError(
+                chess_set::ChessboardActionError::SquareIsEmpty(square.clone()),
+            ));
+        };
+        if !(piece.get_colour() == player) {
+            return Err(GameError::CannotMoveOpponentPiece(*player));
+        };
+        Ok((piece))
     }
 }
 
@@ -124,7 +141,7 @@ mod tests {
             let from_square = chess_set::Square::new(Rank::Two, File::E);
             let to_square = chess_set::Square::new(Rank::Four, File::E);
 
-            let result = game.make_move(&Colour::White, &from_square, &to_square);
+            let result = game.make_ordinary_move(&Colour::White, &from_square, &to_square);
 
             assert_eq!(result, Ok(&GameStatus::ToPlay(Colour::Black)));
             assert_eq!(game.get_piece_at_square(&from_square), None);
@@ -138,9 +155,9 @@ mod tests {
             let from_square = chess_set::Square::new(Rank::Seven, File::C);
             let to_square = chess_set::Square::new(Rank::Six, File::C);
 
-            let result = game.make_move(&Colour::Black, &from_square, &to_square);
+            let result = game.make_ordinary_move(&Colour::Black, &from_square, &to_square);
 
-            let expected_error = MoveError::PlayIsOutOfTurn(Colour::White);
+            let expected_error = GameError::PlayIsOutOfTurn(Colour::White);
             assert_eq!(result, Err(expected_error));
             assert_ne!(game.get_piece_at_square(&from_square), None);
             assert_eq!(game.get_piece_at_square(&to_square), None);
@@ -153,9 +170,9 @@ mod tests {
             let from_square = chess_set::Square::new(Rank::Seven, File::C);
             let to_square = chess_set::Square::new(Rank::Six, File::C);
 
-            let result = game.make_move(&Colour::White, &from_square, &to_square);
+            let result = game.make_ordinary_move(&Colour::White, &from_square, &to_square);
 
-            let expected_error = MoveError::CannotMoveOpponentPiece(Colour::White);
+            let expected_error = GameError::CannotMoveOpponentPiece(Colour::White);
             assert_eq!(result, Err(expected_error));
             assert_ne!(game.get_piece_at_square(&from_square), None);
             assert_eq!(game.get_piece_at_square(&to_square), None);
@@ -168,9 +185,9 @@ mod tests {
             let from_square = chess_set::Square::new(Rank::Three, File::H);
             let to_square = chess_set::Square::new(Rank::Four, File::H);
 
-            let result = game.make_move(&Colour::White, &from_square, &to_square);
+            let result = game.make_ordinary_move(&Colour::White, &from_square, &to_square);
 
-            let expected_error = MoveError::ChessboardActionError(
+            let expected_error = GameError::ChessboardActionError(
                 chess_set::ChessboardActionError::SquareIsEmpty(from_square),
             );
             assert_eq!(result, Err(expected_error));
