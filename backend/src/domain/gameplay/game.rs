@@ -54,7 +54,7 @@ impl Game {
         }
     }
 
-    pub fn make_ordinary_move(
+    pub fn play_ordinary_move(
         &mut self,
         player: &chess_set::Colour,
         from_square: &chess_set::Square,
@@ -85,7 +85,7 @@ impl Game {
         Ok(&self.status)
     }
 
-    pub fn make_en_passant(
+    pub fn play_en_passant(
         &mut self,
         player: &chess_set::Colour,
         from_square: &chess_set::Square,
@@ -174,7 +174,7 @@ impl Game {
 mod tests {
 
     #[cfg(test)]
-    mod make_ordinary_move_tests {
+    mod play_ordinary_move_tests {
         use super::super::*;
         use crate::domain::gameplay::chess_set::{Colour, File, Rank};
 
@@ -185,7 +185,7 @@ mod tests {
             let from_square = chess_set::Square::new(Rank::Two, File::E);
             let to_square = chess_set::Square::new(Rank::Four, File::E);
 
-            let result = game.make_ordinary_move(&Colour::White, &from_square, &to_square);
+            let result = game.play_ordinary_move(&Colour::White, &from_square, &to_square);
 
             assert_eq!(result, Ok(&GameStatus::ToPlay(Colour::Black)));
             assert_eq!(game.get_piece_at_square(&from_square), None);
@@ -199,7 +199,7 @@ mod tests {
             let from_square = chess_set::Square::new(Rank::Seven, File::C);
             let to_square = chess_set::Square::new(Rank::Six, File::C);
 
-            let result = game.make_ordinary_move(&Colour::Black, &from_square, &to_square);
+            let result = game.play_ordinary_move(&Colour::Black, &from_square, &to_square);
 
             let expected_error = GameError::PlayIsOutOfTurn(Colour::White);
             assert_eq!(result, Err(expected_error));
@@ -214,7 +214,7 @@ mod tests {
             let from_square = chess_set::Square::new(Rank::Seven, File::C);
             let to_square = chess_set::Square::new(Rank::Six, File::C);
 
-            let result = game.make_ordinary_move(&Colour::White, &from_square, &to_square);
+            let result = game.play_ordinary_move(&Colour::White, &from_square, &to_square);
 
             let expected_error = GameError::CannotMoveOpponentPiece(Colour::White);
             assert_eq!(result, Err(expected_error));
@@ -229,7 +229,7 @@ mod tests {
             let from_square = chess_set::Square::new(Rank::Three, File::H);
             let to_square = chess_set::Square::new(Rank::Four, File::H);
 
-            let result = game.make_ordinary_move(&Colour::White, &from_square, &to_square);
+            let result = game.play_ordinary_move(&Colour::White, &from_square, &to_square);
 
             let expected_error = GameError::ChessboardActionError(
                 chess_set::ChessboardActionError::SquareIsEmpty(from_square),
