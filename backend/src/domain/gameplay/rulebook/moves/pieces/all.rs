@@ -1,5 +1,5 @@
 use super::super::move_rule;
-use super::{pawn, knight};
+use super::{knight, pawn};
 use crate::domain::gameplay::chess_set;
 use std::vec;
 

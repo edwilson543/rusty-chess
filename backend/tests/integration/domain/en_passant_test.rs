@@ -1,4 +1,4 @@
-use chess::domain::gameplay::chess_set::{Colour, File, Rank, Square};
+use chess::domain::gameplay::chess_set::{Colour, File, PieceType, Rank, Square};
 use chess::domain::gameplay::{Game, GameStatus};
 
 #[test]
@@ -35,8 +35,11 @@ fn white_can_play_en_passant() {
 
     assert_eq!(result, Ok(&GameStatus::ToPlay(Colour::Black)));
     assert_eq!(game.get_piece_at_square(&from_square), None);
-    assert_ne!(game.get_piece_at_square(&to_square), None);
     assert_eq!(game.get_piece_at_square(&captured_piece_square), None);
+
+    let en_passant_pawn = game.get_piece_at_square(&to_square).unwrap();
+    assert_eq!(en_passant_pawn.get_piece_type(), &PieceType::Pawn);
+    assert_eq!(en_passant_pawn.get_colour(), &Colour::White);
 }
 
 #[test]
@@ -79,6 +82,9 @@ fn black_can_play_en_passant() {
 
     assert_eq!(result, Ok(&GameStatus::ToPlay(Colour::White)));
     assert_eq!(game.get_piece_at_square(&from_square), None);
-    assert_ne!(game.get_piece_at_square(&to_square), None);
     assert_eq!(game.get_piece_at_square(&captured_piece_square), None);
+
+    let en_passant_pawn = game.get_piece_at_square(&to_square).unwrap();
+    assert_eq!(en_passant_pawn.get_piece_type(), &PieceType::Pawn);
+    assert_eq!(en_passant_pawn.get_colour(), &Colour::Black);
 }

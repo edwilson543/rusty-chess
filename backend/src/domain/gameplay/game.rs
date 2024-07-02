@@ -176,7 +176,7 @@ mod tests {
     #[cfg(test)]
     mod play_ordinary_move_tests {
         use super::super::*;
-        use crate::domain::gameplay::chess_set::{Colour, File, Rank};
+        use crate::domain::gameplay::chess_set::{Colour, File, PieceType, Rank};
 
         #[test]
         fn can_make_1e4_pawn_opening() {
@@ -189,7 +189,8 @@ mod tests {
 
             assert_eq!(result, Ok(&GameStatus::ToPlay(Colour::Black)));
             assert_eq!(game.get_piece_at_square(&from_square), None);
-            assert_ne!(game.get_piece_at_square(&to_square), None);
+            let moved_pawn = game.get_piece_at_square(&to_square).unwrap();
+            assert_eq!(moved_pawn.get_piece_type(), &PieceType::Pawn);
         }
 
         #[test]
@@ -203,7 +204,8 @@ mod tests {
 
             assert_eq!(result, Ok(&GameStatus::ToPlay(Colour::Black)));
             assert_eq!(game.get_piece_at_square(&from_square), None);
-            assert_ne!(game.get_piece_at_square(&to_square), None);
+            let moved_knight = game.get_piece_at_square(&to_square).unwrap();
+            assert_eq!(moved_knight.get_piece_type(), &PieceType::Knight);
         }
 
         #[test]
