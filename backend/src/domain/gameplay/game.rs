@@ -179,11 +179,25 @@ mod tests {
         use crate::domain::gameplay::chess_set::{Colour, File, Rank};
 
         #[test]
-        fn can_make_1e4_opening() {
+        fn can_make_1e4_pawn_opening() {
             let mut game = Game::new();
 
             let from_square = chess_set::Square::new(Rank::Two, File::E);
             let to_square = chess_set::Square::new(Rank::Four, File::E);
+
+            let result = game.play_ordinary_move(&Colour::White, &from_square, &to_square);
+
+            assert_eq!(result, Ok(&GameStatus::ToPlay(Colour::Black)));
+            assert_eq!(game.get_piece_at_square(&from_square), None);
+            assert_ne!(game.get_piece_at_square(&to_square), None);
+        }
+
+        #[test]
+        fn can_make_nf3_knight_opening() {
+            let mut game = Game::new();
+
+            let from_square = chess_set::Square::new(Rank::One, File::G);
+            let to_square = chess_set::Square::new(Rank::Three, File::F);
 
             let result = game.play_ordinary_move(&Colour::White, &from_square, &to_square);
 

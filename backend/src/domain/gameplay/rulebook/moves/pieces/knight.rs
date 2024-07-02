@@ -2,18 +2,14 @@ use super::super::{move_rule, translation};
 use std::vec;
 
 pub fn get_knight_move_rules() -> vec::IntoIter<Box<dyn move_rule::MoveRule>> {
-    let one_square_forwards_move =
-        common::SingleSquareMove::new(translation::ChessVector::new(0, 1));
-
-    // Note: En passant is implemented elsewhere.
-    let rules = vec![Box::new(one_square_forwards_move) as Box<dyn move_rule::MoveRule>];
+    let rules = vec![Box::new(LShapedJump) as Box<dyn move_rule::MoveRule>];
 
     rules.into_iter()
 }
 
-struct KnightMove;
+struct LShapedJump;
 
-impl move_rule::MoveRule for KnightMove {
+impl move_rule::MoveRule for LShapedJump {
     fn allows_move(&self, chess_move: &move_rule::Move) -> bool {
         let allowed_vectors = [
             translation::ChessVector::new(1, 2),
@@ -57,13 +53,16 @@ mod tests {
     #[case::undo_nf3(Square::new(Rank::Three, File::F), Square::new(Rank::One, File::G))]
     #[case::nh3(Square::new(Rank::One, File::G), Square::new(Rank::Three, File::H))]
     #[case::undo_nh3(Square::new(Rank::Three, File::H), Square::new(Rank::One, File::G))]
-    fn allows_white_knight_to_move_in_l_shape(#[case] from_square: Square, #[case] to_square: Square) {
-        let knight = Piece::new(Colour::White, PieceType::Rook);
+    fn allows_white_knight_to_move_in_l_shape(
+        #[case] from_square: Square,
+        #[case] to_square: Square,
+    ) {
+        let knight = Piece::new(Colour::White, PieceType::Knight);
 
         let chessboard = factories::chessboard();
         let chess_move = Move::new(&chessboard, &knight, &from_square, &to_square);
 
-        assert!(KnightMove.allows_move(&chess_move));
+        assert!(is_move_allowed(&chess_move));
     }
 
     #[rstest]
@@ -75,13 +74,16 @@ mod tests {
     #[case::undo_nf6(Square::new(Rank::Six, File::F), Square::new(Rank::Eight, File::G))]
     #[case::nh6(Square::new(Rank::Eight, File::G), Square::new(Rank::Six, File::H))]
     #[case::undo_nh6(Square::new(Rank::Six, File::H), Square::new(Rank::Eight, File::G))]
-    fn allows_black_knight_to_move_in_l_shape(#[case] from_square: Square, #[case] to_square: Square) {
-        let knight = Piece::new(Colour::Black, PieceType::Rook);
+    fn allows_black_knight_to_move_in_l_shape(
+        #[case] from_square: Square,
+        #[case] to_square: Square,
+    ) {
+        let knight = Piece::new(Colour::Black, PieceType::Knight);
 
         let chessboard = factories::chessboard();
         let chess_move = Move::new(&chessboard, &knight, &from_square, &to_square);
 
-        assert!(KnightMove.allows_move(&chess_move));
+        assert!(is_move_allowed(&chess_move));
     }
 
     #[rstest]
@@ -94,6 +96,6 @@ mod tests {
         let chessboard = factories::chessboard();
         let chess_move = Move::new(&chessboard, &knight, &from_square, &to_square);
 
-        assert!(!KnightMove.allows_move(&chess_move));
+        assert!(!is_move_allowed(&chess_move));
     }
 }
