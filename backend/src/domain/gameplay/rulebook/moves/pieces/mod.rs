@@ -1,4 +1,5 @@
 mod all;
+mod bishop;
 mod knight;
 mod pawn;
 

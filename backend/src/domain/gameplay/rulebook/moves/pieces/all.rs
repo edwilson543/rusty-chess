@@ -1,5 +1,5 @@
 use super::super::move_rule;
-use super::{knight, pawn};
+use super::{bishop, knight, pawn};
 use crate::domain::gameplay::chess_set;
 use std::vec;
 
@@ -9,6 +9,7 @@ pub fn get_rules_for_piece(
     match piece_type {
         chess_set::PieceType::Pawn => pawn::get_pawn_move_rules(),
         chess_set::PieceType::Knight => knight::get_knight_move_rules(),
+        chess_set::PieceType::Bishop => bishop::get_bishop_move_rules(),
         _ => panic!("todo"),
     }
 }
