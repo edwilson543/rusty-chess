@@ -19,27 +19,6 @@ pub struct EnPassant {
     translation: translation::Translation,
 }
 
-pub fn validate_en_passant(
-    piece: &chess_set::Piece,
-    from_square: &chess_set::Square,
-    to_square: &chess_set::Square,
-    previous_move: &ordinary_move::OrdinaryMove,
-) -> Result<EnPassant, EnPassantValidationError> {
-    if !(piece.get_piece_type() == &chess_set::PieceType::Pawn) {
-        return Err(EnPassantValidationError::OnlyAllowedForPawns);
-    }
-    if !is_double_pawn_advancement(previous_move) {
-        return Err(EnPassantValidationError::OnlyAllowedAfterDoubleAdvancement);
-    }
-
-    let en_passant = EnPassant::new(piece, from_square, to_square, previous_move);
-    if !target_square_is_valid(&en_passant, previous_move) {
-        return Err(EnPassantValidationError::InvalidTargetSquare);
-    };
-
-    return Ok(en_passant);
-}
-
 impl EnPassant {
     pub fn new(
         pawn: &chess_set::Piece,
@@ -57,6 +36,21 @@ impl EnPassant {
             previous_move: previous_move.clone(),
             translation: translation,
         }
+    }
+
+    pub fn validate(&self) -> Result<(), EnPassantValidationError> {
+        if !(self.pawn.get_piece_type() == &chess_set::PieceType::Pawn) {
+            return Err(EnPassantValidationError::OnlyAllowedForPawns);
+        }
+        if !is_double_pawn_advancement(&self.previous_move) {
+            return Err(EnPassantValidationError::OnlyAllowedAfterDoubleAdvancement);
+        }
+
+        if !target_square_is_valid(&self, &self.previous_move) {
+            return Err(EnPassantValidationError::InvalidTargetSquare);
+        };
+
+        return Ok(());
     }
 }
 

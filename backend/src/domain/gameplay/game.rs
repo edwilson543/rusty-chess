@@ -107,11 +107,11 @@ impl Game {
             ));
         };
 
-        let en_passant =
-            match rulebook::validate_en_passant(&pawn, from_square, to_square, previous_move) {
-                Ok(en_passant) => en_passant,
-                Err(error) => return Err(GameError::EnPassantValidationError(error)),
-            };
+        let en_passant = rulebook::EnPassant::new(&pawn, from_square, to_square, previous_move);
+        match en_passant.validate() {
+            Ok(en_passant) => en_passant,
+            Err(error) => return Err(GameError::EnPassantValidationError(error)),
+        };
 
         match en_passant.apply(&mut self.chessboard) {
             Err(error) => return Err(GameError::ChessboardActionError(error)),

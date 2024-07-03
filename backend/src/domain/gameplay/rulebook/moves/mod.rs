@@ -7,6 +7,6 @@ mod translation;
 mod validate;
 
 pub use base_move::ChessMove;
-pub use en_passant::{validate_en_passant, EnPassant, EnPassantValidationError};
+pub use en_passant::{EnPassant, EnPassantValidationError};
 pub use ordinary_move::OrdinaryMove;
 pub use validate::{validate_move, MoveValidationError};
