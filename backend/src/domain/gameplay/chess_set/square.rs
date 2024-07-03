@@ -60,20 +60,6 @@ impl Rank {
             Rank::Eight => 8,
         }
     }
-
-    pub fn from_index(index: i8) -> Self {
-        match index {
-            1 => Rank::One,
-            2 => Rank::Two,
-            3 => Rank::Three,
-            4 => Rank::Four,
-            5 => Rank::Five,
-            6 => Rank::Six,
-            7 => Rank::Seven,
-            8 => Rank::Eight,
-            _ => panic!("Not a valid rank!."),
-        }
-    }
 }
 
 impl File {
@@ -103,20 +89,6 @@ impl File {
             File::H => 8,
         }
     }
-
-    pub fn from_index(index: i8) -> Self {
-        match index {
-            1 => File::A,
-            2 => File::B,
-            3 => File::C,
-            4 => File::D,
-            5 => File::E,
-            6 => File::F,
-            7 => File::G,
-            8 => File::H,
-            _ => panic!("Not a valid file!."),
-        }
-    }
 }
 
 impl Square {
@@ -124,13 +96,6 @@ impl Square {
         Self {
             rank: rank,
             file: file,
-        }
-    }
-
-    pub fn from_indexes(rank_index: i8, file_index: i8) -> Self {
-        Self {
-            rank: Rank::from_index(rank_index),
-            file: File::from_index(file_index),
         }
     }
 
