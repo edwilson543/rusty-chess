@@ -38,7 +38,10 @@ impl EnPassant {
         }
     }
 
-    pub fn validate(&self) -> Result<(), EnPassantValidationError> {
+    pub fn validate(
+        &self,
+        chessboard_history: &Vec<chess_set::Chessboard>,
+    ) -> Result<(), EnPassantValidationError> {
         if !(self.pawn.get_piece_type() == &chess_set::PieceType::Pawn) {
             return Err(EnPassantValidationError::OnlyAllowedForPawns);
         }
@@ -69,6 +72,17 @@ impl base_move::ChessMove for EnPassant {
 }
 
 // En passant is only allowed immediately after the opponent makes a double pawn advancement.
+// fn did_opponent_pawn_just_jump_over_target_square(
+//     to_square: &chess_set::Square,
+//     chessboard_history: &Vec<chess_set::Chessboard>,
+// ) -> bool {
+//     // Todo -> Do chessboard_history[-1] - chessboard_history[-2].
+// - The diff should contain two items
+// - Check the piece in both cases is the same pawn
+// - Check the squares are two apart (so can delete `apply_to_square`)
+// }
+
+// TODO -> old.
 fn is_double_pawn_advancement(previous_move: &ordinary_move::OrdinaryMove) -> bool {
     let was_pawn = previous_move.piece.get_piece_type() == &chess_set::PieceType::Pawn;
     // Pawns can only move two squares if it is forwards, so no need to check direction.

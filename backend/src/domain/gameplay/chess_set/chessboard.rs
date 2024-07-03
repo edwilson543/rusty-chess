@@ -1,5 +1,6 @@
 use crate::domain::gameplay::chess_set;
 use std::collections::HashMap;
+use std::ops;
 use thiserror;
 
 /// Representation of a physical chessboard, and the current position of all pieces.
@@ -88,6 +89,23 @@ impl Chessboard {
         };
         self.position.insert(from_square.clone(), None); // Empty the square.
         Ok(piece)
+    }
+}
+
+impl ops::Sub for Chessboard {
+    // Representation of pieces that are in different positions on two boards.
+    type Output = HashMap<chess_set::Square, (Option<chess_set::Piece>, Option<chess_set::Piece>)>;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        let mut diff = HashMap::new();
+
+        for (square, piece) in self.position.into_iter() {
+            let rhs_piece = rhs.get_piece(&square);
+            if rhs_piece != piece {
+                diff.insert(square, (piece, rhs_piece));
+            }
+        }
+        diff
     }
 }
 
@@ -215,6 +233,28 @@ mod tests {
             let expected_err = Err(ChessboardActionError::SquareIsNotEmpty(piece, square));
             assert_eq!(result, expected_err);
             assert_eq!(chessboard.get_piece(&square), Some(piece));
+        }
+    }
+
+    #[cfg(test)]
+    mod subtraction_tests {
+        use crate::domain::gameplay::chess_set::{File, Rank, Square};
+        use crate::testing::factories;
+
+        #[test]
+        fn gets_diff_illustrating_one_piece_has_moved() {
+            let chessboard = factories::chessboard();
+            let mut other_chessboard = factories::chessboard();
+
+            let from_square = Square::new(Rank::Two, File::F);
+            let to_square = Square::new(Rank::Three, File::F);
+            other_chessboard.move_piece(&from_square, &to_square);
+
+            let diff = other_chessboard - chessboard;
+
+            // TODO.
+            // TODO -> MAYBE just call this "get_moved_pieces"
+            // assert_eq!(diff.get(&to_square).unwrap(), ())
         }
     }
 }
