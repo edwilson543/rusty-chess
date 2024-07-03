@@ -1,4 +1,4 @@
-use super::moves;
+use super::{ordinary_move, translation};
 
 use crate::domain::gameplay::chess_set;
 use std::fmt;
@@ -14,14 +14,14 @@ pub struct EnPassant {
     pawn: chess_set::Piece,
     from_square: chess_set::Square,
     to_square: chess_set::Square,
-    translation: moves::Translation,
+    translation: translation::Translation,
 }
 
 pub fn validate_en_passant(
     piece: &chess_set::Piece,
     from_square: &chess_set::Square,
     to_square: &chess_set::Square,
-    previous_move: &moves::OrdinaryMove,
+    previous_move: &ordinary_move::OrdinaryMove,
 ) -> Result<EnPassant, EnPassantValidationError> {
     if !(piece.get_piece_type() == &chess_set::PieceType::Pawn) {
         return Err(EnPassantValidationError::OnlyAllowedForPawns);
@@ -44,7 +44,8 @@ impl EnPassant {
         from_square: &chess_set::Square,
         to_square: &chess_set::Square,
     ) -> Self {
-        let translation = moves::Translation::from_move(from_square, to_square, pawn.get_colour());
+        let translation =
+            translation::Translation::from_move(from_square, to_square, pawn.get_colour());
 
         Self {
             pawn: pawn.clone(),
@@ -56,7 +57,7 @@ impl EnPassant {
 }
 
 // En passant is only allowed immediately after the opponent makes a double pawn advancement.
-fn is_double_pawn_advancement(previous_move: &moves::OrdinaryMove) -> bool {
+fn is_double_pawn_advancement(previous_move: &ordinary_move::OrdinaryMove) -> bool {
     let was_pawn = previous_move.piece.get_piece_type() == &chess_set::PieceType::Pawn;
     // Pawns can only move two squares if it is forwards, so no need to check direction.
     let was_double_advancement = previous_move.translation.scalar == 2;
@@ -64,9 +65,12 @@ fn is_double_pawn_advancement(previous_move: &moves::OrdinaryMove) -> bool {
 }
 
 // En passant is only allowed to the middle square of a double pawn advancement.
-fn target_square_is_valid(en_passant: &EnPassant, previous_move: &moves::OrdinaryMove) -> bool {
-    let forwards_and_right = moves::ChessVector::new(1, 1);
-    let forwards_and_left = moves::ChessVector::new(-1, 1);
+fn target_square_is_valid(
+    en_passant: &EnPassant,
+    previous_move: &ordinary_move::OrdinaryMove,
+) -> bool {
+    let forwards_and_right = translation::ChessVector::new(1, 1);
+    let forwards_and_left = translation::ChessVector::new(-1, 1);
 
     let move_is_diagonal = en_passant.translation.vector == forwards_and_right
         || en_passant.translation.vector == forwards_and_left;
