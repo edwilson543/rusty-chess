@@ -113,13 +113,9 @@ impl Game {
                 Err(error) => return Err(GameError::EnPassantValidationError(error)),
             };
 
-        match self.chessboard.remove_piece(&previous_move.to_square) {
+        match en_passant.apply(&mut self.chessboard) {
             Err(error) => return Err(GameError::ChessboardActionError(error)),
             Ok(_) => {}
-        };
-        match self.chessboard.move_piece(&from_square, &to_square) {
-            Err(error) => return Err(GameError::ChessboardActionError(error)),
-            Ok(()) => {}
         };
 
         self.history.push(GameMove::EnPassant(en_passant));

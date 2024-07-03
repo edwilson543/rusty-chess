@@ -3,6 +3,7 @@ use super::translation;
 use crate::domain::gameplay::chess_set;
 
 /// A move of a single piece from one square to another.
+#[derive(Clone)]
 pub struct OrdinaryMove {
     pub chessboard: chess_set::Chessboard,
     pub piece: chess_set::Piece,

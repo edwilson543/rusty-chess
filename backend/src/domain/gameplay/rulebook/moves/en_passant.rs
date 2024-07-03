@@ -1,5 +1,6 @@
 use super::{ordinary_move, translation};
 
+use super::base_move;
 use crate::domain::gameplay::chess_set;
 use std::fmt;
 
@@ -14,6 +15,7 @@ pub struct EnPassant {
     pawn: chess_set::Piece,
     from_square: chess_set::Square,
     to_square: chess_set::Square,
+    previous_move: ordinary_move::OrdinaryMove,
     translation: translation::Translation,
 }
 
@@ -30,7 +32,7 @@ pub fn validate_en_passant(
         return Err(EnPassantValidationError::OnlyAllowedAfterDoubleAdvancement);
     }
 
-    let en_passant = EnPassant::new(piece, from_square, to_square);
+    let en_passant = EnPassant::new(piece, from_square, to_square, previous_move);
     if !target_square_is_valid(&en_passant, previous_move) {
         return Err(EnPassantValidationError::InvalidTargetSquare);
     };
@@ -43,6 +45,7 @@ impl EnPassant {
         pawn: &chess_set::Piece,
         from_square: &chess_set::Square,
         to_square: &chess_set::Square,
+        previous_move: &ordinary_move::OrdinaryMove,
     ) -> Self {
         let translation =
             translation::Translation::from_move(from_square, to_square, pawn.get_colour());
@@ -51,8 +54,23 @@ impl EnPassant {
             pawn: pawn.clone(),
             from_square: from_square.clone(),
             to_square: to_square.clone(),
+            previous_move: previous_move.clone(),
             translation: translation,
         }
+    }
+}
+
+impl base_move::ChessMove for EnPassant {
+    fn apply(
+        &self,
+        chessboard: &mut chess_set::Chessboard,
+    ) -> Result<(), chess_set::ChessboardActionError> {
+        match chessboard.remove_piece(&self.previous_move.to_square) {
+            Err(error) => return Err(error),
+            Ok(_) => {}
+        };
+
+        chessboard.move_piece(&self.from_square, &self.to_square)
     }
 }
 

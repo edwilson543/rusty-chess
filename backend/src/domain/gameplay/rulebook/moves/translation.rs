@@ -4,7 +4,7 @@ use std::fmt;
 use std::ops;
 
 /// Geometric representation of a chess move, used to simplify validation logic.
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Translation {
     pub vector: ChessVector,
     pub scalar: u8,
