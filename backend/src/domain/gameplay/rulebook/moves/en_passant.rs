@@ -1,4 +1,4 @@
-use super::{ordinary_move, translation};
+use super::translation;
 
 use super::base_move;
 use crate::domain::gameplay::chess_set;
@@ -15,7 +15,6 @@ pub struct EnPassant {
     pawn: chess_set::Piece,
     from_square: chess_set::Square,
     to_square: chess_set::Square,
-    previous_move: ordinary_move::OrdinaryMove,
     translation: translation::Translation,
 }
 
@@ -24,7 +23,8 @@ impl base_move::ChessMove for EnPassant {
         &self,
         chessboard: &mut chess_set::Chessboard,
     ) -> Result<(), chess_set::ChessboardActionError> {
-        match chessboard.remove_piece(&self.previous_move.to_square) {
+        let square = self.get_square_captured_pawn_should_have_moved_to();
+        match chessboard.remove_piece(&square) {
             Err(error) => return Err(error),
             Ok(_) => {}
         };
@@ -38,7 +38,6 @@ impl EnPassant {
         pawn: &chess_set::Piece,
         from_square: &chess_set::Square,
         to_square: &chess_set::Square,
-        previous_move: &ordinary_move::OrdinaryMove,
     ) -> Self {
         let translation =
             translation::Translation::from_move(from_square, to_square, pawn.get_colour());
@@ -47,7 +46,6 @@ impl EnPassant {
             pawn: pawn.clone(),
             from_square: from_square.clone(),
             to_square: to_square.clone(),
-            previous_move: previous_move.clone(),
             translation: translation,
         }
     }
@@ -59,11 +57,11 @@ impl EnPassant {
         if !(self.pawn.get_piece_type() == &chess_set::PieceType::Pawn) {
             return Err(EnPassantValidationError::OnlyAllowedForPawns);
         }
-        if !self.did_opponent_pawn_make_double_pawn_advancement(chessboard_history) {
+        if !self.opponent_made_double_pawn_advancement_over_target_square(chessboard_history) {
             return Err(EnPassantValidationError::OnlyAllowedAfterDoubleAdvancement);
         }
 
-        if !target_square_is_valid(&self, &self.previous_move) {
+        if !self.is_translation_valid() {
             return Err(EnPassantValidationError::InvalidTargetSquare);
         };
 
@@ -71,7 +69,7 @@ impl EnPassant {
     }
 
     // En passant is only allowed immediately after the opponent makes a double pawn advancement.
-    fn did_opponent_pawn_make_double_pawn_advancement(
+    fn opponent_made_double_pawn_advancement_over_target_square(
         &self,
         chessboard_history: &Vec<chess_set::Chessboard>,
     ) -> bool {
@@ -116,21 +114,12 @@ impl EnPassant {
         let file = self.to_square.get_file();
         chess_set::Square::new(rank.clone(), file.clone())
     }
-}
 
-// En passant is only allowed to the middle square of a double pawn advancement.
-fn target_square_is_valid(
-    en_passant: &EnPassant,
-    previous_move: &ordinary_move::OrdinaryMove,
-) -> bool {
-    let forwards_and_right = translation::ChessVector::new(1, 1);
-    let forwards_and_left = translation::ChessVector::new(-1, 1);
-
-    let move_is_diagonal = en_passant.translation.vector == forwards_and_right
-        || en_passant.translation.vector == forwards_and_left;
-
-    let is_to_correct_file = en_passant.to_square.get_file() == previous_move.to_square.get_file();
-    move_is_diagonal && en_passant.translation.scalar == 1 && is_to_correct_file
+    fn is_translation_valid(&self) -> bool {
+        // An en passant must move the pawn diagonally forward one square.
+        self.translation.vector == translation::ChessVector::new(1, 1)
+            || self.translation.vector == translation::ChessVector::new(-1, 1)
+    }
 }
 
 // Trait implementations.

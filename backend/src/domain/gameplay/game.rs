@@ -104,13 +104,7 @@ impl Game {
             Err(error) => return Err(error),
         };
 
-        let GameMove::OrdinaryMove(previous_move) = self.history.last().unwrap() else {
-            return Err(GameError::EnPassantValidationError(
-                rulebook::EnPassantValidationError::OnlyAllowedAfterDoubleAdvancement,
-            ));
-        };
-
-        let en_passant = rulebook::EnPassant::new(&pawn, from_square, to_square, previous_move);
+        let en_passant = rulebook::EnPassant::new(&pawn, from_square, to_square);
         match en_passant.validate(&self.chessboard_history) {
             Ok(en_passant) => en_passant,
             Err(error) => return Err(GameError::EnPassantValidationError(error)),
