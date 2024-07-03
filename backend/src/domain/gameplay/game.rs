@@ -1,5 +1,6 @@
 use crate::domain::gameplay::chess_set;
 use crate::domain::gameplay::rulebook;
+use crate::domain::gameplay::rulebook::ChessMove;
 
 pub enum GameMove {
     OrdinaryMove(rulebook::OrdinaryMove),
@@ -75,7 +76,7 @@ impl Game {
                 Err(error) => return Err(GameError::MoveValidationError(error)),
             };
 
-        match self.chessboard.move_piece(&from_square, &to_square) {
+        match validated_move.apply(&mut self.chessboard) {
             Err(error) => return Err(GameError::ChessboardActionError(error)),
             Ok(()) => {}
         };

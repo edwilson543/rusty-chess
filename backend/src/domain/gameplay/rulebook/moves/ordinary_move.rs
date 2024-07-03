@@ -1,3 +1,4 @@
+use super::base_move;
 use super::translation;
 use crate::domain::gameplay::chess_set;
 
@@ -33,4 +34,13 @@ impl OrdinaryMove {
 /// Mechanism for defining whether a certain translation is allowed.
 pub trait OrdinaryMoveRule {
     fn allows_move(&self, chess_move: &OrdinaryMove) -> bool;
+}
+
+impl base_move::ChessMove for OrdinaryMove {
+    fn apply(
+        &self,
+        chessboard: &mut chess_set::Chessboard,
+    ) -> Result<(), chess_set::ChessboardActionError> {
+        chessboard.move_piece(&self.from_square, &self.to_square)
+    }
 }
