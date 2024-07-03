@@ -19,6 +19,20 @@ pub struct EnPassant {
     translation: translation::Translation,
 }
 
+impl base_move::ChessMove for EnPassant {
+    fn apply(
+        &self,
+        chessboard: &mut chess_set::Chessboard,
+    ) -> Result<(), chess_set::ChessboardActionError> {
+        match chessboard.remove_piece(&self.previous_move.to_square) {
+            Err(error) => return Err(error),
+            Ok(_) => {}
+        };
+
+        chessboard.move_piece(&self.from_square, &self.to_square)
+    }
+}
+
 impl EnPassant {
     pub fn new(
         pawn: &chess_set::Piece,
@@ -45,7 +59,7 @@ impl EnPassant {
         if !(self.pawn.get_piece_type() == &chess_set::PieceType::Pawn) {
             return Err(EnPassantValidationError::OnlyAllowedForPawns);
         }
-        if !is_double_pawn_advancement(&self.previous_move) {
+        if !self.did_opponent_pawn_make_double_pawn_advancement(chessboard_history) {
             return Err(EnPassantValidationError::OnlyAllowedAfterDoubleAdvancement);
         }
 
@@ -55,39 +69,53 @@ impl EnPassant {
 
         return Ok(());
     }
-}
 
-impl base_move::ChessMove for EnPassant {
-    fn apply(
+    // En passant is only allowed immediately after the opponent makes a double pawn advancement.
+    fn did_opponent_pawn_make_double_pawn_advancement(
         &self,
-        chessboard: &mut chess_set::Chessboard,
-    ) -> Result<(), chess_set::ChessboardActionError> {
-        match chessboard.remove_piece(&self.previous_move.to_square) {
-            Err(error) => return Err(error),
-            Ok(_) => {}
-        };
+        chessboard_history: &Vec<chess_set::Chessboard>,
+    ) -> bool {
+        let from_square = self.get_square_captured_pawn_should_have_moved_from();
+        let previous_state = &chessboard_history[chessboard_history.len() - 2];
+        let opponent_pawn_moved_from_expected_square =
+            self.is_piece_at_square_opponent_pawn(previous_state, &from_square);
 
-        chessboard.move_piece(&self.from_square, &self.to_square)
+        let current_state = chessboard_history.last().unwrap();
+        let to_square = self.get_square_captured_pawn_should_have_moved_to();
+        let opponent_pawn_moved_to_expected_square =
+            self.is_piece_at_square_opponent_pawn(current_state, &to_square);
+
+        opponent_pawn_moved_from_expected_square && opponent_pawn_moved_to_expected_square
     }
-}
 
-// En passant is only allowed immediately after the opponent makes a double pawn advancement.
-// fn did_opponent_pawn_just_jump_over_target_square(
-//     to_square: &chess_set::Square,
-//     chessboard_history: &Vec<chess_set::Chessboard>,
-// ) -> bool {
-//     // Todo -> Do chessboard_history[-1] - chessboard_history[-2].
-// - The diff should contain two items
-// - Check the piece in both cases is the same pawn
-// - Check the squares are two apart (so can delete `apply_to_square`)
-// }
+    fn is_piece_at_square_opponent_pawn(
+        &self,
+        chessboard: &chess_set::Chessboard,
+        square: &chess_set::Square,
+    ) -> bool {
+        let Some(piece) = chessboard.get_piece(&square) else {
+            return false;
+        };
+        let is_opponent = !(piece.get_colour() == self.pawn.get_colour());
+        let is_pawn = piece.get_piece_type() == &chess_set::PieceType::Pawn;
+        is_opponent && is_pawn
+    }
 
-// TODO -> old.
-fn is_double_pawn_advancement(previous_move: &ordinary_move::OrdinaryMove) -> bool {
-    let was_pawn = previous_move.piece.get_piece_type() == &chess_set::PieceType::Pawn;
-    // Pawns can only move two squares if it is forwards, so no need to check direction.
-    let was_double_advancement = previous_move.translation.scalar == 2;
-    was_double_advancement && was_pawn
+    fn get_square_captured_pawn_should_have_moved_to(&self) -> chess_set::Square {
+        let rank = self.from_square.get_rank();
+        let file = self.to_square.get_file();
+        chess_set::Square::new(rank.clone(), file.clone())
+    }
+
+    fn get_square_captured_pawn_should_have_moved_from(&self) -> chess_set::Square {
+        let rank = match self.pawn.get_colour() {
+            // Opponent pawn should have moved from their starting rank.
+            &chess_set::Colour::White => chess_set::Rank::Seven,
+            &chess_set::Colour::Black => chess_set::Rank::Two,
+        };
+        let file = self.to_square.get_file();
+        chess_set::Square::new(rank.clone(), file.clone())
+    }
 }
 
 // En passant is only allowed to the middle square of a double pawn advancement.

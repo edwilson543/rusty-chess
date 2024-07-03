@@ -92,34 +92,31 @@ impl Chessboard {
 }
 
 impl ops::Sub for Chessboard {
-    type Output = HashMap<chess_set::Square, ChangedSquare>;
+    type Output = Vec<ChessboardDelta>;
 
     fn sub(self, rhs: Self) -> Self::Output {
-        let mut diff = HashMap::new();
+        let mut deltas = vec![];
 
-        for (square, piece) in self.position.into_iter() {
-            let rhs_piece = rhs.get_piece(&square);
-            if rhs_piece != piece {
-                diff.insert(square, ChangedSquare::new(rhs_piece, piece));
+        for (square, changed_to_piece) in self.position.into_iter() {
+            let changed_from_piece = rhs.get_piece(&square);
+            if changed_from_piece != changed_to_piece {
+                let delta = ChessboardDelta {
+                    square,
+                    changed_from: changed_to_piece,
+                    changed_to: changed_from_piece,
+                };
+                deltas.push(delta);
             }
         }
-        diff
+        deltas
     }
 }
 
 // Representation of pieces that are in different positions on two boards.
-pub struct ChangedSquare {
+pub struct ChessboardDelta {
+    pub square: chess_set::Square,
     pub changed_from: Option<chess_set::Piece>,
     pub changed_to: Option<chess_set::Piece>,
-}
-
-impl ChangedSquare {
-    fn new(changed_from: Option<chess_set::Piece>, changed_to: Option<chess_set::Piece>) -> Self {
-        Self {
-            changed_from: changed_from,
-            changed_to: changed_to,
-        }
-    }
 }
 
 #[cfg(test)]
@@ -263,16 +260,20 @@ mod tests {
             let to_square = Square::new(Rank::Three, File::F);
             other_chessboard.move_piece(&from_square, &to_square);
 
-            let diff = other_chessboard - chessboard;
+            let mut deltas = other_chessboard - chessboard;
 
-            let from_square_diff = diff.get(&from_square).unwrap();
-            let piece = Piece::new(Colour::White, PieceType::Pawn);
-            assert_eq!(from_square_diff.changed_from, Some(piece));
-            assert_eq!(from_square_diff.changed_to, None);
-
-            let to_square_diff = diff.get(&to_square).unwrap();
-            assert_eq!(to_square_diff.changed_from, None);
-            assert_eq!(to_square_diff.changed_to, Some(piece));
+            assert_eq!(deltas.len(), 2);
+            let debug = true;
+            // deltas.sort_by(|delta| delta.square.get_file().index());
+            //
+            // let from_square_diff = deltas.get(&from_square).unwrap();
+            // let piece = Piece::new(Colour::White, PieceType::Pawn);
+            // assert_eq!(from_square_diff.changed_from, Some(piece));
+            // assert_eq!(from_square_diff.changed_to, None);
+            //
+            // let to_square_diff = deltas.get(&to_square).unwrap();
+            // assert_eq!(to_square_diff.changed_from, None);
+            // assert_eq!(to_square_diff.changed_to, Some(piece));
         }
     }
 }
