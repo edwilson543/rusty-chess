@@ -2,11 +2,6 @@ use crate::domain::gameplay::chess_set;
 use crate::domain::gameplay::rulebook;
 use crate::domain::gameplay::rulebook::ChessMove;
 
-pub enum GameMove {
-    OrdinaryMove(rulebook::OrdinaryMove),
-    EnPassant(rulebook::EnPassant),
-}
-
 #[derive(thiserror::Error, Debug, PartialEq)]
 pub enum GameError {
     #[error("The game has already ended.")]
@@ -39,7 +34,6 @@ pub enum GameStatus {
 pub struct Game {
     chessboard: chess_set::Chessboard,
     status: GameStatus,
-    history: Vec<GameMove>,
     chessboard_history: Vec<chess_set::Chessboard>,
 }
 
@@ -52,7 +46,6 @@ impl Game {
         Self {
             chessboard: chessboard.clone(),
             status: GameStatus::ToPlay(chess_set::Colour::White),
-            history: vec![],
             chessboard_history: vec![chessboard.clone()],
         }
     }
@@ -83,7 +76,6 @@ impl Game {
             Ok(()) => {}
         };
 
-        self.history.push(GameMove::OrdinaryMove(validated_move)); // TODO -> delete.
         self.clone_current_chessboard_to_history();
         self.progress_game_status();
         Ok(&self.status)
@@ -115,7 +107,6 @@ impl Game {
             Ok(_) => {}
         };
 
-        self.history.push(GameMove::EnPassant(en_passant)); // TODO -> delete.
         self.clone_current_chessboard_to_history();
         self.progress_game_status();
         Ok(&self.status)

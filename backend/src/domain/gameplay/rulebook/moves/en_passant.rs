@@ -130,4 +130,6 @@ impl fmt::Display for EnPassantValidationError {
     }
 }
 
-// TODO -> add unit tests for error paths.
+// TODO -> add unit tests:
+// - Happy path black & white
+// - Each error path
