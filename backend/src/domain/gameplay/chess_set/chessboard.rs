@@ -51,7 +51,6 @@ impl Chessboard {
     }
 
     // Mutators
-
     pub fn move_piece(
         &mut self,
         from_square: &chess_set::Square,
@@ -93,8 +92,7 @@ impl Chessboard {
 }
 
 impl ops::Sub for Chessboard {
-    // Representation of pieces that are in different positions on two boards.
-    type Output = HashMap<chess_set::Square, (Option<chess_set::Piece>, Option<chess_set::Piece>)>;
+    type Output = HashMap<chess_set::Square, ChangedSquare>;
 
     fn sub(self, rhs: Self) -> Self::Output {
         let mut diff = HashMap::new();
@@ -102,10 +100,25 @@ impl ops::Sub for Chessboard {
         for (square, piece) in self.position.into_iter() {
             let rhs_piece = rhs.get_piece(&square);
             if rhs_piece != piece {
-                diff.insert(square, (piece, rhs_piece));
+                diff.insert(square, ChangedSquare::new(rhs_piece, piece));
             }
         }
         diff
+    }
+}
+
+// Representation of pieces that are in different positions on two boards.
+pub struct ChangedSquare {
+    pub changed_from: Option<chess_set::Piece>,
+    pub changed_to: Option<chess_set::Piece>,
+}
+
+impl ChangedSquare {
+    fn new(changed_from: Option<chess_set::Piece>, changed_to: Option<chess_set::Piece>) -> Self {
+        Self {
+            changed_from: changed_from,
+            changed_to: changed_to,
+        }
     }
 }
 
@@ -238,7 +251,7 @@ mod tests {
 
     #[cfg(test)]
     mod subtraction_tests {
-        use crate::domain::gameplay::chess_set::{File, Rank, Square};
+        use crate::domain::gameplay::chess_set::{Colour, File, Piece, PieceType, Rank, Square};
         use crate::testing::factories;
 
         #[test]
@@ -252,9 +265,14 @@ mod tests {
 
             let diff = other_chessboard - chessboard;
 
-            // TODO.
-            // TODO -> MAYBE just call this "get_moved_pieces"
-            // assert_eq!(diff.get(&to_square).unwrap(), ())
+            let from_square_diff = diff.get(&from_square).unwrap();
+            let piece = Piece::new(Colour::White, PieceType::Pawn);
+            assert_eq!(from_square_diff.changed_from, Some(piece));
+            assert_eq!(from_square_diff.changed_to, None);
+
+            let to_square_diff = diff.get(&to_square).unwrap();
+            assert_eq!(to_square_diff.changed_from, None);
+            assert_eq!(to_square_diff.changed_to, Some(piece));
         }
     }
 }
