@@ -1,7 +1,4 @@
-pub mod domain;
-
-#[cfg(test)]
-pub mod testing;
+// use chess::domain;
 
 fn main() {
     println!("Hello, world!");

@@ -7,6 +7,7 @@ use thiserror;
 /// Note: this does not implement any gameplay logic or rules of the game.
 /// The only invariant enforced is that each square has at most one piece on it
 /// at any point in time (since the chessboard is represented by a hashmap).
+#[derive(Clone)]
 pub struct Chessboard {
     position: HashMap<chess_set::Square, Option<chess_set::Piece>>,
 }
@@ -78,7 +79,7 @@ impl Chessboard {
         Ok(())
     }
 
-    fn remove_piece(
+    pub fn remove_piece(
         &mut self,
         from_square: &chess_set::Square,
     ) -> Result<chess_set::Piece, ChessboardActionError> {

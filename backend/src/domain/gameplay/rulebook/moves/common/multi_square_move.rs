@@ -12,8 +12,8 @@ impl MultiSquareMove {
 }
 
 impl move_rule::MoveRule for MultiSquareMove {
-    fn allows_move(&self, move_: &move_rule::Move) -> bool {
-        let translation = &move_.translation;
+    fn allows_move(&self, chess_move: &move_rule::Move) -> bool {
+        let translation = &chess_move.translation;
         self.vector == translation.vector && !translation.is_obstructed()
     }
 }
@@ -33,11 +33,11 @@ mod tests {
         let piece = Piece::new(Colour::White, PieceType::Rook);
 
         let chessboard = factories::chessboard();
-        let move_ = Move::new(&chessboard, &piece, &from_square, &to_square);
+        let chess_move = Move::new(&chessboard, &piece, &from_square, &to_square);
 
         let rule = MultiSquareMove::new(translation::ChessVector::new(0, 1));
 
-        assert!(rule.allows_move(&move_));
+        assert!(rule.allows_move(&chess_move));
     }
 
     #[test]
@@ -47,11 +47,11 @@ mod tests {
         let piece = Piece::new(Colour::Black, PieceType::Rook);
 
         let chessboard = factories::chessboard();
-        let move_ = Move::new(&chessboard, &piece, &from_square, &to_square);
+        let chess_move = Move::new(&chessboard, &piece, &from_square, &to_square);
 
         let rule = MultiSquareMove::new(translation::ChessVector::new(0, 1));
 
-        assert!(rule.allows_move(&move_));
+        assert!(rule.allows_move(&chess_move));
     }
 
     #[test]
@@ -61,11 +61,11 @@ mod tests {
         let piece = factories::some_piece();
 
         let chessboard = factories::chessboard();
-        let move_ = Move::new(&chessboard, &piece, &from_square, &to_square);
+        let chess_move = Move::new(&chessboard, &piece, &from_square, &to_square);
 
         let vector = translation::ChessVector::new(0, -1);
         let rule = MultiSquareMove::new(vector);
 
-        assert!(!rule.allows_move(&move_));
+        assert!(!rule.allows_move(&chess_move));
     }
 }

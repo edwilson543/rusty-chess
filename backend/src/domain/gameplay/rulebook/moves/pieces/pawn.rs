@@ -19,12 +19,12 @@ pub fn get_pawn_move_rules() -> vec::IntoIter<Box<dyn move_rule::MoveRule>> {
 struct TwoSquaresForwardMove;
 
 impl move_rule::MoveRule for TwoSquaresForwardMove {
-    fn allows_move(&self, move_: &move_rule::Move) -> bool {
+    fn allows_move(&self, chess_move: &move_rule::Move) -> bool {
         let forwards = translation::ChessVector::new(0, 1);
 
-        let is_forwards = move_.translation.vector == forwards;
-        let is_two_squares = move_.translation.scalar == 2;
-        let is_first_move_for_pawn = is_first_move_for_pawn(move_);
+        let is_forwards = chess_move.translation.vector == forwards;
+        let is_two_squares = chess_move.translation.scalar == 2;
+        let is_first_move_for_pawn = is_first_move_for_pawn(chess_move);
 
         is_forwards && is_two_squares && is_first_move_for_pawn
     }
@@ -33,32 +33,32 @@ impl move_rule::MoveRule for TwoSquaresForwardMove {
 struct ForwardsDiagonalCapture;
 
 impl move_rule::MoveRule for ForwardsDiagonalCapture {
-    fn allows_move(&self, move_: &move_rule::Move) -> bool {
+    fn allows_move(&self, chess_move: &move_rule::Move) -> bool {
         let forwards_and_right = translation::ChessVector::new(1, 1);
         let forwards_and_left = translation::ChessVector::new(-1, 1);
 
-        let is_forwards_diagonal = move_.translation.vector == forwards_and_right
-            || move_.translation.vector == forwards_and_left;
+        let is_forwards_diagonal = chess_move.translation.vector == forwards_and_right
+            || chess_move.translation.vector == forwards_and_left;
 
-        let is_capture = is_square_occupied_by_opponent_piece(move_);
+        let is_capture = is_square_occupied_by_opponent_piece(chess_move);
 
-        is_forwards_diagonal && move_.translation.scalar == 1 && is_capture
+        is_forwards_diagonal && chess_move.translation.scalar == 1 && is_capture
     }
 }
 
-fn is_first_move_for_pawn(move_: &move_rule::Move) -> bool {
-    let starting_rank = match move_.piece.get_colour() {
+fn is_first_move_for_pawn(chess_move: &move_rule::Move) -> bool {
+    let starting_rank = match chess_move.piece.get_colour() {
         chess_set::Colour::White => &chess_set::Rank::Two,
         chess_set::Colour::Black => &chess_set::Rank::Seven,
     };
-    move_.from_square.get_rank() == starting_rank
+    chess_move.from_square.get_rank() == starting_rank
 }
 
-fn is_square_occupied_by_opponent_piece(move_: &move_rule::Move) -> bool {
-    let Some(piece) = move_.chessboard.get_piece(move_.to_square) else {
+fn is_square_occupied_by_opponent_piece(chess_move: &move_rule::Move) -> bool {
+    let Some(piece) = chess_move.chessboard.get_piece(&chess_move.to_square) else {
         return false;
     };
-    piece.get_colour() != move_.piece.get_colour()
+    piece.get_colour() != chess_move.piece.get_colour()
 }
 
 #[cfg(test)]
@@ -68,9 +68,9 @@ mod tests {
     use crate::domain::gameplay::rulebook::moves::move_rule::Move;
     use crate::testing::factories;
 
-    fn is_move_allowed(move_: &Move) -> bool {
+    fn is_move_allowed(chess_move: &Move) -> bool {
         let mut rules = get_pawn_move_rules();
-        rules.any(|rule| rule.allows_move(move_))
+        rules.any(|rule| rule.allows_move(chess_move))
     }
 
     // Allowed.
@@ -81,9 +81,9 @@ mod tests {
         let pawn = Piece::new(Colour::White, PieceType::Pawn);
 
         let chessboard = factories::chessboard();
-        let move_ = Move::new(&chessboard, &pawn, &from_square, &to_square);
+        let chess_move = Move::new(&chessboard, &pawn, &from_square, &to_square);
 
-        assert!(is_move_allowed(&move_));
+        assert!(is_move_allowed(&chess_move));
     }
 
     #[test]
@@ -93,9 +93,9 @@ mod tests {
         let pawn = Piece::new(Colour::Black, PieceType::Pawn);
 
         let chessboard = factories::chessboard();
-        let move_ = Move::new(&chessboard, &pawn, &from_square, &to_square);
+        let chess_move = Move::new(&chessboard, &pawn, &from_square, &to_square);
 
-        assert!(is_move_allowed(&move_));
+        assert!(is_move_allowed(&chess_move));
     }
 
     #[test]
@@ -105,9 +105,9 @@ mod tests {
         let pawn = Piece::new(Colour::White, PieceType::Pawn);
 
         let chessboard = factories::chessboard();
-        let move_ = Move::new(&chessboard, &pawn, &from_square, &to_square);
+        let chess_move = Move::new(&chessboard, &pawn, &from_square, &to_square);
 
-        assert!(is_move_allowed(&move_));
+        assert!(is_move_allowed(&chess_move));
     }
 
     #[test]
@@ -117,9 +117,9 @@ mod tests {
         let pawn = Piece::new(Colour::Black, PieceType::Pawn);
 
         let chessboard = factories::chessboard();
-        let move_ = Move::new(&chessboard, &pawn, &from_square, &to_square);
+        let chess_move = Move::new(&chessboard, &pawn, &from_square, &to_square);
 
-        assert!(is_move_allowed(&move_));
+        assert!(is_move_allowed(&chess_move));
     }
 
     #[test]
@@ -130,11 +130,11 @@ mod tests {
 
         let mut chessboard = factories::chessboard();
         let black_pawn = Piece::new(Colour::Black, PieceType::Pawn);
-        chessboard.add_piece(black_pawn, &to_square);
+        let _ = chessboard.add_piece(black_pawn, &to_square);
 
-        let move_ = Move::new(&chessboard, &white_pawn, &from_square, &to_square);
+        let chess_move = Move::new(&chessboard, &white_pawn, &from_square, &to_square);
 
-        assert!(is_move_allowed(&move_));
+        assert!(is_move_allowed(&chess_move));
     }
 
     #[test]
@@ -145,11 +145,11 @@ mod tests {
 
         let mut chessboard = factories::chessboard();
         let white_pawn = Piece::new(Colour::White, PieceType::Pawn);
-        chessboard.add_piece(white_pawn, &to_square);
+        let _ = chessboard.add_piece(white_pawn, &to_square);
 
-        let move_ = Move::new(&chessboard, &black_pawn, &from_square, &to_square);
+        let chess_move = Move::new(&chessboard, &black_pawn, &from_square, &to_square);
 
-        assert!(is_move_allowed(&move_));
+        assert!(is_move_allowed(&chess_move));
     }
 
     // Disallowed
@@ -160,9 +160,9 @@ mod tests {
         let pawn = Piece::new(Colour::White, PieceType::Pawn);
 
         let chessboard = factories::chessboard();
-        let move_ = Move::new(&chessboard, &pawn, &from_square, &to_square);
+        let chess_move = Move::new(&chessboard, &pawn, &from_square, &to_square);
 
-        assert!(!is_move_allowed(&move_));
+        assert!(!is_move_allowed(&chess_move));
     }
 
     #[test]
@@ -172,9 +172,9 @@ mod tests {
         let pawn = Piece::new(Colour::White, PieceType::Pawn);
 
         let chessboard = factories::chessboard();
-        let move_ = Move::new(&chessboard, &pawn, &from_square, &to_square);
+        let chess_move = Move::new(&chessboard, &pawn, &from_square, &to_square);
 
-        assert!(!is_move_allowed(&move_));
+        assert!(!is_move_allowed(&chess_move));
     }
 
     #[test]
@@ -184,9 +184,9 @@ mod tests {
         let pawn = Piece::new(Colour::Black, PieceType::Pawn);
 
         let chessboard = factories::chessboard();
-        let move_ = Move::new(&chessboard, &pawn, &from_square, &to_square);
+        let chess_move = Move::new(&chessboard, &pawn, &from_square, &to_square);
 
-        assert!(!is_move_allowed(&move_));
+        assert!(!is_move_allowed(&chess_move));
     }
 
     #[test]
@@ -196,8 +196,8 @@ mod tests {
         let pawn = Piece::new(Colour::Black, PieceType::Pawn);
 
         let chessboard = factories::chessboard();
-        let move_ = Move::new(&chessboard, &pawn, &from_square, &to_square);
+        let chess_move = Move::new(&chessboard, &pawn, &from_square, &to_square);
 
-        assert!(!is_move_allowed(&move_));
+        assert!(!is_move_allowed(&chess_move));
     }
 }
