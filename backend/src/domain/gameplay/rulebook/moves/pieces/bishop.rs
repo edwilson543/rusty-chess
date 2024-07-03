@@ -1,7 +1,7 @@
-use super::super::{common, move_rule, translation};
+use super::super::{common, ordinary_move, translation};
 use std::vec;
 
-pub fn get_bishop_move_rules() -> vec::IntoIter<Box<dyn move_rule::OrdinaryMoveRule>> {
+pub fn get_bishop_move_rules() -> vec::IntoIter<Box<dyn ordinary_move::OrdinaryMoveRule>> {
     let diagonals = [
         translation::ChessVector::new(1, 1),
         translation::ChessVector::new(1, -1),
@@ -9,10 +9,10 @@ pub fn get_bishop_move_rules() -> vec::IntoIter<Box<dyn move_rule::OrdinaryMoveR
         translation::ChessVector::new(-1, 1),
     ];
 
-    let mut rules: Vec<Box<dyn move_rule::OrdinaryMoveRule>> = vec![];
+    let mut rules: Vec<Box<dyn ordinary_move::OrdinaryMoveRule>> = vec![];
     for diagonal in diagonals {
         let rule = common::MultiSquareMove::new(diagonal);
-        rules.push(Box::new(rule) as Box<dyn move_rule::OrdinaryMoveRule>);
+        rules.push(Box::new(rule) as Box<dyn ordinary_move::OrdinaryMoveRule>);
     }
 
     rules.into_iter()
@@ -22,7 +22,7 @@ pub fn get_bishop_move_rules() -> vec::IntoIter<Box<dyn move_rule::OrdinaryMoveR
 mod tests {
     use super::*;
     use crate::domain::gameplay::chess_set::{Colour, File, Piece, PieceType, Rank, Square};
-    use crate::domain::gameplay::rulebook::moves::move_rule::OrdinaryMove;
+    use crate::domain::gameplay::rulebook::moves::ordinary_move::OrdinaryMove;
     use crate::testing::factories;
     use rstest::rstest;
 

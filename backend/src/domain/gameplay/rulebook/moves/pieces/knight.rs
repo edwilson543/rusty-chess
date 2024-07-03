@@ -1,16 +1,16 @@
-use super::super::{move_rule, translation};
+use super::super::{ordinary_move, translation};
 use std::vec;
 
-pub fn get_knight_move_rules() -> vec::IntoIter<Box<dyn move_rule::OrdinaryMoveRule>> {
-    let rules = vec![Box::new(LShapedJump) as Box<dyn move_rule::OrdinaryMoveRule>];
+pub fn get_knight_move_rules() -> vec::IntoIter<Box<dyn ordinary_move::OrdinaryMoveRule>> {
+    let rules = vec![Box::new(LShapedJump) as Box<dyn ordinary_move::OrdinaryMoveRule>];
 
     rules.into_iter()
 }
 
 struct LShapedJump;
 
-impl move_rule::OrdinaryMoveRule for LShapedJump {
-    fn allows_move(&self, chess_move: &move_rule::OrdinaryMove) -> bool {
+impl ordinary_move::OrdinaryMoveRule for LShapedJump {
+    fn allows_move(&self, chess_move: &ordinary_move::OrdinaryMove) -> bool {
         let allowed_vectors = [
             translation::ChessVector::new(1, 2),
             translation::ChessVector::new(2, 1),
@@ -35,7 +35,7 @@ impl move_rule::OrdinaryMoveRule for LShapedJump {
 mod tests {
     use super::*;
     use crate::domain::gameplay::chess_set::{Colour, File, Piece, PieceType, Rank, Square};
-    use crate::domain::gameplay::rulebook::moves::move_rule::OrdinaryMove;
+    use crate::domain::gameplay::rulebook::moves::ordinary_move::OrdinaryMove;
     use crate::testing::factories;
     use rstest::rstest;
 

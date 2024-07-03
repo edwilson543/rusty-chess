@@ -1,5 +1,5 @@
 use crate::domain::gameplay::chess_set;
-use crate::domain::gameplay::rulebook::moves::{move_rule, pieces};
+use crate::domain::gameplay::rulebook::moves::{ordinary_move, pieces};
 use std::fmt;
 
 #[derive(thiserror::Error, Debug, PartialEq)]
@@ -15,7 +15,7 @@ pub fn validate_move(
     piece: &chess_set::Piece,
     from_square: &chess_set::Square,
     to_square: &chess_set::Square,
-) -> Result<move_rule::OrdinaryMove, MoveValidationError> {
+) -> Result<ordinary_move::OrdinaryMove, MoveValidationError> {
     if from_square == to_square {
         return Err(MoveValidationError::CannotMovePieceToSameSquare);
     };
@@ -24,7 +24,7 @@ pub fn validate_move(
         return Err(error);
     }
 
-    let chess_move = move_rule::OrdinaryMove::new(chessboard, piece, from_square, to_square);
+    let chess_move = ordinary_move::OrdinaryMove::new(chessboard, piece, from_square, to_square);
     if let Err(error) = validate_move_is_legal(&chess_move) {
         return Err(error);
     }
@@ -52,12 +52,14 @@ fn validate_occupant_of_target_square(
     Ok(())
 }
 
-fn validate_move_is_legal(chess_move: &move_rule::OrdinaryMove) -> Result<(), MoveValidationError> {
+fn validate_move_is_legal(
+    chess_move: &ordinary_move::OrdinaryMove,
+) -> Result<(), MoveValidationError> {
     let piece_type = chess_move.piece.get_piece_type();
     let mut move_rules = pieces::get_rules_for_piece(piece_type);
 
-    let permitted_by_translation_rules =
-        move_rules.any(|rule: Box<dyn move_rule::OrdinaryMoveRule>| rule.allows_move(&chess_move));
+    let permitted_by_translation_rules = move_rules
+        .any(|rule: Box<dyn ordinary_move::OrdinaryMoveRule>| rule.allows_move(&chess_move));
 
     match permitted_by_translation_rules {
         true => Ok(()),
