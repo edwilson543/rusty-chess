@@ -15,7 +15,7 @@ pub fn validate_move(
     piece: &chess_set::Piece,
     from_square: &chess_set::Square,
     to_square: &chess_set::Square,
-) -> Result<move_rule::Move, MoveValidationError> {
+) -> Result<move_rule::OrdinaryMove, MoveValidationError> {
     if from_square == to_square {
         return Err(MoveValidationError::CannotMovePieceToSameSquare);
     };
@@ -24,7 +24,7 @@ pub fn validate_move(
         return Err(error);
     }
 
-    let chess_move = move_rule::Move::new(chessboard, piece, from_square, to_square);
+    let chess_move = move_rule::OrdinaryMove::new(chessboard, piece, from_square, to_square);
     if let Err(error) = validate_move_is_legal(&chess_move) {
         return Err(error);
     }
@@ -52,12 +52,12 @@ fn validate_occupant_of_target_square(
     Ok(())
 }
 
-fn validate_move_is_legal(chess_move: &move_rule::Move) -> Result<(), MoveValidationError> {
+fn validate_move_is_legal(chess_move: &move_rule::OrdinaryMove) -> Result<(), MoveValidationError> {
     let piece_type = chess_move.piece.get_piece_type();
     let mut move_rules = pieces::get_rules_for_piece(piece_type);
 
     let permitted_by_translation_rules =
-        move_rules.any(|rule: Box<dyn move_rule::MoveRule>| rule.allows_move(&chess_move));
+        move_rules.any(|rule: Box<dyn move_rule::OrdinaryMoveRule>| rule.allows_move(&chess_move));
 
     match permitted_by_translation_rules {
         true => Ok(()),

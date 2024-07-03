@@ -1,7 +1,7 @@
 use super::super::{common, move_rule, translation};
 use std::vec;
 
-pub fn get_king_move_rules() -> vec::IntoIter<Box<dyn move_rule::MoveRule>> {
+pub fn get_king_move_rules() -> vec::IntoIter<Box<dyn move_rule::OrdinaryMoveRule>> {
     let vectors = [
         translation::ChessVector::new(0, 1),
         translation::ChessVector::new(1, 1),
@@ -13,10 +13,10 @@ pub fn get_king_move_rules() -> vec::IntoIter<Box<dyn move_rule::MoveRule>> {
         translation::ChessVector::new(-1, 1),
     ];
 
-    let mut rules: Vec<Box<dyn move_rule::MoveRule>> = vec![];
+    let mut rules: Vec<Box<dyn move_rule::OrdinaryMoveRule>> = vec![];
     for vector in vectors {
         let rule = common::SingleSquareMove::new(vector);
-        rules.push(Box::new(rule) as Box<dyn move_rule::MoveRule>);
+        rules.push(Box::new(rule) as Box<dyn move_rule::OrdinaryMoveRule>);
     }
 
     rules.into_iter()
@@ -26,11 +26,11 @@ pub fn get_king_move_rules() -> vec::IntoIter<Box<dyn move_rule::MoveRule>> {
 mod tests {
     use super::*;
     use crate::domain::gameplay::chess_set::{Colour, File, Piece, PieceType, Rank, Square};
-    use crate::domain::gameplay::rulebook::moves::move_rule::Move;
+    use crate::domain::gameplay::rulebook::moves::move_rule::OrdinaryMove;
     use crate::testing::factories;
     use rstest::rstest;
 
-    fn is_move_allowed(chess_move: &Move) -> bool {
+    fn is_move_allowed(chess_move: &OrdinaryMove) -> bool {
         let mut rules = get_king_move_rules();
         rules.any(|rule| rule.allows_move(chess_move))
     }
@@ -48,7 +48,7 @@ mod tests {
         let king = Piece::new(Colour::White, PieceType::King);
 
         let chessboard = factories::chessboard();
-        let chess_move = Move::new(&chessboard, &king, &from_square, &to_square);
+        let chess_move = OrdinaryMove::new(&chessboard, &king, &from_square, &to_square);
 
         assert!(is_move_allowed(&chess_move));
     }
@@ -61,7 +61,7 @@ mod tests {
         let king = Piece::new(Colour::White, PieceType::King);
 
         let chessboard = factories::chessboard();
-        let chess_move = Move::new(&chessboard, &king, &from_square, &to_square);
+        let chess_move = OrdinaryMove::new(&chessboard, &king, &from_square, &to_square);
 
         assert!(!is_move_allowed(&chess_move));
     }

@@ -11,8 +11,8 @@ impl SingleSquareMove {
     }
 }
 
-impl move_rule::MoveRule for SingleSquareMove {
-    fn allows_move(&self, chess_move: &move_rule::Move) -> bool {
+impl move_rule::OrdinaryMoveRule for SingleSquareMove {
+    fn allows_move(&self, chess_move: &move_rule::OrdinaryMove) -> bool {
         let translation = &chess_move.translation;
         self.vector == translation.vector && translation.scalar == 1
     }
@@ -22,7 +22,7 @@ impl move_rule::MoveRule for SingleSquareMove {
 mod single_square_translation_tests {
     use super::*;
     use crate::domain::gameplay::chess_set::{Colour, File, Piece, PieceType, Rank, Square};
-    use crate::domain::gameplay::rulebook::moves::move_rule::{Move, MoveRule};
+    use crate::domain::gameplay::rulebook::moves::move_rule::{OrdinaryMove, OrdinaryMoveRule};
     use crate::domain::gameplay::rulebook::moves::translation;
     use crate::testing::factories;
 
@@ -33,7 +33,7 @@ mod single_square_translation_tests {
         let piece = Piece::new(Colour::White, PieceType::Pawn);
 
         let chessboard = factories::chessboard();
-        let chess_move = Move::new(&chessboard, &piece, &from_square, &to_square);
+        let chess_move = OrdinaryMove::new(&chessboard, &piece, &from_square, &to_square);
 
         let vector = translation::ChessVector::new(0, 1);
         let rule = SingleSquareMove::new(vector);
@@ -48,7 +48,7 @@ mod single_square_translation_tests {
         let piece = Piece::new(Colour::Black, PieceType::Pawn);
 
         let chessboard = factories::chessboard();
-        let chess_move = Move::new(&chessboard, &piece, &from_square, &to_square);
+        let chess_move = OrdinaryMove::new(&chessboard, &piece, &from_square, &to_square);
 
         let vector = translation::ChessVector::new(0, 1);
         let rule = SingleSquareMove::new(vector);
@@ -63,7 +63,7 @@ mod single_square_translation_tests {
         let piece = factories::some_piece();
 
         let chessboard = factories::chessboard();
-        let chess_move = Move::new(&chessboard, &piece, &from_square, &to_square);
+        let chess_move = OrdinaryMove::new(&chessboard, &piece, &from_square, &to_square);
 
         let vector = translation::ChessVector::new(1, 0);
         let rule = SingleSquareMove::new(vector);
@@ -78,7 +78,7 @@ mod single_square_translation_tests {
         let piece = factories::some_piece();
 
         let chessboard = factories::chessboard();
-        let chess_move = Move::new(&chessboard, &piece, &from_square, &to_square);
+        let chess_move = OrdinaryMove::new(&chessboard, &piece, &from_square, &to_square);
 
         let vector = translation::ChessVector::new(1, 0);
         let rule = SingleSquareMove::new(vector);

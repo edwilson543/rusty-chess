@@ -2,8 +2,8 @@ use super::{bishop, rook};
 use crate::domain::gameplay::rulebook::moves::move_rule;
 use std::vec;
 
-pub fn get_queen_move_rules() -> vec::IntoIter<Box<dyn move_rule::MoveRule>> {
-    let mut queen_rules: Vec<Box<dyn move_rule::MoveRule>> = vec![];
+pub fn get_queen_move_rules() -> vec::IntoIter<Box<dyn move_rule::OrdinaryMoveRule>> {
+    let mut queen_rules: Vec<Box<dyn move_rule::OrdinaryMoveRule>> = vec![];
     for bishop_rule in bishop::get_bishop_move_rules() {
         queen_rules.push(bishop_rule);
     }
@@ -17,11 +17,11 @@ pub fn get_queen_move_rules() -> vec::IntoIter<Box<dyn move_rule::MoveRule>> {
 mod tests {
     use super::*;
     use crate::domain::gameplay::chess_set::{Colour, File, Piece, PieceType, Rank, Square};
-    use crate::domain::gameplay::rulebook::moves::move_rule::Move;
+    use crate::domain::gameplay::rulebook::moves::move_rule::OrdinaryMove;
     use crate::testing::factories;
     use rstest::rstest;
 
-    fn is_move_allowed(chess_move: &Move) -> bool {
+    fn is_move_allowed(chess_move: &OrdinaryMove) -> bool {
         let mut rules = get_queen_move_rules();
         rules.any(|rule| rule.allows_move(chess_move))
     }
@@ -45,7 +45,7 @@ mod tests {
         let queen = Piece::new(Colour::White, PieceType::Queen);
 
         let chessboard = factories::chessboard();
-        let chess_move = Move::new(&chessboard, &queen, &from_square, &to_square);
+        let chess_move = OrdinaryMove::new(&chessboard, &queen, &from_square, &to_square);
 
         assert!(is_move_allowed(&chess_move));
     }
@@ -57,7 +57,7 @@ mod tests {
         let queen = Piece::new(Colour::White, PieceType::Rook);
 
         let chessboard = factories::chessboard();
-        let chess_move = Move::new(&chessboard, &queen, &from_square, &to_square);
+        let chess_move = OrdinaryMove::new(&chessboard, &queen, &from_square, &to_square);
 
         assert!(!is_move_allowed(&chess_move));
     }

@@ -2,15 +2,15 @@ use super::super::{common, move_rule, translation};
 use crate::domain::gameplay::chess_set;
 use std::vec;
 
-pub fn get_pawn_move_rules() -> vec::IntoIter<Box<dyn move_rule::MoveRule>> {
+pub fn get_pawn_move_rules() -> vec::IntoIter<Box<dyn move_rule::OrdinaryMoveRule>> {
     let one_square_forwards_move =
         common::SingleSquareMove::new(translation::ChessVector::new(0, 1));
 
     // Note: En passant is implemented elsewhere.
     let rules = vec![
-        Box::new(one_square_forwards_move) as Box<dyn move_rule::MoveRule>,
-        Box::new(TwoSquaresForwardMove) as Box<dyn move_rule::MoveRule>,
-        Box::new(ForwardsDiagonalCapture) as Box<dyn move_rule::MoveRule>,
+        Box::new(one_square_forwards_move) as Box<dyn move_rule::OrdinaryMoveRule>,
+        Box::new(TwoSquaresForwardMove) as Box<dyn move_rule::OrdinaryMoveRule>,
+        Box::new(ForwardsDiagonalCapture) as Box<dyn move_rule::OrdinaryMoveRule>,
     ];
 
     rules.into_iter()
@@ -18,8 +18,8 @@ pub fn get_pawn_move_rules() -> vec::IntoIter<Box<dyn move_rule::MoveRule>> {
 
 struct TwoSquaresForwardMove;
 
-impl move_rule::MoveRule for TwoSquaresForwardMove {
-    fn allows_move(&self, chess_move: &move_rule::Move) -> bool {
+impl move_rule::OrdinaryMoveRule for TwoSquaresForwardMove {
+    fn allows_move(&self, chess_move: &move_rule::OrdinaryMove) -> bool {
         let forwards = translation::ChessVector::new(0, 1);
 
         let is_forwards = chess_move.translation.vector == forwards;
@@ -32,8 +32,8 @@ impl move_rule::MoveRule for TwoSquaresForwardMove {
 
 struct ForwardsDiagonalCapture;
 
-impl move_rule::MoveRule for ForwardsDiagonalCapture {
-    fn allows_move(&self, chess_move: &move_rule::Move) -> bool {
+impl move_rule::OrdinaryMoveRule for ForwardsDiagonalCapture {
+    fn allows_move(&self, chess_move: &move_rule::OrdinaryMove) -> bool {
         let forwards_and_right = translation::ChessVector::new(1, 1);
         let forwards_and_left = translation::ChessVector::new(-1, 1);
 
@@ -46,7 +46,7 @@ impl move_rule::MoveRule for ForwardsDiagonalCapture {
     }
 }
 
-fn is_first_move_for_pawn(chess_move: &move_rule::Move) -> bool {
+fn is_first_move_for_pawn(chess_move: &move_rule::OrdinaryMove) -> bool {
     let starting_rank = match chess_move.piece.get_colour() {
         chess_set::Colour::White => &chess_set::Rank::Two,
         chess_set::Colour::Black => &chess_set::Rank::Seven,
@@ -54,7 +54,7 @@ fn is_first_move_for_pawn(chess_move: &move_rule::Move) -> bool {
     chess_move.from_square.get_rank() == starting_rank
 }
 
-fn is_square_occupied_by_opponent_piece(chess_move: &move_rule::Move) -> bool {
+fn is_square_occupied_by_opponent_piece(chess_move: &move_rule::OrdinaryMove) -> bool {
     let Some(piece) = chess_move.chessboard.get_piece(&chess_move.to_square) else {
         return false;
     };
@@ -65,10 +65,10 @@ fn is_square_occupied_by_opponent_piece(chess_move: &move_rule::Move) -> bool {
 mod tests {
     use super::get_pawn_move_rules;
     use crate::domain::gameplay::chess_set::{Colour, File, Piece, PieceType, Rank, Square};
-    use crate::domain::gameplay::rulebook::moves::move_rule::Move;
+    use crate::domain::gameplay::rulebook::moves::move_rule::OrdinaryMove;
     use crate::testing::factories;
 
-    fn is_move_allowed(chess_move: &Move) -> bool {
+    fn is_move_allowed(chess_move: &OrdinaryMove) -> bool {
         let mut rules = get_pawn_move_rules();
         rules.any(|rule| rule.allows_move(chess_move))
     }
@@ -81,7 +81,7 @@ mod tests {
         let pawn = Piece::new(Colour::White, PieceType::Pawn);
 
         let chessboard = factories::chessboard();
-        let chess_move = Move::new(&chessboard, &pawn, &from_square, &to_square);
+        let chess_move = OrdinaryMove::new(&chessboard, &pawn, &from_square, &to_square);
 
         assert!(is_move_allowed(&chess_move));
     }
@@ -93,7 +93,7 @@ mod tests {
         let pawn = Piece::new(Colour::Black, PieceType::Pawn);
 
         let chessboard = factories::chessboard();
-        let chess_move = Move::new(&chessboard, &pawn, &from_square, &to_square);
+        let chess_move = OrdinaryMove::new(&chessboard, &pawn, &from_square, &to_square);
 
         assert!(is_move_allowed(&chess_move));
     }
@@ -105,7 +105,7 @@ mod tests {
         let pawn = Piece::new(Colour::White, PieceType::Pawn);
 
         let chessboard = factories::chessboard();
-        let chess_move = Move::new(&chessboard, &pawn, &from_square, &to_square);
+        let chess_move = OrdinaryMove::new(&chessboard, &pawn, &from_square, &to_square);
 
         assert!(is_move_allowed(&chess_move));
     }
@@ -117,7 +117,7 @@ mod tests {
         let pawn = Piece::new(Colour::Black, PieceType::Pawn);
 
         let chessboard = factories::chessboard();
-        let chess_move = Move::new(&chessboard, &pawn, &from_square, &to_square);
+        let chess_move = OrdinaryMove::new(&chessboard, &pawn, &from_square, &to_square);
 
         assert!(is_move_allowed(&chess_move));
     }
@@ -132,7 +132,7 @@ mod tests {
         let black_pawn = Piece::new(Colour::Black, PieceType::Pawn);
         let _ = chessboard.add_piece(black_pawn, &to_square);
 
-        let chess_move = Move::new(&chessboard, &white_pawn, &from_square, &to_square);
+        let chess_move = OrdinaryMove::new(&chessboard, &white_pawn, &from_square, &to_square);
 
         assert!(is_move_allowed(&chess_move));
     }
@@ -147,7 +147,7 @@ mod tests {
         let white_pawn = Piece::new(Colour::White, PieceType::Pawn);
         let _ = chessboard.add_piece(white_pawn, &to_square);
 
-        let chess_move = Move::new(&chessboard, &black_pawn, &from_square, &to_square);
+        let chess_move = OrdinaryMove::new(&chessboard, &black_pawn, &from_square, &to_square);
 
         assert!(is_move_allowed(&chess_move));
     }
@@ -160,7 +160,7 @@ mod tests {
         let pawn = Piece::new(Colour::White, PieceType::Pawn);
 
         let chessboard = factories::chessboard();
-        let chess_move = Move::new(&chessboard, &pawn, &from_square, &to_square);
+        let chess_move = OrdinaryMove::new(&chessboard, &pawn, &from_square, &to_square);
 
         assert!(!is_move_allowed(&chess_move));
     }
@@ -172,7 +172,7 @@ mod tests {
         let pawn = Piece::new(Colour::White, PieceType::Pawn);
 
         let chessboard = factories::chessboard();
-        let chess_move = Move::new(&chessboard, &pawn, &from_square, &to_square);
+        let chess_move = OrdinaryMove::new(&chessboard, &pawn, &from_square, &to_square);
 
         assert!(!is_move_allowed(&chess_move));
     }
@@ -184,7 +184,7 @@ mod tests {
         let pawn = Piece::new(Colour::Black, PieceType::Pawn);
 
         let chessboard = factories::chessboard();
-        let chess_move = Move::new(&chessboard, &pawn, &from_square, &to_square);
+        let chess_move = OrdinaryMove::new(&chessboard, &pawn, &from_square, &to_square);
 
         assert!(!is_move_allowed(&chess_move));
     }
@@ -196,7 +196,7 @@ mod tests {
         let pawn = Piece::new(Colour::Black, PieceType::Pawn);
 
         let chessboard = factories::chessboard();
-        let chess_move = Move::new(&chessboard, &pawn, &from_square, &to_square);
+        let chess_move = OrdinaryMove::new(&chessboard, &pawn, &from_square, &to_square);
 
         assert!(!is_move_allowed(&chess_move));
     }

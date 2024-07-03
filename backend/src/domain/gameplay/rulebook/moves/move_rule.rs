@@ -2,7 +2,7 @@ use super::translation;
 use crate::domain::gameplay::chess_set;
 
 /// A move of a single piece from one square to another.
-pub struct Move {
+pub struct OrdinaryMove {
     pub chessboard: chess_set::Chessboard,
     pub piece: chess_set::Piece,
     pub from_square: chess_set::Square,
@@ -10,7 +10,7 @@ pub struct Move {
     pub translation: translation::Translation,
 }
 
-impl Move {
+impl OrdinaryMove {
     pub fn new(
         chessboard: &chess_set::Chessboard,
         piece: &chess_set::Piece,
@@ -31,6 +31,6 @@ impl Move {
 }
 
 /// Mechanism for defining whether a certain translation is allowed.
-pub trait MoveRule {
-    fn allows_move(&self, chess_move: &Move) -> bool;
+pub trait OrdinaryMoveRule {
+    fn allows_move(&self, chess_move: &OrdinaryMove) -> bool;
 }

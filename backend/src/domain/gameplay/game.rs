@@ -2,7 +2,7 @@ use crate::domain::gameplay::chess_set;
 use crate::domain::gameplay::rulebook;
 
 pub enum GameMove {
-    OrdinaryMove(rulebook::Move),
+    OrdinaryMove(rulebook::OrdinaryMove),
     EnPassant(rulebook::EnPassant),
 }
 

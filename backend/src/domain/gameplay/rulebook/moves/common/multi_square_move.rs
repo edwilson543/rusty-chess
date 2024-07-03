@@ -11,8 +11,8 @@ impl MultiSquareMove {
     }
 }
 
-impl move_rule::MoveRule for MultiSquareMove {
-    fn allows_move(&self, chess_move: &move_rule::Move) -> bool {
+impl move_rule::OrdinaryMoveRule for MultiSquareMove {
+    fn allows_move(&self, chess_move: &move_rule::OrdinaryMove) -> bool {
         let translation = &chess_move.translation;
         self.vector == translation.vector && !translation.is_obstructed()
     }
@@ -22,7 +22,7 @@ impl move_rule::MoveRule for MultiSquareMove {
 mod tests {
     use super::*;
     use crate::domain::gameplay::chess_set::{Colour, File, Piece, PieceType, Rank, Square};
-    use crate::domain::gameplay::rulebook::moves::move_rule::{Move, MoveRule};
+    use crate::domain::gameplay::rulebook::moves::move_rule::{OrdinaryMove, OrdinaryMoveRule};
     use crate::domain::gameplay::rulebook::moves::translation;
     use crate::testing::factories;
 
@@ -33,7 +33,7 @@ mod tests {
         let piece = Piece::new(Colour::White, PieceType::Rook);
 
         let chessboard = factories::chessboard();
-        let chess_move = Move::new(&chessboard, &piece, &from_square, &to_square);
+        let chess_move = OrdinaryMove::new(&chessboard, &piece, &from_square, &to_square);
 
         let rule = MultiSquareMove::new(translation::ChessVector::new(0, 1));
 
@@ -47,7 +47,7 @@ mod tests {
         let piece = Piece::new(Colour::Black, PieceType::Rook);
 
         let chessboard = factories::chessboard();
-        let chess_move = Move::new(&chessboard, &piece, &from_square, &to_square);
+        let chess_move = OrdinaryMove::new(&chessboard, &piece, &from_square, &to_square);
 
         let rule = MultiSquareMove::new(translation::ChessVector::new(0, 1));
 
@@ -61,7 +61,7 @@ mod tests {
         let piece = factories::some_piece();
 
         let chessboard = factories::chessboard();
-        let chess_move = Move::new(&chessboard, &piece, &from_square, &to_square);
+        let chess_move = OrdinaryMove::new(&chessboard, &piece, &from_square, &to_square);
 
         let vector = translation::ChessVector::new(0, -1);
         let rule = MultiSquareMove::new(vector);
