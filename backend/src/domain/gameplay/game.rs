@@ -40,6 +40,7 @@ pub struct Game {
     chessboard: chess_set::Chessboard,
     status: GameStatus,
     history: Vec<GameMove>,
+    chessboard_history: Vec<chess_set::Chessboard>,
 }
 
 // Public interface.
@@ -49,9 +50,10 @@ impl Game {
         let chessboard = chess_set::Chessboard::new(starting_position);
 
         Self {
-            chessboard: chessboard,
-            history: vec![],
+            chessboard: chessboard.clone(),
             status: GameStatus::ToPlay(chess_set::Colour::White),
+            history: vec![],
+            chessboard_history: vec![chessboard.clone()],
         }
     }
 
@@ -81,7 +83,8 @@ impl Game {
             Ok(()) => {}
         };
 
-        self.history.push(GameMove::OrdinaryMove(validated_move));
+        self.history.push(GameMove::OrdinaryMove(validated_move)); // TODO -> delete.
+        self.clone_current_chessboard_to_history();
         self.progress_game_status();
         Ok(&self.status)
     }
@@ -118,7 +121,8 @@ impl Game {
             Ok(_) => {}
         };
 
-        self.history.push(GameMove::EnPassant(en_passant));
+        self.history.push(GameMove::EnPassant(en_passant)); // TODO -> delete.
+        self.clone_current_chessboard_to_history();
         self.progress_game_status();
         Ok(&self.status)
     }
@@ -133,6 +137,10 @@ impl Game {
             GameStatus::ToPlay(colour) => GameStatus::ToPlay(colour.swap()),
             _ => panic!("TODO."),
         };
+    }
+
+    fn clone_current_chessboard_to_history(&mut self) {
+        self.chessboard_history.push(self.chessboard.clone());
     }
 
     // Queries.
