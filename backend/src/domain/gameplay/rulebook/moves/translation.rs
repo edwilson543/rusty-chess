@@ -12,13 +12,6 @@ pub struct Translation {
 
 impl Translation {
     // Factories.
-    pub fn new_unscaled(vector: ChessVector) -> Self {
-        Self {
-            vector: vector,
-            scalar: 1,
-        }
-    }
-
     pub fn from_move(
         from_square: &chess_set::Square,
         to_square: &chess_set::Square,
@@ -52,20 +45,6 @@ impl Translation {
     pub fn is_obstructed(&self) -> bool {
         // TODO.
         return false;
-    }
-
-    pub fn apply_to_square(&self, from_square: &chess_set::Square) -> chess_set::Square {
-        let translated_x = self.scaled_x() + from_square.get_file().index();
-        let translated_y = self.scaled_y() + from_square.get_rank().index();
-        chess_set::Square::from_indexes(translated_y, translated_x)
-    }
-
-    fn scaled_x(&self) -> i8 {
-        self.vector.x * (self.scalar as i8)
-    }
-
-    fn scaled_y(&self) -> i8 {
-        self.vector.y * (self.scalar as i8)
     }
 }
 
@@ -349,41 +328,6 @@ mod tests {
 
             assert_eq!(translation.vector, ChessVector::new(0, 0),);
             assert_eq!(translation.scalar, 1);
-        }
-    }
-
-    #[cfg(test)]
-    mod translation_apply_to_square_tests {
-        use super::super::*;
-        use crate::domain::gameplay::chess_set::{File, Rank, Square};
-
-        #[test]
-        fn test_translates_from_square_using_unit_vector() {
-            let from_square = Square::new(Rank::Three, File::E);
-
-            let vector = ChessVector::new(1, 0);
-            let translation = Translation::new_unscaled(vector);
-
-            let result = translation.apply_to_square(&from_square);
-
-            assert_eq!(result.get_rank(), &Rank::Three);
-            assert_eq!(result.get_file(), &File::F);
-        }
-
-        #[test]
-        fn test_translates_from_square_using_vector_and_scalar() {
-            let from_square = Square::new(Rank::Two, File::F);
-
-            let vector = ChessVector::new(-1, 1);
-            let translation = Translation {
-                vector: vector,
-                scalar: 3,
-            };
-
-            let result = translation.apply_to_square(&from_square);
-
-            assert_eq!(result.get_rank(), &Rank::Five);
-            assert_eq!(result.get_file(), &File::C);
         }
     }
 

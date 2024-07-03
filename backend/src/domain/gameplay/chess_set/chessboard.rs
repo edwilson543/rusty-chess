@@ -1,6 +1,5 @@
 use crate::domain::gameplay::chess_set;
 use std::collections::HashMap;
-use std::ops;
 use thiserror;
 
 /// Representation of a physical chessboard, and the current position of all pieces.
@@ -89,34 +88,6 @@ impl Chessboard {
         self.position.insert(from_square.clone(), None); // Empty the square.
         Ok(piece)
     }
-}
-
-impl ops::Sub for Chessboard {
-    type Output = Vec<ChessboardDelta>;
-
-    fn sub(self, rhs: Self) -> Self::Output {
-        let mut deltas = vec![];
-
-        for (square, changed_to_piece) in self.position.into_iter() {
-            let changed_from_piece = rhs.get_piece(&square);
-            if changed_from_piece != changed_to_piece {
-                let delta = ChessboardDelta {
-                    square,
-                    changed_from: changed_to_piece,
-                    changed_to: changed_from_piece,
-                };
-                deltas.push(delta);
-            }
-        }
-        deltas
-    }
-}
-
-// Representation of pieces that are in different positions on two boards.
-pub struct ChessboardDelta {
-    pub square: chess_set::Square,
-    pub changed_from: Option<chess_set::Piece>,
-    pub changed_to: Option<chess_set::Piece>,
 }
 
 #[cfg(test)]
@@ -243,37 +214,6 @@ mod tests {
             let expected_err = Err(ChessboardActionError::SquareIsNotEmpty(piece, square));
             assert_eq!(result, expected_err);
             assert_eq!(chessboard.get_piece(&square), Some(piece));
-        }
-    }
-
-    #[cfg(test)]
-    mod subtraction_tests {
-        use crate::domain::gameplay::chess_set::{Colour, File, Piece, PieceType, Rank, Square};
-        use crate::testing::factories;
-
-        #[test]
-        fn gets_diff_illustrating_one_piece_has_moved() {
-            let chessboard = factories::chessboard();
-            let mut other_chessboard = factories::chessboard();
-
-            let from_square = Square::new(Rank::Two, File::F);
-            let to_square = Square::new(Rank::Three, File::F);
-            other_chessboard.move_piece(&from_square, &to_square);
-
-            let mut deltas = other_chessboard - chessboard;
-
-            assert_eq!(deltas.len(), 2);
-            let debug = true;
-            // deltas.sort_by(|delta| delta.square.get_file().index());
-            //
-            // let from_square_diff = deltas.get(&from_square).unwrap();
-            // let piece = Piece::new(Colour::White, PieceType::Pawn);
-            // assert_eq!(from_square_diff.changed_from, Some(piece));
-            // assert_eq!(from_square_diff.changed_to, None);
-            //
-            // let to_square_diff = deltas.get(&to_square).unwrap();
-            // assert_eq!(to_square_diff.changed_from, None);
-            // assert_eq!(to_square_diff.changed_to, Some(piece));
         }
     }
 }
