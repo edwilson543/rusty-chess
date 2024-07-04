@@ -111,7 +111,6 @@ impl fmt::Display for MoveValidationError {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::domain::gameplay::rulebook::validate_move;
     use crate::testing::factories;
 
     #[test]
@@ -121,7 +120,9 @@ mod tests {
         let to_square = chess_set::Square::new(chess_set::Rank::Three, chess_set::File::A);
         let piece = chessboard.get_piece(&from_square).unwrap();
 
-        let result = validate_move(&chessboard, &piece, &from_square, &to_square);
+        let ordinary_move = OrdinaryMove::new(&chessboard, &piece, &from_square, &to_square);
+
+        let result = ordinary_move.validate(&vec![chessboard]);
 
         assert!(result.is_ok());
     }

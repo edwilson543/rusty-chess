@@ -65,13 +65,14 @@ impl Game {
             Err(error) => return Err(error),
         };
 
-        let validated_move =
-            match rulebook::validate_move(&self.chessboard, &piece, &from_square, &to_square) {
-                Ok(validated_move) => validated_move,
-                Err(error) => return Err(GameError::MoveValidationError(error)),
-            };
+        let ordinary_move =
+            rulebook::OrdinaryMove::new(&self.chessboard, &piece, &from_square, &to_square);
+        match ordinary_move.validate(&self.chessboard_history) {
+            Ok(validated_move) => validated_move,
+            Err(error) => return Err(GameError::MoveValidationError(error)),
+        };
 
-        match validated_move.apply(&mut self.chessboard) {
+        match ordinary_move.apply(&mut self.chessboard) {
             Err(error) => return Err(GameError::ChessboardActionError(error)),
             Ok(()) => {}
         };
