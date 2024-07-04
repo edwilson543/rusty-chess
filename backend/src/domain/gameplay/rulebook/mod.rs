@@ -1,4 +1,3 @@
-mod castle;
 mod moves;
 mod starting_position;
 
