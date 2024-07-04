@@ -18,7 +18,7 @@ pub struct EnPassant {
     translation: translation::Translation,
 }
 
-impl base_move::ChessMove for EnPassant {
+impl base_move::ChessMove<EnPassantValidationError> for EnPassant {
     fn apply(
         &self,
         chessboard: &mut chess_set::Chessboard,
@@ -30,6 +30,24 @@ impl base_move::ChessMove for EnPassant {
         };
 
         chessboard.move_piece(&self.from_square, &self.to_square)
+    }
+
+    fn validate(
+        &self,
+        chessboard_history: &Vec<chess_set::Chessboard>,
+    ) -> Result<(), EnPassantValidationError> {
+        if !(self.pawn.get_piece_type() == &chess_set::PieceType::Pawn) {
+            return Err(EnPassantValidationError::OnlyAllowedForPawns);
+        }
+        if !self.opponent_made_double_pawn_advancement_over_target_square(chessboard_history) {
+            return Err(EnPassantValidationError::OnlyAllowedAfterDoubleAdvancement);
+        }
+
+        if !self.is_translation_valid() {
+            return Err(EnPassantValidationError::InvalidStartingSquare);
+        };
+
+        return Ok(());
     }
 }
 
@@ -48,24 +66,6 @@ impl EnPassant {
             to_square: to_square.clone(),
             translation: translation,
         }
-    }
-
-    pub fn validate(
-        &self,
-        chessboard_history: &Vec<chess_set::Chessboard>,
-    ) -> Result<(), EnPassantValidationError> {
-        if !(self.pawn.get_piece_type() == &chess_set::PieceType::Pawn) {
-            return Err(EnPassantValidationError::OnlyAllowedForPawns);
-        }
-        if !self.opponent_made_double_pawn_advancement_over_target_square(chessboard_history) {
-            return Err(EnPassantValidationError::OnlyAllowedAfterDoubleAdvancement);
-        }
-
-        if !self.is_translation_valid() {
-            return Err(EnPassantValidationError::InvalidStartingSquare);
-        };
-
-        return Ok(());
     }
 
     // En passant is only allowed immediately after the opponent makes a double pawn advancement.
@@ -144,6 +144,7 @@ mod tests {
     use crate::domain::gameplay::chess_set::{
         Chessboard, Colour, File, Piece, PieceType, Rank, Square,
     };
+    use crate::domain::gameplay::rulebook::ChessMove;
     use crate::testing::factories;
     use rstest::rstest;
     use std::collections::HashMap;

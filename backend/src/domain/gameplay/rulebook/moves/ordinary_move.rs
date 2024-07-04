@@ -21,12 +21,32 @@ pub enum MoveValidationError {
     MoveIsNotLegalForPiece,
 }
 
-impl base_move::ChessMove for OrdinaryMove {
+impl base_move::ChessMove<MoveValidationError> for OrdinaryMove {
     fn apply(
         &self,
         chessboard: &mut chess_set::Chessboard,
     ) -> Result<(), chess_set::ChessboardActionError> {
         chessboard.move_piece(&self.from_square, &self.to_square)
+    }
+
+    #[allow(unused_variables)]
+    fn validate(
+        &self,
+        chessboard_history: &Vec<chess_set::Chessboard>,
+    ) -> Result<(), MoveValidationError> {
+        if self.from_square == self.to_square {
+            return Err(MoveValidationError::CannotMovePieceToSameSquare);
+        };
+
+        if let Err(error) = self.validate_occupant_of_target_square() {
+            return Err(error);
+        }
+
+        if let Err(error) = self.validate_move_is_legal() {
+            return Err(error);
+        }
+
+        Ok(())
     }
 }
 
@@ -47,25 +67,6 @@ impl OrdinaryMove {
             to_square: to_square.clone(),
             translation: translation,
         }
-    }
-
-    pub fn validate(
-        &self,
-        chessboard_history: &Vec<chess_set::Chessboard>,
-    ) -> Result<(), MoveValidationError> {
-        if self.from_square == self.to_square {
-            return Err(MoveValidationError::CannotMovePieceToSameSquare);
-        };
-
-        if let Err(error) = self.validate_occupant_of_target_square() {
-            return Err(error);
-        }
-
-        if let Err(error) = self.validate_move_is_legal() {
-            return Err(error);
-        }
-
-        Ok(())
     }
 }
 
@@ -111,6 +112,7 @@ impl fmt::Display for MoveValidationError {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::domain::gameplay::rulebook::ChessMove;
     use crate::testing::factories;
 
     #[test]
@@ -131,6 +133,7 @@ mod tests {
     mod test_can_square_be_moved_to {
         use super::super::*;
         use crate::domain::gameplay::chess_set;
+        use crate::domain::gameplay::rulebook::ChessMove;
         use crate::testing::factories;
 
         #[test]
