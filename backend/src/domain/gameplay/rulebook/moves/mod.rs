@@ -1,5 +1,4 @@
 mod base_move;
-mod common;
 mod en_passant;
 mod ordinary_move;
 mod pieces;

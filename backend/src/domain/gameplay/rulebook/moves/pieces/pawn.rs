@@ -1,16 +1,18 @@
-use super::super::{common, ordinary_move, translation};
+use super::super::{ordinary_move, translation};
+use super::rule;
 use crate::domain::gameplay::chess_set;
+use crate::domain::gameplay::rulebook::moves::pieces::common;
 use std::vec;
 
-pub fn get_pawn_move_rules() -> vec::IntoIter<Box<dyn ordinary_move::OrdinaryMoveRule>> {
+pub fn get_pawn_move_rules() -> vec::IntoIter<Box<dyn rule::OrdinaryMoveRule>> {
     let one_square_forwards_move =
         common::SingleSquareMove::new(translation::ChessVector::new(0, 1));
 
     // Note: En passant is implemented elsewhere.
     let rules = vec![
-        Box::new(one_square_forwards_move) as Box<dyn ordinary_move::OrdinaryMoveRule>,
-        Box::new(TwoSquaresForwardMove) as Box<dyn ordinary_move::OrdinaryMoveRule>,
-        Box::new(ForwardsDiagonalCapture) as Box<dyn ordinary_move::OrdinaryMoveRule>,
+        Box::new(one_square_forwards_move) as Box<dyn rule::OrdinaryMoveRule>,
+        Box::new(TwoSquaresForwardMove) as Box<dyn rule::OrdinaryMoveRule>,
+        Box::new(ForwardsDiagonalCapture) as Box<dyn rule::OrdinaryMoveRule>,
     ];
 
     rules.into_iter()
@@ -18,7 +20,7 @@ pub fn get_pawn_move_rules() -> vec::IntoIter<Box<dyn ordinary_move::OrdinaryMov
 
 struct TwoSquaresForwardMove;
 
-impl ordinary_move::OrdinaryMoveRule for TwoSquaresForwardMove {
+impl rule::OrdinaryMoveRule for TwoSquaresForwardMove {
     fn allows_move(&self, chess_move: &ordinary_move::OrdinaryMove) -> bool {
         let forwards = translation::ChessVector::new(0, 1);
 
@@ -32,7 +34,7 @@ impl ordinary_move::OrdinaryMoveRule for TwoSquaresForwardMove {
 
 struct ForwardsDiagonalCapture;
 
-impl ordinary_move::OrdinaryMoveRule for ForwardsDiagonalCapture {
+impl rule::OrdinaryMoveRule for ForwardsDiagonalCapture {
     fn allows_move(&self, chess_move: &ordinary_move::OrdinaryMove) -> bool {
         let forwards_and_right = translation::ChessVector::new(1, 1);
         let forwards_and_left = translation::ChessVector::new(-1, 1);

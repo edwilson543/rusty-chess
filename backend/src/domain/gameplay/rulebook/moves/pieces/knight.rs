@@ -1,15 +1,16 @@
 use super::super::{ordinary_move, translation};
+use super::rule;
 use std::vec;
 
-pub fn get_knight_move_rules() -> vec::IntoIter<Box<dyn ordinary_move::OrdinaryMoveRule>> {
-    let rules = vec![Box::new(LShapedJump) as Box<dyn ordinary_move::OrdinaryMoveRule>];
+pub fn get_knight_move_rules() -> vec::IntoIter<Box<dyn rule::OrdinaryMoveRule>> {
+    let rules = vec![Box::new(LShapedJump) as Box<dyn rule::OrdinaryMoveRule>];
 
     rules.into_iter()
 }
 
 struct LShapedJump;
 
-impl ordinary_move::OrdinaryMoveRule for LShapedJump {
+impl rule::OrdinaryMoveRule for LShapedJump {
     fn allows_move(&self, chess_move: &ordinary_move::OrdinaryMove) -> bool {
         let allowed_vectors = [
             translation::ChessVector::new(1, 2),

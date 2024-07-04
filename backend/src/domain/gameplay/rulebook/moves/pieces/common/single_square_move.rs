@@ -1,5 +1,5 @@
-use super::super::ordinary_move;
-use super::super::translation;
+use super::super::rule::OrdinaryMoveRule;
+use crate::domain::gameplay::rulebook::moves::{ordinary_move, translation};
 
 pub struct SingleSquareMove {
     vector: translation::ChessVector,
@@ -11,7 +11,7 @@ impl SingleSquareMove {
     }
 }
 
-impl ordinary_move::OrdinaryMoveRule for SingleSquareMove {
+impl OrdinaryMoveRule for SingleSquareMove {
     fn allows_move(&self, chess_move: &ordinary_move::OrdinaryMove) -> bool {
         let translation = &chess_move.translation;
         self.vector == translation.vector && translation.scalar == 1
@@ -22,7 +22,7 @@ impl ordinary_move::OrdinaryMoveRule for SingleSquareMove {
 mod single_square_translation_tests {
     use super::*;
     use crate::domain::gameplay::chess_set::{Colour, File, Piece, PieceType, Rank, Square};
-    use crate::domain::gameplay::rulebook::moves::ordinary_move::{OrdinaryMove, OrdinaryMoveRule};
+    use crate::domain::gameplay::rulebook::moves::ordinary_move::OrdinaryMove;
     use crate::domain::gameplay::rulebook::moves::translation;
     use crate::testing::factories;
 

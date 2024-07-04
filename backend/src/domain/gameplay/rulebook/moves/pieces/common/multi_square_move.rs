@@ -1,5 +1,6 @@
-use super::super::ordinary_move;
-use super::super::translation;
+use super::super::rule::OrdinaryMoveRule;
+use crate::domain::gameplay::rulebook::moves::ordinary_move;
+use crate::domain::gameplay::rulebook::moves::translation;
 
 pub struct MultiSquareMove {
     vector: translation::ChessVector,
@@ -11,7 +12,7 @@ impl MultiSquareMove {
     }
 }
 
-impl ordinary_move::OrdinaryMoveRule for MultiSquareMove {
+impl OrdinaryMoveRule for MultiSquareMove {
     fn allows_move(&self, chess_move: &ordinary_move::OrdinaryMove) -> bool {
         let translation = &chess_move.translation;
         self.vector == translation.vector && !translation.is_obstructed()
@@ -22,7 +23,7 @@ impl ordinary_move::OrdinaryMoveRule for MultiSquareMove {
 mod tests {
     use super::*;
     use crate::domain::gameplay::chess_set::{Colour, File, Piece, PieceType, Rank, Square};
-    use crate::domain::gameplay::rulebook::moves::ordinary_move::{OrdinaryMove, OrdinaryMoveRule};
+    use crate::domain::gameplay::rulebook::moves::ordinary_move::OrdinaryMove;
     use crate::domain::gameplay::rulebook::moves::translation;
     use crate::testing::factories;
 

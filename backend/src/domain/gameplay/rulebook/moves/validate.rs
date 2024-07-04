@@ -1,5 +1,5 @@
+use super::{ordinary_move, pieces};
 use crate::domain::gameplay::chess_set;
-use crate::domain::gameplay::rulebook::moves::{ordinary_move, pieces};
 use std::fmt;
 
 #[derive(thiserror::Error, Debug, PartialEq)]
@@ -58,8 +58,8 @@ fn validate_move_is_legal(
     let piece_type = chess_move.piece.get_piece_type();
     let mut move_rules = pieces::get_rules_for_piece(piece_type);
 
-    let permitted_by_translation_rules = move_rules
-        .any(|rule: Box<dyn ordinary_move::OrdinaryMoveRule>| rule.allows_move(&chess_move));
+    let permitted_by_translation_rules =
+        move_rules.any(|rule: Box<dyn pieces::OrdinaryMoveRule>| rule.allows_move(&chess_move));
 
     match permitted_by_translation_rules {
         true => Ok(()),

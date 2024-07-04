@@ -1,7 +1,9 @@
-use super::super::{common, ordinary_move, translation};
+use super::super::translation;
+use super::rule;
+use crate::domain::gameplay::rulebook::moves::pieces::common;
 use std::vec;
 
-pub fn get_bishop_move_rules() -> vec::IntoIter<Box<dyn ordinary_move::OrdinaryMoveRule>> {
+pub fn get_bishop_move_rules() -> vec::IntoIter<Box<dyn rule::OrdinaryMoveRule>> {
     let diagonals = [
         translation::ChessVector::new(1, 1),
         translation::ChessVector::new(1, -1),
@@ -9,10 +11,10 @@ pub fn get_bishop_move_rules() -> vec::IntoIter<Box<dyn ordinary_move::OrdinaryM
         translation::ChessVector::new(-1, 1),
     ];
 
-    let mut rules: Vec<Box<dyn ordinary_move::OrdinaryMoveRule>> = vec![];
+    let mut rules: Vec<Box<dyn rule::OrdinaryMoveRule>> = vec![];
     for diagonal in diagonals {
         let rule = common::MultiSquareMove::new(diagonal);
-        rules.push(Box::new(rule) as Box<dyn ordinary_move::OrdinaryMoveRule>);
+        rules.push(Box::new(rule) as Box<dyn rule::OrdinaryMoveRule>);
     }
 
     rules.into_iter()

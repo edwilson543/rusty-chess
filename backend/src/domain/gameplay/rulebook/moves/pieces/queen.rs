@@ -1,9 +1,9 @@
+use super::rule;
 use super::{bishop, rook};
-use crate::domain::gameplay::rulebook::moves::ordinary_move;
 use std::vec;
 
-pub fn get_queen_move_rules() -> vec::IntoIter<Box<dyn ordinary_move::OrdinaryMoveRule>> {
-    let mut queen_rules: Vec<Box<dyn ordinary_move::OrdinaryMoveRule>> = vec![];
+pub fn get_queen_move_rules() -> vec::IntoIter<Box<dyn rule::OrdinaryMoveRule>> {
+    let mut queen_rules: Vec<Box<dyn rule::OrdinaryMoveRule>> = vec![];
     for bishop_rule in bishop::get_bishop_move_rules() {
         queen_rules.push(bishop_rule);
     }
