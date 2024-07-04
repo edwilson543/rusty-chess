@@ -8,7 +8,7 @@ use std::fmt;
 pub enum EnPassantValidationError {
     OnlyAllowedForPawns,
     OnlyAllowedAfterDoubleAdvancement,
-    InvalidTargetSquare,
+    InvalidStartingSquare,
 }
 
 pub struct EnPassant {
@@ -62,7 +62,7 @@ impl EnPassant {
         }
 
         if !self.is_translation_valid() {
-            return Err(EnPassantValidationError::InvalidTargetSquare);
+            return Err(EnPassantValidationError::InvalidStartingSquare);
         };
 
         return Ok(());
@@ -116,9 +116,17 @@ impl EnPassant {
     }
 
     fn is_translation_valid(&self) -> bool {
+        // En passant can only be made after a pawn has advanced exactly 3 squares.
+        let starting_rank_valid = match self.pawn.get_colour() {
+            chess_set::Colour::White => self.from_square.get_rank() == &chess_set::Rank::Five,
+            chess_set::Colour::Black => self.from_square.get_rank() == &chess_set::Rank::Four,
+        };
+
         // An en passant must move the pawn diagonally forward one square.
-        self.translation.vector == translation::ChessVector::new(1, 1)
-            || self.translation.vector == translation::ChessVector::new(-1, 1)
+        let translation_valid = self.translation.vector == translation::ChessVector::new(1, 1)
+            || self.translation.vector == translation::ChessVector::new(-1, 1);
+
+        starting_rank_valid && translation_valid
     }
 }
 
@@ -130,6 +138,155 @@ impl fmt::Display for EnPassantValidationError {
     }
 }
 
-// TODO -> add unit tests:
-// - Happy path black & white
-// - Each error path
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::domain::gameplay::chess_set::{
+        Chessboard, Colour, File, Piece, PieceType, Rank, Square,
+    };
+    use crate::testing::factories;
+    use rstest::rstest;
+    use std::collections::HashMap;
+
+    #[rstest]
+    #[case(File::C)]
+    #[case(File::E)]
+    fn white_can_play_en_passant(#[case] white_starting_file: File) {
+        let previous_state = factories::chessboard();
+
+        // Move the black pawn that will be captured.
+        let from_square = Square::new(Rank::Seven, File::D);
+        let to_square = Square::new(Rank::Five, File::D);
+        let mut current_state = previous_state.clone();
+        current_state.move_piece(&from_square, &to_square).unwrap();
+
+        // Artificially put a white pawn in a valid position to play an en passant.
+        let square = Square::new(Rank::Five, white_starting_file);
+        let white_pawn = Piece::new(Colour::White, PieceType::Pawn);
+        current_state.add_piece(white_pawn, &square).unwrap();
+
+        let target_square = Square::new(Rank::Six, File::D);
+        let en_passant = EnPassant::new(&white_pawn, &square, &target_square);
+        let chessboard_history = vec![previous_state, current_state];
+
+        let result = en_passant.validate(&chessboard_history);
+
+        assert_eq!(result, Ok(()));
+    }
+
+    #[rstest]
+    #[case(File::F)]
+    #[case(File::H)]
+    fn black_can_play_en_passant(#[case] black_starting_file: File) {
+        let previous_state = factories::chessboard();
+
+        // Move the white pawn that will be captured.
+        let from_square = Square::new(Rank::Two, File::G);
+        let to_square = Square::new(Rank::Four, File::G);
+        let mut current_state = previous_state.clone();
+        current_state.move_piece(&from_square, &to_square).unwrap();
+
+        // Artificially put a black pawn in a valid position to play an en passant.
+        let square = Square::new(Rank::Four, black_starting_file);
+        let black_pawn = Piece::new(Colour::Black, PieceType::Pawn);
+        current_state.add_piece(black_pawn, &square).unwrap();
+
+        let target_square = Square::new(Rank::Three, File::G);
+        let en_passant = EnPassant::new(&black_pawn, &square, &target_square);
+        let chessboard_history = vec![previous_state, current_state];
+
+        let result = en_passant.validate(&chessboard_history);
+
+        assert_eq!(result, Ok(()));
+    }
+
+    #[rstest]
+    #[case::rook(PieceType::Rook)]
+    #[case::bishop(PieceType::Bishop)]
+    #[case::queen(PieceType::Queen)]
+    fn cannot_play_en_passant_with_a_non_pawn(#[case] piece_type: PieceType) {
+        let previous_state = factories::chessboard();
+
+        // Move the black pawn that will be captured.
+        let from_square = Square::new(Rank::Seven, File::D);
+        let to_square = Square::new(Rank::Five, File::D);
+        let mut current_state = previous_state.clone();
+        current_state.move_piece(&from_square, &to_square).unwrap();
+
+        // Artificially put a white pawn in a valid position to play an en passant.
+        let square = Square::new(Rank::Five, File::E);
+        let piece = Piece::new(Colour::White, piece_type);
+        current_state.add_piece(piece, &square).unwrap();
+
+        let target_square = Square::new(Rank::Six, File::D);
+        let en_passant = EnPassant::new(&piece, &square, &target_square);
+        let chessboard_history = vec![previous_state, current_state];
+
+        let result = en_passant.validate(&chessboard_history);
+
+        let expected_error = EnPassantValidationError::OnlyAllowedForPawns;
+        assert_eq!(result, Err(expected_error));
+    }
+
+    #[test]
+    fn cannot_play_en_passant_if_pawn_double_advancement_was_not_previous_turn() {
+        let previous_state = factories::chessboard();
+
+        // Move the black pawn that will be captured.
+        let from_square = Square::new(Rank::Seven, File::D);
+        let to_square = Square::new(Rank::Five, File::D);
+        let mut current_state = previous_state.clone();
+        current_state.move_piece(&from_square, &to_square).unwrap();
+
+        // Artificially put a white pawn in a valid position to play an en passant.
+        let square = Square::new(Rank::Five, File::E);
+        let white_pawn = Piece::new(Colour::White, PieceType::Pawn);
+        current_state.add_piece(white_pawn, &square).unwrap();
+
+        let target_square = Square::new(Rank::Six, File::D);
+        let en_passant = EnPassant::new(&white_pawn, &square, &target_square);
+
+        // Add an extra step in the history, so black's double advance wasn't previous turn.
+        let chessboard_history = vec![previous_state, current_state.clone(), current_state];
+
+        let result = en_passant.validate(&chessboard_history);
+
+        let expected_error = EnPassantValidationError::OnlyAllowedAfterDoubleAdvancement;
+        assert_eq!(result, Err(expected_error));
+    }
+
+    #[test]
+    fn cannot_play_en_passant_from_invalid_starting_square() {
+        let mut starting_position = HashMap::new();
+
+        // Create an initial state with a black pawn at D5.
+        let black_pawn = Piece::new(Colour::Black, PieceType::Pawn);
+        let black_starting_square = Square::new(Rank::Seven, File::D);
+        starting_position.insert(black_starting_square, black_pawn);
+
+        // And a white pawn on its starting rank.
+        let white_pawn = Piece::new(Colour::White, PieceType::Pawn);
+        let white_starting_square = Square::new(Rank::Three, File::E);
+        starting_position.insert(white_starting_square, white_pawn);
+
+        let previous_state = Chessboard::new(starting_position);
+        let mut current_state = previous_state.clone();
+
+        // Move the black pawn that will be captured to the same
+        // rank as the white (an illegal move).
+        let to_square = Square::new(Rank::Three, File::D);
+        current_state
+            .move_piece(&black_starting_square, &to_square)
+            .unwrap();
+
+        // Try and make an en passant with the pawn still on its starting rank.
+        let target_square = Square::new(Rank::Four, File::D);
+        let en_passant = EnPassant::new(&white_pawn, &white_starting_square, &target_square);
+        let chessboard_history = vec![previous_state, current_state];
+
+        let result = en_passant.validate(&chessboard_history);
+
+        let expected_error = EnPassantValidationError::InvalidStartingSquare;
+        assert_eq!(result, Err(expected_error));
+    }
+}
