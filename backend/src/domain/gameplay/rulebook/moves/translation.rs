@@ -128,10 +128,8 @@ mod tests {
 
     #[cfg(test)]
     mod translation_new_tests {
-        use super::super::{
-            chess_set::Colour, chess_set::File, chess_set::Rank, chess_set::Square, ChessVector,
-            Translation,
-        };
+        use super::super::chess_set::{File, Rank, Square};
+        use super::super::{ChessVector, Translation};
         use crate::testing::factories;
         use rstest::rstest;
 

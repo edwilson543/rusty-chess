@@ -82,6 +82,7 @@ mod tests {
     use crate::domain::gameplay::chess_set::{Colour, File, Piece, PieceType, Rank, Square};
     use crate::domain::gameplay::rulebook::moves::OrdinaryMove;
     use crate::testing::factories;
+    use rstest::rstest;
 
     fn is_move_allowed(chess_move: &OrdinaryMove) -> bool {
         let mut rules = get_pawn_move_rules();
@@ -167,48 +168,43 @@ mod tests {
         assert!(is_move_allowed(&chess_move));
     }
 
-    // Disallowed
-    #[test]
-    fn cannot_move_sideways() {
-        let from_square = Square::new(Rank::Three, File::F);
-        let to_square = Square::new(Rank::Three, File::E);
-        let pawn = Piece::new(Colour::White, PieceType::Pawn);
-
-        let chessboard = factories::chessboard();
-        let chess_move = OrdinaryMove::new(&chessboard, &pawn, &from_square, &to_square);
-
-        assert!(!is_move_allowed(&chess_move));
-    }
-
-    #[test]
-    fn cannot_move_diagonally_without_capture() {
-        let from_square = Square::new(Rank::Two, File::F);
-        let to_square = Square::new(Rank::Three, File::E);
-        let pawn = Piece::new(Colour::White, PieceType::Pawn);
-
-        let chessboard = factories::chessboard();
-        let chess_move = OrdinaryMove::new(&chessboard, &pawn, &from_square, &to_square);
-
-        assert!(!is_move_allowed(&chess_move));
-    }
-
-    #[test]
-    fn cannot_move_two_squares_forwards_when_has_already_moved() {
-        let from_square = Square::new(Rank::Six, File::C);
-        let to_square = Square::new(Rank::Four, File::C);
-        let pawn = Piece::new(Colour::Black, PieceType::Pawn);
-
-        let chessboard = factories::chessboard();
-        let chess_move = OrdinaryMove::new(&chessboard, &pawn, &from_square, &to_square);
-
-        assert!(!is_move_allowed(&chess_move));
-    }
-
-    #[test]
-    fn cannot_move_multiple_squares_forward() {
-        let from_square = Square::new(Rank::Two, File::B);
-        let to_square = Square::new(Rank::Five, File::B);
-        let pawn = Piece::new(Colour::Black, PieceType::Pawn);
+    #[rstest]
+    #[case::sideways(
+        Square::new(Rank::Three, File::F),
+        Square::new(Rank::Three, File::E),
+        Colour::White
+    )]
+    #[case::backwards_white(
+        Square::new(Rank::Three, File::E),
+        Square::new(Rank::Two, File::E),
+        Colour::White
+    )]
+    #[case::backwards_black(
+        Square::new(Rank::Three, File::F),
+        Square::new(Rank::Four, File::F),
+        Colour::Black
+    )]
+    #[case::diagonal_without_capture(
+        Square::new(Rank::Two, File::F),
+        Square::new(Rank::Three, File::E),
+        Colour::White
+    )]
+    #[case::two_squares_forward_after_first_move(
+        Square::new(Rank::Six, File::C),
+        Square::new(Rank::Four, File::C),
+        Colour::White
+    )]
+    #[case::three_squares_forward(
+        Square::new(Rank::Two, File::B),
+        Square::new(Rank::Five, File::B),
+        Colour::White
+    )]
+    fn disallows_invalid_moves(
+        #[case] from_square: Square,
+        #[case] to_square: Square,
+        #[case] colour: Colour,
+    ) {
+        let pawn = Piece::new(colour, PieceType::Pawn);
 
         let chessboard = factories::chessboard();
         let chess_move = OrdinaryMove::new(&chessboard, &pawn, &from_square, &to_square);
