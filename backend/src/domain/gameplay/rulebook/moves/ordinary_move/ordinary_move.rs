@@ -29,11 +29,12 @@ impl base_move::ChessMove<MoveValidationError> for OrdinaryMove {
         chessboard.move_piece(&self.from_square, &self.to_square)
     }
 
-    #[allow(unused_variables)]
     fn validate(
         &self,
         chessboard_history: &Vec<chess_set::Chessboard>,
     ) -> Result<(), MoveValidationError> {
+        let _ = chessboard_history; // To avoid a catch-all warning.
+
         if self.from_square == self.to_square {
             return Err(MoveValidationError::CannotMovePieceToSameSquare);
         };
