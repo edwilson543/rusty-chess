@@ -1,16 +1,13 @@
-use super::super::{ordinary_move, translation};
+use super::super::ordinary_move;
+use super::super::translation::ChessVector;
 use super::rule;
 use crate::domain::gameplay::chess_set;
-use crate::domain::gameplay::rulebook::moves::pieces::common;
 use std::vec;
 
 pub fn get_pawn_move_rules() -> vec::IntoIter<Box<dyn rule::OrdinaryMoveRule>> {
-    let one_square_forwards_move =
-        common::SingleSquareMove::new(translation::ChessVector::new(0, 1));
-
     // Note: En passant is implemented elsewhere.
     let rules = vec![
-        Box::new(one_square_forwards_move) as Box<dyn rule::OrdinaryMoveRule>,
+        Box::new(OneSquaresForwardMove) as Box<dyn rule::OrdinaryMoveRule>,
         Box::new(TwoSquaresForwardMove) as Box<dyn rule::OrdinaryMoveRule>,
         Box::new(ForwardsDiagonalCapture) as Box<dyn rule::OrdinaryMoveRule>,
     ];
@@ -18,11 +15,24 @@ pub fn get_pawn_move_rules() -> vec::IntoIter<Box<dyn rule::OrdinaryMoveRule>> {
     rules.into_iter()
 }
 
+struct OneSquaresForwardMove;
+
+impl rule::OrdinaryMoveRule for OneSquaresForwardMove {
+    fn allows_move(&self, chess_move: &ordinary_move::OrdinaryMove) -> bool {
+        let forwards = ChessVector::forwards(chess_move.piece.get_colour());
+
+        let is_forwards = chess_move.translation.vector == forwards;
+        let is_one_square = chess_move.translation.scalar == 1;
+
+        is_forwards && is_one_square
+    }
+}
+
 struct TwoSquaresForwardMove;
 
 impl rule::OrdinaryMoveRule for TwoSquaresForwardMove {
     fn allows_move(&self, chess_move: &ordinary_move::OrdinaryMove) -> bool {
-        let forwards = translation::ChessVector::new(0, 1);
+        let forwards = ChessVector::forwards(chess_move.piece.get_colour());
 
         let is_forwards = chess_move.translation.vector == forwards;
         let is_two_squares = chess_move.translation.scalar == 2;
@@ -36,8 +46,11 @@ struct ForwardsDiagonalCapture;
 
 impl rule::OrdinaryMoveRule for ForwardsDiagonalCapture {
     fn allows_move(&self, chess_move: &ordinary_move::OrdinaryMove) -> bool {
-        let forwards_and_right = translation::ChessVector::new(1, 1);
-        let forwards_and_left = translation::ChessVector::new(-1, 1);
+        let forwards = ChessVector::forwards(chess_move.piece.get_colour());
+        let right = ChessVector::right(chess_move.piece.get_colour());
+
+        let forwards_and_right = forwards + right;
+        let forwards_and_left = forwards - right;
 
         let is_forwards_diagonal = chess_move.translation.vector == forwards_and_right
             || chess_move.translation.vector == forwards_and_left;

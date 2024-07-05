@@ -1,6 +1,7 @@
 use super::super::rule::OrdinaryMoveRule;
 use crate::domain::gameplay::rulebook::moves::ordinary_move;
 use crate::domain::gameplay::rulebook::moves::translation;
+use std::cmp;
 
 pub struct MultiSquareMove {
     vector: translation::ChessVector,
@@ -15,7 +16,31 @@ impl MultiSquareMove {
 impl OrdinaryMoveRule for MultiSquareMove {
     fn allows_move(&self, chess_move: &ordinary_move::OrdinaryMove) -> bool {
         let translation = &chess_move.translation;
-        self.vector == translation.vector && !translation.is_obstructed()
+        self.vector == translation.vector && !self.is_obstructed(chess_move)
+    }
+}
+
+impl MultiSquareMove {
+    pub fn is_obstructed(&self, chess_move: &ordinary_move::OrdinaryMove) -> bool {
+        false
+        // TODO.
+        // if !self.is_straight_line() {
+        //     return true
+        // }
+        //
+        // for scalar in 1..=chess_move.translation.scalar {
+        //     // TODO -> can't do this, since vector is in opposite direction for white / black.
+        //     // TODO -> need to add a "direction" field to translation.
+        //     let rank = chess_move.from_square.get_rank().index() + self.vector.y;
+        // }
+        //
+        // return false;
+    }
+
+    fn is_straight_line(&self) -> bool {
+        // Straight line => plus / diags.
+        // i.e. anything where {x, y} < {-1, 0, 1}
+        cmp::max(self.vector.x.abs(), self.vector.y.abs()) <= 1
     }
 }
 
@@ -50,7 +75,7 @@ mod tests {
         let chessboard = factories::chessboard();
         let chess_move = OrdinaryMove::new(&chessboard, &piece, &from_square, &to_square);
 
-        let rule = MultiSquareMove::new(translation::ChessVector::new(0, 1));
+        let rule = MultiSquareMove::new(translation::ChessVector::new(0, -1));
 
         assert!(rule.allows_move(&chess_move));
     }

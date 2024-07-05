@@ -4,6 +4,7 @@ use std::fmt;
 use std::ops;
 
 /// Geometric representation of a chess move, used to simplify validation logic.
+/// /// Note that translations are colour agnostic - i.e.
 #[derive(Clone, Debug, PartialEq)]
 pub struct Translation {
     pub vector: ChessVector,
@@ -12,11 +13,7 @@ pub struct Translation {
 
 impl Translation {
     // Factories.
-    pub fn from_move(
-        from_square: &chess_set::Square,
-        to_square: &chess_set::Square,
-        piece_colour: &chess_set::Colour,
-    ) -> Self {
+    pub fn from_move(from_square: &chess_set::Square, to_square: &chess_set::Square) -> Self {
         let x_unscaled = to_square.get_file().index() - from_square.get_file().index();
         let y_unscaled = to_square.get_rank().index() - from_square.get_rank().index();
 
@@ -25,38 +22,41 @@ impl Translation {
         let x = x_unscaled / scalar;
         let y = y_unscaled / scalar;
 
-        // Vectors for black and white are relative to different origins.
-        // This is because they use the same references for each square,
-        // but are playing in opposite directions.
-        let sign = match piece_colour {
-            chess_set::Colour::White => 1,
-            chess_set::Colour::Black => -1,
-        };
-        let vector = ChessVector::new(x, y) * sign;
-
         Self {
-            vector: vector,
+            vector: ChessVector::new(x, y),
             scalar: scalar as u8,
         }
-    }
-
-    // Queries.
-
-    pub fn is_obstructed(&self) -> bool {
-        // TODO.
-        return false;
     }
 }
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct ChessVector {
-    x: i8,
-    y: i8,
+    pub x: i8,
+    pub y: i8,
 }
 
 impl ChessVector {
+    // Factories.
     pub fn new(x: i8, y: i8) -> Self {
         Self { x: x, y: y }
+    }
+
+    /// Return the unit vector representing "forwards".
+    /// This is different for black/white, since they play in opposite directions.
+    pub fn forwards(colour: &chess_set::Colour) -> Self {
+        let y = match colour {
+            chess_set::Colour::White => 1,
+            chess_set::Colour::Black => -1,
+        };
+        Self { x: 0, y: y }
+    }
+
+    pub fn right(colour: &chess_set::Colour) -> Self {
+        let x = match colour {
+            chess_set::Colour::White => 1,
+            chess_set::Colour::Black => -1,
+        };
+        Self { x: x, y: 0 }
     }
 }
 
@@ -84,7 +84,6 @@ fn greatest_common_divisor(a: i8, b: i8) -> i8 {
 }
 
 // Trait implementations.
-
 impl ops::Mul<i8> for ChessVector {
     type Output = ChessVector;
 
@@ -92,6 +91,28 @@ impl ops::Mul<i8> for ChessVector {
         Self {
             x: self.x * rhs,
             y: self.y * rhs,
+        }
+    }
+}
+
+impl ops::Add<Self> for ChessVector {
+    type Output = Self;
+
+    fn add(self, rhs: ChessVector) -> Self::Output {
+        Self {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+        }
+    }
+}
+
+impl ops::Sub<Self> for ChessVector {
+    type Output = Self;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        Self {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
         }
     }
 }
@@ -160,17 +181,10 @@ mod tests {
             #[case] to_square: Square,
             #[case] expected_vector: ChessVector,
         ) {
-            let white_translation =
-                Translation::from_move(&from_square, &to_square, &Colour::White);
+            let translation = Translation::from_move(&from_square, &to_square);
 
-            assert_eq!(white_translation.vector, expected_vector);
-            assert_eq!(white_translation.scalar, 1);
-
-            let black_translation =
-                Translation::from_move(&from_square, &to_square, &Colour::Black);
-
-            assert_eq!(black_translation.vector, expected_vector * -1);
-            assert_eq!(black_translation.scalar, 1);
+            assert_eq!(translation.vector, expected_vector);
+            assert_eq!(translation.scalar, 1);
         }
 
         #[rstest]
@@ -228,17 +242,10 @@ mod tests {
             #[case] expected_vector: ChessVector,
             #[case] expected_scalar: u8,
         ) {
-            let white_translation =
-                Translation::from_move(&from_square, &to_square, &Colour::White);
+            let translation = Translation::from_move(&from_square, &to_square);
 
-            assert_eq!(white_translation.vector, expected_vector);
-            assert_eq!(white_translation.scalar, expected_scalar);
-
-            let black_translation =
-                Translation::from_move(&from_square, &to_square, &Colour::Black);
-
-            assert_eq!(black_translation.vector, expected_vector * -1);
-            assert_eq!(black_translation.scalar, expected_scalar);
+            assert_eq!(translation.vector, expected_vector);
+            assert_eq!(translation.scalar, expected_scalar);
         }
 
         #[rstest]
@@ -287,17 +294,10 @@ mod tests {
             #[case] to_square: Square,
             #[case] expected_vector: ChessVector,
         ) {
-            let white_translation =
-                Translation::from_move(&from_square, &to_square, &Colour::White);
+            let translation = Translation::from_move(&from_square, &to_square);
 
-            assert_eq!(white_translation.vector, expected_vector);
-            assert_eq!(white_translation.scalar, 1);
-
-            let black_translation =
-                Translation::from_move(&from_square, &to_square, &Colour::Black);
-
-            assert_eq!(black_translation.vector, expected_vector * -1);
-            assert_eq!(black_translation.scalar, 1);
+            assert_eq!(translation.vector, expected_vector);
+            assert_eq!(translation.scalar, 1);
         }
 
         #[test]
@@ -308,23 +308,16 @@ mod tests {
             let expected_vector = ChessVector::new(-1, 2);
             let expected_scalar_factor = 2;
 
-            let white_translation =
-                Translation::from_move(&from_square, &to_square, &Colour::White);
+            let translation = Translation::from_move(&from_square, &to_square);
 
-            assert_eq!(white_translation.vector, expected_vector);
-            assert_eq!(white_translation.scalar, expected_scalar_factor);
-
-            let black_translation =
-                Translation::from_move(&from_square, &to_square, &Colour::Black);
-
-            assert_eq!(black_translation.vector, expected_vector * -1);
-            assert_eq!(black_translation.scalar, expected_scalar_factor);
+            assert_eq!(translation.vector, expected_vector);
+            assert_eq!(translation.scalar, expected_scalar_factor);
         }
 
         #[test]
         fn move_to_same_square_does_not_panic() {
             let square = factories::some_square();
-            let translation = Translation::from_move(&square, &square, &Colour::White);
+            let translation = Translation::from_move(&square, &square);
 
             assert_eq!(translation.vector, ChessVector::new(0, 0),);
             assert_eq!(translation.scalar, 1);

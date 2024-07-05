@@ -57,8 +57,7 @@ impl OrdinaryMove {
         from_square: &chess_set::Square,
         to_square: &chess_set::Square,
     ) -> Self {
-        let translation =
-            translation::Translation::from_move(from_square, to_square, piece.get_colour());
+        let translation = translation::Translation::from_move(from_square, to_square);
 
         Self {
             chessboard: chessboard.clone(),

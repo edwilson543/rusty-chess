@@ -1,27 +1,33 @@
 use super::super::translation;
 use super::rule;
-use crate::domain::gameplay::rulebook::moves::pieces::common;
+use crate::domain::gameplay::rulebook::OrdinaryMove;
 use std::vec;
 
 pub fn get_king_move_rules() -> vec::IntoIter<Box<dyn rule::OrdinaryMoveRule>> {
-    let vectors = [
-        translation::ChessVector::new(0, 1),
-        translation::ChessVector::new(1, 1),
-        translation::ChessVector::new(1, 0),
-        translation::ChessVector::new(1, -1),
-        translation::ChessVector::new(0, -1),
-        translation::ChessVector::new(-1, -1),
-        translation::ChessVector::new(-1, 0),
-        translation::ChessVector::new(-1, 1),
-    ];
+    vec![Box::new(KingMoveRule) as Box<dyn rule::OrdinaryMoveRule>].into_iter()
+}
 
-    let mut rules: Vec<Box<dyn rule::OrdinaryMoveRule>> = vec![];
-    for vector in vectors {
-        let rule = common::SingleSquareMove::new(vector);
-        rules.push(Box::new(rule) as Box<dyn rule::OrdinaryMoveRule>);
+struct KingMoveRule;
+
+impl rule::OrdinaryMoveRule for KingMoveRule {
+    fn allows_move(&self, chess_move: &OrdinaryMove) -> bool {
+        let vectors = [
+            translation::ChessVector::new(0, 1),
+            translation::ChessVector::new(1, 1),
+            translation::ChessVector::new(1, 0),
+            translation::ChessVector::new(1, -1),
+            translation::ChessVector::new(0, -1),
+            translation::ChessVector::new(-1, -1),
+            translation::ChessVector::new(-1, 0),
+            translation::ChessVector::new(-1, 1),
+        ];
+
+        let vector_valid = vectors
+            .into_iter()
+            .any(|vector| vector == chess_move.translation.vector);
+
+        vector_valid && chess_move.translation.scalar == 1
     }
-
-    rules.into_iter()
 }
 
 #[cfg(test)]

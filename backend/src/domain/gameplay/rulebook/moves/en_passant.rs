@@ -2,6 +2,7 @@ use super::translation;
 
 use super::base_move;
 use crate::domain::gameplay::chess_set;
+use crate::domain::gameplay::rulebook::moves::translation::ChessVector;
 use std::fmt;
 
 #[derive(thiserror::Error, Debug, PartialEq)]
@@ -57,8 +58,7 @@ impl EnPassant {
         from_square: &chess_set::Square,
         to_square: &chess_set::Square,
     ) -> Self {
-        let translation =
-            translation::Translation::from_move(from_square, to_square, pawn.get_colour());
+        let translation = translation::Translation::from_move(from_square, to_square);
 
         Self {
             pawn: pawn.clone(),
@@ -123,10 +123,15 @@ impl EnPassant {
         };
 
         // An en passant must move the pawn diagonally forward one square.
-        let translation_valid = self.translation.vector == translation::ChessVector::new(1, 1)
-            || self.translation.vector == translation::ChessVector::new(-1, 1);
+        let forwards = ChessVector::forwards(self.pawn.get_colour());
+        let right = ChessVector::right(self.pawn.get_colour());
+        let forwards_and_right = forwards + right;
+        let forwards_and_left = forwards - right;
 
-        starting_rank_valid && translation_valid
+        let is_forwards_diagonal = self.translation.vector == forwards_and_right
+            || self.translation.vector == forwards_and_left;
+
+        starting_rank_valid && is_forwards_diagonal
     }
 }
 
