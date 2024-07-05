@@ -23,10 +23,13 @@ pub fn get_rook_move_rules() -> vec::IntoIter<Box<dyn OrdinaryMoveRule>> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::domain::gameplay::chess_set::{Colour, File, Piece, PieceType, Rank, Square};
+    use crate::domain::gameplay::chess_set::{
+        Chessboard, Colour, File, Piece, PieceType, Rank, Square,
+    };
     use crate::domain::gameplay::rulebook::moves::OrdinaryMove;
     use crate::testing::factories;
     use rstest::rstest;
+    use std::collections::HashMap;
 
     fn is_move_allowed(chess_move: &OrdinaryMove) -> bool {
         let mut rules = get_rook_move_rules();
@@ -40,8 +43,10 @@ mod tests {
     #[case::left(Square::new(Rank::Three, File::G), Square::new(Rank::Three, File::F))]
     fn allows_rook_to_move_within_plus(#[case] from_square: Square, #[case] to_square: Square) {
         let rook = Piece::new(Colour::White, PieceType::Rook);
+        let mut starting_position = HashMap::new();
+        starting_position.insert(from_square, rook);
 
-        let chessboard = factories::chessboard();
+        let chessboard = Chessboard::new(starting_position);
         let chess_move = OrdinaryMove::new(&chessboard, &rook, &from_square, &to_square);
 
         assert!(is_move_allowed(&chess_move));
@@ -51,6 +56,20 @@ mod tests {
     #[case::diagonal(Square::new(Rank::One, File::B), Square::new(Rank::Two, File::C))]
     #[case::l_shaped(Square::new(Rank::Five, File::E), Square::new(Rank::Seven, File::F))]
     fn disallowed_moves(#[case] from_square: Square, #[case] to_square: Square) {
+        let rook = Piece::new(Colour::White, PieceType::Rook);
+        let mut starting_position = HashMap::new();
+        starting_position.insert(from_square, rook);
+
+        let chessboard = Chessboard::new(starting_position);
+        let chess_move = OrdinaryMove::new(&chessboard, &rook, &from_square, &to_square);
+
+        assert!(!is_move_allowed(&chess_move));
+    }
+
+    #[test]
+    fn disallows_rook_moving_through_an_obstruction() {
+        let from_square = Square::new(Rank::One, File::H);
+        let to_square = Square::new(Rank::Five, File::H);
         let rook = Piece::new(Colour::White, PieceType::Rook);
 
         let chessboard = factories::chessboard();

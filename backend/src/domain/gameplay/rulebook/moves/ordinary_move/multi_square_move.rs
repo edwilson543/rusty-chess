@@ -1,7 +1,7 @@
 use super::super::translation;
 use super::ordinary_move::OrdinaryMove;
 use super::rule::OrdinaryMoveRule;
-use std::cmp;
+use crate::domain::gameplay::chess_set;
 
 pub struct MultiSquareMove {
     vector: translation::ChessVector,
@@ -21,26 +21,23 @@ impl OrdinaryMoveRule for MultiSquareMove {
 }
 
 impl MultiSquareMove {
-    pub fn is_obstructed(&self, chess_move: &OrdinaryMove) -> bool {
-        false
-        // TODO.
-        // if !self.is_straight_line() {
-        //     return true
-        // }
-        //
-        // for scalar in 1..=chess_move.translation.scalar {
-        //     // TODO -> can't do this, since vector is in opposite direction for white / black.
-        //     // TODO -> need to add a "direction" field to translation.
-        //     let rank = chess_move.from_square.get_rank().index() + self.vector.y;
-        // }
-        //
-        // return false;
-    }
+    fn is_obstructed(&self, chess_move: &OrdinaryMove) -> bool {
+        if !chess_move.translation.vector.is_straight_line() {
+            return true;
+        }
 
-    fn is_straight_line(&self) -> bool {
-        // Straight line => plus / diags.
-        // i.e. anything where {x, y} < {-1, 0, 1}
-        cmp::max(self.vector.x.abs(), self.vector.y.abs()) <= 1
+        for scalar in 1..=chess_move.translation.scalar {
+            let rank_index =
+                chess_move.from_square.get_rank().index() + self.vector.y * (scalar as i8);
+            let file_index =
+                chess_move.from_square.get_file().index() + self.vector.x * (scalar as i8);
+            let square = chess_set::Square::from_indexes(rank_index, file_index);
+            if let Some(_) = chess_move.chessboard.get_piece(&square) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
 
@@ -54,8 +51,8 @@ mod tests {
 
     #[test]
     fn allows_multi_square_move_forward_white() {
-        let from_square = Square::new(Rank::One, File::A);
-        let to_square = Square::new(Rank::Three, File::A);
+        let from_square = Square::new(Rank::Two, File::A);
+        let to_square = Square::new(Rank::Four, File::A);
         let piece = Piece::new(Colour::White, PieceType::Rook);
 
         let chessboard = factories::chessboard();
@@ -91,6 +88,34 @@ mod tests {
 
         let vector = translation::ChessVector::new(0, -1);
         let rule = MultiSquareMove::new(vector);
+
+        assert!(!rule.allows_move(&chess_move));
+    }
+
+    #[test]
+    fn cannot_move_white_rook_from_back_rank_when_obstructed_by_pawn() {
+        let from_square = Square::new(Rank::One, File::H);
+        let to_square = Square::new(Rank::Four, File::H);
+        let piece = Piece::new(Colour::White, PieceType::Rook);
+
+        let chessboard = factories::chessboard();
+        let chess_move = OrdinaryMove::new(&chessboard, &piece, &from_square, &to_square);
+
+        let rule = MultiSquareMove::new(translation::ChessVector::new(0, 1));
+
+        assert!(!rule.allows_move(&chess_move));
+    }
+
+    #[test]
+    fn cannot_move_black_bishop_from_back_rank_when_obstructed_by_pawn() {
+        let from_square = Square::new(Rank::Eight, File::C);
+        let to_square = Square::new(Rank::Six, File::E);
+        let piece = Piece::new(Colour::Black, PieceType::Bishop);
+
+        let chessboard = factories::chessboard();
+        let chess_move = OrdinaryMove::new(&chessboard, &piece, &from_square, &to_square);
+
+        let rule = MultiSquareMove::new(translation::ChessVector::new(0, 1));
 
         assert!(!rule.allows_move(&chess_move));
     }

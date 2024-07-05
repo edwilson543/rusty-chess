@@ -16,10 +16,13 @@ pub fn get_queen_move_rules() -> vec::IntoIter<Box<dyn OrdinaryMoveRule>> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::domain::gameplay::chess_set::{Colour, File, Piece, PieceType, Rank, Square};
+    use crate::domain::gameplay::chess_set::{
+        Chessboard, Colour, File, Piece, PieceType, Rank, Square,
+    };
     use crate::domain::gameplay::rulebook::moves::OrdinaryMove;
     use crate::testing::factories;
     use rstest::rstest;
+    use std::collections::HashMap;
 
     fn is_move_allowed(chess_move: &OrdinaryMove) -> bool {
         let mut rules = get_queen_move_rules();
@@ -43,8 +46,10 @@ mod tests {
         #[case] to_square: Square,
     ) {
         let queen = Piece::new(Colour::White, PieceType::Queen);
+        let mut starting_position = HashMap::new();
+        starting_position.insert(from_square, queen);
 
-        let chessboard = factories::chessboard();
+        let chessboard = Chessboard::new(starting_position);
         let chess_move = OrdinaryMove::new(&chessboard, &queen, &from_square, &to_square);
 
         assert!(is_move_allowed(&chess_move));
@@ -55,6 +60,20 @@ mod tests {
         let from_square = Square::new(Rank::Five, File::E);
         let to_square = Square::new(Rank::Seven, File::F);
         let queen = Piece::new(Colour::White, PieceType::Rook);
+        let mut starting_position = HashMap::new();
+        starting_position.insert(from_square, queen);
+
+        let chessboard = Chessboard::new(starting_position);
+        let chess_move = OrdinaryMove::new(&chessboard, &queen, &from_square, &to_square);
+
+        assert!(!is_move_allowed(&chess_move));
+    }
+
+    #[test]
+    fn disallows_queen_moving_through_an_obstruction() {
+        let from_square = Square::new(Rank::One, File::D);
+        let to_square = Square::new(Rank::Three, File::D);
+        let queen = Piece::new(Colour::White, PieceType::Queen);
 
         let chessboard = factories::chessboard();
         let chess_move = OrdinaryMove::new(&chessboard, &queen, &from_square, &to_square);

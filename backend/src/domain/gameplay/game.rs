@@ -245,5 +245,23 @@ mod tests {
             assert_eq!(game.get_piece_at_square(&from_square), None);
             assert_eq!(game.get_piece_at_square(&to_square), None);
         }
+
+        #[test]
+        fn errors_for_illegal_opening_move() {
+            let mut game = Game::new();
+
+            let from_square = chess_set::Square::new(Rank::One, File::C);
+            let to_square = chess_set::Square::new(Rank::Three, File::A);
+            let white_bishop = game.get_piece_at_square(&from_square).unwrap();
+
+            let result = game.play_ordinary_move(&Colour::White, &from_square, &to_square);
+
+            let expected_error = GameError::MoveValidationError(
+                rulebook::MoveValidationError::MoveIsNotLegalForPiece,
+            );
+            assert_eq!(result, Err(expected_error));
+            assert_eq!(game.get_piece_at_square(&from_square), Some(white_bishop));
+            assert_eq!(game.get_piece_at_square(&to_square), None);
+        }
     }
 }

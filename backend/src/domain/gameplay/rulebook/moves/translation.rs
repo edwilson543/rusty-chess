@@ -58,6 +58,13 @@ impl ChessVector {
         };
         Self { x: x, y: 0 }
     }
+
+    // Queries.
+    /// "Straight line" := within a 'plus' or diagonal.
+    /// i.e. vectors where {x, y} <= {-1, 0, 1}
+    pub fn is_straight_line(&self) -> bool {
+        cmp::max(self.x.abs(), self.y.abs()) <= 1
+    }
 }
 
 /// Euclid's algorithm, extended to support negative numbers.
