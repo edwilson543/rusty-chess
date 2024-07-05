@@ -1,9 +1,9 @@
-mod common;
-mod move_rule;
-mod pieces;
+mod base_move;
+mod castle;
+mod en_passant;
+mod ordinary_move;
 mod translation;
-mod validate;
 
-pub use move_rule::Move;
-pub use translation::{ChessVector, Translation};
-pub use validate::{validate_move, MoveValidationError};
+pub use base_move::ChessMove;
+pub use en_passant::{EnPassant, EnPassantValidationError};
+pub use ordinary_move::{MoveValidationError, OrdinaryMove};

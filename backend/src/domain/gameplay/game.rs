@@ -1,10 +1,6 @@
 use crate::domain::gameplay::chess_set;
 use crate::domain::gameplay::rulebook;
-
-pub enum GameMove {
-    OrdinaryMove(rulebook::Move),
-    EnPassant(rulebook::EnPassant),
-}
+use crate::domain::gameplay::rulebook::ChessMove;
 
 #[derive(thiserror::Error, Debug, PartialEq)]
 pub enum GameError {
@@ -38,7 +34,7 @@ pub enum GameStatus {
 pub struct Game {
     chessboard: chess_set::Chessboard,
     status: GameStatus,
-    history: Vec<GameMove>,
+    chessboard_history: Vec<chess_set::Chessboard>,
 }
 
 // Public interface.
@@ -48,9 +44,9 @@ impl Game {
         let chessboard = chess_set::Chessboard::new(starting_position);
 
         Self {
-            chessboard: chessboard,
-            history: vec![],
+            chessboard: chessboard.clone(),
             status: GameStatus::ToPlay(chess_set::Colour::White),
+            chessboard_history: vec![chessboard.clone()],
         }
     }
 
@@ -69,18 +65,19 @@ impl Game {
             Err(error) => return Err(error),
         };
 
-        let validated_move =
-            match rulebook::validate_move(&self.chessboard, &piece, &from_square, &to_square) {
-                Ok(validated_move) => validated_move,
-                Err(error) => return Err(GameError::MoveValidationError(error)),
-            };
+        let ordinary_move =
+            rulebook::OrdinaryMove::new(&self.chessboard, &piece, &from_square, &to_square);
+        match ordinary_move.validate(&self.chessboard_history) {
+            Ok(validated_move) => validated_move,
+            Err(error) => return Err(GameError::MoveValidationError(error)),
+        };
 
-        match self.chessboard.move_piece(&from_square, &to_square) {
+        match ordinary_move.apply(&mut self.chessboard) {
             Err(error) => return Err(GameError::ChessboardActionError(error)),
             Ok(()) => {}
         };
 
-        self.history.push(GameMove::OrdinaryMove(validated_move));
+        self.clone_current_chessboard_to_history();
         self.progress_game_status();
         Ok(&self.status)
     }
@@ -100,28 +97,18 @@ impl Game {
             Err(error) => return Err(error),
         };
 
-        let GameMove::OrdinaryMove(previous_move) = self.history.last().unwrap() else {
-            return Err(GameError::EnPassantValidationError(
-                rulebook::EnPassantValidationError::OnlyAllowedAfterDoubleAdvancement,
-            ));
+        let en_passant = rulebook::EnPassant::new(&pawn, from_square, to_square);
+        match en_passant.validate(&self.chessboard_history) {
+            Ok(en_passant) => en_passant,
+            Err(error) => return Err(GameError::EnPassantValidationError(error)),
         };
 
-        let en_passant =
-            match rulebook::validate_en_passant(&pawn, from_square, to_square, previous_move) {
-                Ok(en_passant) => en_passant,
-                Err(error) => return Err(GameError::EnPassantValidationError(error)),
-            };
-
-        match self.chessboard.remove_piece(&previous_move.to_square) {
+        match en_passant.apply(&mut self.chessboard) {
             Err(error) => return Err(GameError::ChessboardActionError(error)),
             Ok(_) => {}
         };
-        match self.chessboard.move_piece(&from_square, &to_square) {
-            Err(error) => return Err(GameError::ChessboardActionError(error)),
-            Ok(()) => {}
-        };
 
-        self.history.push(GameMove::EnPassant(en_passant));
+        self.clone_current_chessboard_to_history();
         self.progress_game_status();
         Ok(&self.status)
     }
@@ -136,6 +123,10 @@ impl Game {
             GameStatus::ToPlay(colour) => GameStatus::ToPlay(colour.swap()),
             _ => panic!("TODO."),
         };
+    }
+
+    fn clone_current_chessboard_to_history(&mut self) {
+        self.chessboard_history.push(self.chessboard.clone());
     }
 
     // Queries.
@@ -252,6 +243,24 @@ mod tests {
             );
             assert_eq!(result, Err(expected_error));
             assert_eq!(game.get_piece_at_square(&from_square), None);
+            assert_eq!(game.get_piece_at_square(&to_square), None);
+        }
+
+        #[test]
+        fn errors_for_illegal_opening_move() {
+            let mut game = Game::new();
+
+            let from_square = chess_set::Square::new(Rank::One, File::C);
+            let to_square = chess_set::Square::new(Rank::Three, File::A);
+            let white_bishop = game.get_piece_at_square(&from_square).unwrap();
+
+            let result = game.play_ordinary_move(&Colour::White, &from_square, &to_square);
+
+            let expected_error = GameError::MoveValidationError(
+                rulebook::MoveValidationError::MoveIsNotLegalForPiece,
+            );
+            assert_eq!(result, Err(expected_error));
+            assert_eq!(game.get_piece_at_square(&from_square), Some(white_bishop));
             assert_eq!(game.get_piece_at_square(&to_square), None);
         }
     }
