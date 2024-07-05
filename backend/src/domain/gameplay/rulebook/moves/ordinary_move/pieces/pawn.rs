@@ -1,15 +1,15 @@
-use super::super::ordinary_move;
-use super::super::translation::ChessVector;
-use super::rule;
+use super::super::rule::OrdinaryMoveRule;
+use super::super::OrdinaryMove;
 use crate::domain::gameplay::chess_set;
+use crate::domain::gameplay::rulebook::moves::translation::ChessVector;
 use std::vec;
 
-pub fn get_pawn_move_rules() -> vec::IntoIter<Box<dyn rule::OrdinaryMoveRule>> {
+pub fn get_pawn_move_rules() -> vec::IntoIter<Box<dyn OrdinaryMoveRule>> {
     // Note: En passant is implemented elsewhere.
     let rules = vec![
-        Box::new(OneSquaresForwardMove) as Box<dyn rule::OrdinaryMoveRule>,
-        Box::new(TwoSquaresForwardMove) as Box<dyn rule::OrdinaryMoveRule>,
-        Box::new(ForwardsDiagonalCapture) as Box<dyn rule::OrdinaryMoveRule>,
+        Box::new(OneSquaresForwardMove) as Box<dyn OrdinaryMoveRule>,
+        Box::new(TwoSquaresForwardMove) as Box<dyn OrdinaryMoveRule>,
+        Box::new(ForwardsDiagonalCapture) as Box<dyn OrdinaryMoveRule>,
     ];
 
     rules.into_iter()
@@ -17,8 +17,8 @@ pub fn get_pawn_move_rules() -> vec::IntoIter<Box<dyn rule::OrdinaryMoveRule>> {
 
 struct OneSquaresForwardMove;
 
-impl rule::OrdinaryMoveRule for OneSquaresForwardMove {
-    fn allows_move(&self, chess_move: &ordinary_move::OrdinaryMove) -> bool {
+impl OrdinaryMoveRule for OneSquaresForwardMove {
+    fn allows_move(&self, chess_move: &OrdinaryMove) -> bool {
         let forwards = ChessVector::forwards(chess_move.piece.get_colour());
 
         let is_forwards = chess_move.translation.vector == forwards;
@@ -30,8 +30,8 @@ impl rule::OrdinaryMoveRule for OneSquaresForwardMove {
 
 struct TwoSquaresForwardMove;
 
-impl rule::OrdinaryMoveRule for TwoSquaresForwardMove {
-    fn allows_move(&self, chess_move: &ordinary_move::OrdinaryMove) -> bool {
+impl OrdinaryMoveRule for TwoSquaresForwardMove {
+    fn allows_move(&self, chess_move: &OrdinaryMove) -> bool {
         let forwards = ChessVector::forwards(chess_move.piece.get_colour());
 
         let is_forwards = chess_move.translation.vector == forwards;
@@ -44,8 +44,8 @@ impl rule::OrdinaryMoveRule for TwoSquaresForwardMove {
 
 struct ForwardsDiagonalCapture;
 
-impl rule::OrdinaryMoveRule for ForwardsDiagonalCapture {
-    fn allows_move(&self, chess_move: &ordinary_move::OrdinaryMove) -> bool {
+impl OrdinaryMoveRule for ForwardsDiagonalCapture {
+    fn allows_move(&self, chess_move: &OrdinaryMove) -> bool {
         let forwards = ChessVector::forwards(chess_move.piece.get_colour());
         let right = ChessVector::right(chess_move.piece.get_colour());
 
@@ -61,7 +61,7 @@ impl rule::OrdinaryMoveRule for ForwardsDiagonalCapture {
     }
 }
 
-fn is_first_move_for_pawn(chess_move: &ordinary_move::OrdinaryMove) -> bool {
+fn is_first_move_for_pawn(chess_move: &OrdinaryMove) -> bool {
     let starting_rank = match chess_move.piece.get_colour() {
         chess_set::Colour::White => &chess_set::Rank::Two,
         chess_set::Colour::Black => &chess_set::Rank::Seven,
@@ -69,7 +69,7 @@ fn is_first_move_for_pawn(chess_move: &ordinary_move::OrdinaryMove) -> bool {
     chess_move.from_square.get_rank() == starting_rank
 }
 
-fn is_square_occupied_by_opponent_piece(chess_move: &ordinary_move::OrdinaryMove) -> bool {
+fn is_square_occupied_by_opponent_piece(chess_move: &OrdinaryMove) -> bool {
     let Some(piece) = chess_move.chessboard.get_piece(&chess_move.to_square) else {
         return false;
     };
@@ -80,7 +80,7 @@ fn is_square_occupied_by_opponent_piece(chess_move: &ordinary_move::OrdinaryMove
 mod tests {
     use super::get_pawn_move_rules;
     use crate::domain::gameplay::chess_set::{Colour, File, Piece, PieceType, Rank, Square};
-    use crate::domain::gameplay::rulebook::moves::ordinary_move::OrdinaryMove;
+    use crate::domain::gameplay::rulebook::moves::OrdinaryMove;
     use crate::testing::factories;
 
     fn is_move_allowed(chess_move: &OrdinaryMove) -> bool {

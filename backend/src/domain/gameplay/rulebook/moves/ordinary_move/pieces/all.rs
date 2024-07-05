@@ -1,4 +1,5 @@
-use super::{bishop, king, knight, pawn, queen, rook, rule};
+use super::super::rule;
+use super::{bishop, king, knight, pawn, queen, rook};
 use crate::domain::gameplay::chess_set;
 use std::vec;
 

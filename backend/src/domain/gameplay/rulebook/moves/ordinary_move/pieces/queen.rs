@@ -1,9 +1,9 @@
-use super::rule;
+use super::super::rule::OrdinaryMoveRule;
 use super::{bishop, rook};
 use std::vec;
 
-pub fn get_queen_move_rules() -> vec::IntoIter<Box<dyn rule::OrdinaryMoveRule>> {
-    let mut queen_rules: Vec<Box<dyn rule::OrdinaryMoveRule>> = vec![];
+pub fn get_queen_move_rules() -> vec::IntoIter<Box<dyn OrdinaryMoveRule>> {
+    let mut queen_rules: Vec<Box<dyn OrdinaryMoveRule>> = vec![];
     for bishop_rule in bishop::get_bishop_move_rules() {
         queen_rules.push(bishop_rule);
     }
@@ -17,7 +17,7 @@ pub fn get_queen_move_rules() -> vec::IntoIter<Box<dyn rule::OrdinaryMoveRule>> 
 mod tests {
     use super::*;
     use crate::domain::gameplay::chess_set::{Colour, File, Piece, PieceType, Rank, Square};
-    use crate::domain::gameplay::rulebook::moves::ordinary_move::OrdinaryMove;
+    use crate::domain::gameplay::rulebook::moves::OrdinaryMove;
     use crate::testing::factories;
     use rstest::rstest;
 

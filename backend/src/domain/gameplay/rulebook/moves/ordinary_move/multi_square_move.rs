@@ -1,6 +1,6 @@
-use super::super::rule::OrdinaryMoveRule;
-use crate::domain::gameplay::rulebook::moves::ordinary_move;
-use crate::domain::gameplay::rulebook::moves::translation;
+use super::super::translation;
+use super::ordinary_move::OrdinaryMove;
+use super::rule::OrdinaryMoveRule;
 use std::cmp;
 
 pub struct MultiSquareMove {
@@ -14,14 +14,14 @@ impl MultiSquareMove {
 }
 
 impl OrdinaryMoveRule for MultiSquareMove {
-    fn allows_move(&self, chess_move: &ordinary_move::OrdinaryMove) -> bool {
+    fn allows_move(&self, chess_move: &OrdinaryMove) -> bool {
         let translation = &chess_move.translation;
         self.vector == translation.vector && !self.is_obstructed(chess_move)
     }
 }
 
 impl MultiSquareMove {
-    pub fn is_obstructed(&self, chess_move: &ordinary_move::OrdinaryMove) -> bool {
+    pub fn is_obstructed(&self, chess_move: &OrdinaryMove) -> bool {
         false
         // TODO.
         // if !self.is_straight_line() {

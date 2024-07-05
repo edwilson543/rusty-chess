@@ -1,15 +1,15 @@
-use super::super::translation;
-use super::rule;
-use crate::domain::gameplay::rulebook::OrdinaryMove;
+use super::super::rule::OrdinaryMoveRule;
+use super::super::OrdinaryMove;
+use crate::domain::gameplay::rulebook::moves::translation;
 use std::vec;
 
-pub fn get_king_move_rules() -> vec::IntoIter<Box<dyn rule::OrdinaryMoveRule>> {
-    vec![Box::new(KingMoveRule) as Box<dyn rule::OrdinaryMoveRule>].into_iter()
+pub fn get_king_move_rules() -> vec::IntoIter<Box<dyn OrdinaryMoveRule>> {
+    vec![Box::new(KingMoveRule) as Box<dyn OrdinaryMoveRule>].into_iter()
 }
 
 struct KingMoveRule;
 
-impl rule::OrdinaryMoveRule for KingMoveRule {
+impl OrdinaryMoveRule for KingMoveRule {
     fn allows_move(&self, chess_move: &OrdinaryMove) -> bool {
         let vectors = [
             translation::ChessVector::new(0, 1),
@@ -34,7 +34,7 @@ impl rule::OrdinaryMoveRule for KingMoveRule {
 mod tests {
     use super::*;
     use crate::domain::gameplay::chess_set::{Colour, File, Piece, PieceType, Rank, Square};
-    use crate::domain::gameplay::rulebook::moves::ordinary_move::OrdinaryMove;
+    use crate::domain::gameplay::rulebook::moves::OrdinaryMove;
     use crate::testing::factories;
     use rstest::rstest;
 

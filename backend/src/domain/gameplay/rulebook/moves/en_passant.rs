@@ -1,8 +1,8 @@
 use super::translation;
 
 use super::base_move;
+use super::translation::ChessVector;
 use crate::domain::gameplay::chess_set;
-use crate::domain::gameplay::rulebook::moves::translation::ChessVector;
 use std::fmt;
 
 #[derive(thiserror::Error, Debug, PartialEq)]

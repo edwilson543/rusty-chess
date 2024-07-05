@@ -1,9 +1,9 @@
-use super::super::translation;
-use super::rule;
-use crate::domain::gameplay::rulebook::moves::pieces::common;
+use super::super::multi_square_move::MultiSquareMove;
+use super::super::rule::OrdinaryMoveRule;
+use crate::domain::gameplay::rulebook::moves::translation;
 use std::vec;
 
-pub fn get_rook_move_rules() -> vec::IntoIter<Box<dyn rule::OrdinaryMoveRule>> {
+pub fn get_rook_move_rules() -> vec::IntoIter<Box<dyn OrdinaryMoveRule>> {
     let vectors = [
         translation::ChessVector::new(0, 1),
         translation::ChessVector::new(1, 0),
@@ -11,10 +11,10 @@ pub fn get_rook_move_rules() -> vec::IntoIter<Box<dyn rule::OrdinaryMoveRule>> {
         translation::ChessVector::new(-1, 0),
     ];
 
-    let mut rules: Vec<Box<dyn rule::OrdinaryMoveRule>> = vec![];
+    let mut rules: Vec<Box<dyn OrdinaryMoveRule>> = vec![];
     for vector in vectors {
-        let rule = common::MultiSquareMove::new(vector);
-        rules.push(Box::new(rule) as Box<dyn rule::OrdinaryMoveRule>);
+        let rule = MultiSquareMove::new(vector);
+        rules.push(Box::new(rule) as Box<dyn OrdinaryMoveRule>);
     }
 
     rules.into_iter()
@@ -24,7 +24,7 @@ pub fn get_rook_move_rules() -> vec::IntoIter<Box<dyn rule::OrdinaryMoveRule>> {
 mod tests {
     use super::*;
     use crate::domain::gameplay::chess_set::{Colour, File, Piece, PieceType, Rank, Square};
-    use crate::domain::gameplay::rulebook::moves::ordinary_move::OrdinaryMove;
+    use crate::domain::gameplay::rulebook::moves::OrdinaryMove;
     use crate::testing::factories;
     use rstest::rstest;
 

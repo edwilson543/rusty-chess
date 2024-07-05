@@ -1,5 +1,5 @@
-use super::translation;
-use super::{base_move, pieces};
+use super::super::{base_move, translation};
+use super::{pieces, rule};
 use crate::domain::gameplay::chess_set;
 use std::fmt;
 
@@ -75,7 +75,7 @@ impl OrdinaryMove {
         let mut move_rules = pieces::get_rules_for_piece(piece_type);
 
         let permitted_by_translation_rules =
-            move_rules.any(|rule: Box<dyn pieces::OrdinaryMoveRule>| rule.allows_move(&self));
+            move_rules.any(|rule: Box<dyn rule::OrdinaryMoveRule>| rule.allows_move(&self));
 
         match permitted_by_translation_rules {
             true => Ok(()),

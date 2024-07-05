@@ -2,7 +2,7 @@ use crate::domain::gameplay::chess_set;
 use std::collections::HashMap;
 use thiserror;
 
-/// Representation of a physical chessboard, and the current position of all pieces.
+/// Representation of a physical chessboard, and the current position of all ordinary_move.
 ///
 /// Note: this does not implement any gameplay logic or rules of the game.
 /// The only invariant enforced is that each square has at most one piece on it
