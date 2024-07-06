@@ -161,7 +161,7 @@ mod tests {
                 chess_set::Piece::new(chess_set::Colour::White, chess_set::PieceType::Pawn);
             starting_position.insert(white_square, white_pawn);
 
-            let mut chessboard = Chessboard::new(starting_position);
+            let chessboard = Chessboard::new(starting_position);
             let black_pieces = chessboard.get_pieces(chess_set::Colour::Black);
 
             assert_eq!(black_pieces.get(&black_square), Some(&black_king));
@@ -176,7 +176,7 @@ mod tests {
 
         #[test]
         fn gets_starting_square_for_white_king() {
-            let mut chessboard = factories::chessboard();
+            let chessboard = factories::chessboard();
 
             let king_square = chessboard.get_square_king_is_on(chess_set::Colour::White);
 
@@ -186,7 +186,7 @@ mod tests {
 
         #[test]
         fn gets_starting_square_for_black_king() {
-            let mut chessboard = factories::chessboard();
+            let chessboard = factories::chessboard();
 
             let king_square = chessboard.get_square_king_is_on(chess_set::Colour::Black);
 
@@ -198,9 +198,9 @@ mod tests {
         #[test]
         fn panics_when_no_king_matching_colour_is_on_board() {
             let starting_position = HashMap::new();
-            let mut chessboard = Chessboard::new(starting_position);
+            let chessboard = Chessboard::new(starting_position);
 
-            let king_square = chessboard.get_square_king_is_on(chess_set::Colour::White);
+            let _ = chessboard.get_square_king_is_on(chess_set::Colour::White);
         }
     }
 
