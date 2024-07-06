@@ -21,7 +21,9 @@ pub enum MoveValidationError {
     MoveIsNotLegalForPiece,
 }
 
-impl base_move::ChessMove<MoveValidationError> for OrdinaryMove {
+impl base_move::ChessMove for OrdinaryMove {
+    type Error = MoveValidationError;
+
     fn apply(
         &self,
         chessboard: &mut chess_set::Chessboard,

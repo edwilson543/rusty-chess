@@ -19,7 +19,9 @@ pub struct EnPassant {
     translation: translation::Translation,
 }
 
-impl base_move::ChessMove<EnPassantValidationError> for EnPassant {
+impl base_move::ChessMove for EnPassant {
+    type Error = EnPassantValidationError;
+
     fn apply(
         &self,
         chessboard: &mut chess_set::Chessboard,
