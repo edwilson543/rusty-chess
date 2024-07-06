@@ -49,6 +49,19 @@ impl Chessboard {
         self.position.get(square).unwrap().clone()
     }
 
+    pub fn get_square_king_is_on(&self, colour: chess_set::Colour) -> chess_set::Square {
+        for (square, maybe_piece) in self.position.clone().into_iter() {
+            let Some(piece) = maybe_piece else { continue };
+            if piece.get_colour() == &colour
+                && piece.get_piece_type() == &chess_set::PieceType::King
+            {
+                return square;
+            }
+        }
+
+        panic!("No {} king on chessboard!", colour)
+    }
+
     // Mutators
     pub fn move_piece(
         &mut self,
@@ -112,6 +125,41 @@ mod tests {
 
             assert_eq!(chessboard.get_piece(&square), Some(piece));
             assert_eq!(chessboard.get_piece(&other_square), None);
+        }
+    }
+
+    #[cfg(test)]
+    mod get_square_king_is_on_tests {
+        use super::super::*;
+        use crate::testing::factories;
+
+        #[test]
+        fn gets_starting_square_for_white_king() {
+            let mut chessboard = factories::chessboard();
+
+            let king_square = chessboard.get_square_king_is_on(chess_set::Colour::White);
+
+            assert_eq!(king_square.get_rank(), &chess_set::Rank::One);
+            assert_eq!(king_square.get_file(), &chess_set::File::E);
+        }
+
+        #[test]
+        fn gets_starting_square_for_black_king() {
+            let mut chessboard = factories::chessboard();
+
+            let king_square = chessboard.get_square_king_is_on(chess_set::Colour::Black);
+
+            assert_eq!(king_square.get_rank(), &chess_set::Rank::Eight);
+            assert_eq!(king_square.get_file(), &chess_set::File::E);
+        }
+
+        #[should_panic(expected = "No White king on chessboard!")]
+        #[test]
+        fn panics_when_no_king_matching_colour_is_on_board() {
+            let starting_position = HashMap::new();
+            let mut chessboard = Chessboard::new(starting_position);
+
+            let king_square = chessboard.get_square_king_is_on(chess_set::Colour::White);
         }
     }
 

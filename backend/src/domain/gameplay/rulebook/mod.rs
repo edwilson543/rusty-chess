@@ -1,3 +1,4 @@
+mod check;
 mod moves;
 mod starting_position;
 
