@@ -14,7 +14,7 @@ pub enum GameError {
     CannotMoveOpponentPiece(chess_set::Colour),
 
     #[error("{0}")]
-    MoveValidationError(rulebook::MoveValidationError),
+    OrdinaryMoveValidationError(rulebook::OrdinaryMoveValidationError),
 
     #[error("{0}")]
     EnPassantValidationError(rulebook::EnPassantValidationError),
@@ -69,7 +69,7 @@ impl Game {
             rulebook::OrdinaryMove::new(&self.chessboard, &piece, &from_square, &to_square);
         match ordinary_move.validate(&self.chessboard_history) {
             Ok(validated_move) => validated_move,
-            Err(error) => return Err(GameError::MoveValidationError(error)),
+            Err(error) => return Err(GameError::OrdinaryMoveValidationError(error)),
         };
 
         match ordinary_move.apply(&mut self.chessboard) {
@@ -256,8 +256,8 @@ mod tests {
 
             let result = game.play_ordinary_move(&Colour::White, &from_square, &to_square);
 
-            let expected_error = GameError::MoveValidationError(
-                rulebook::MoveValidationError::MoveIsNotLegalForPiece,
+            let expected_error = GameError::OrdinaryMoveValidationError(
+                rulebook::OrdinaryMoveValidationError::MoveIsNotLegalForPiece,
             );
             assert_eq!(result, Err(expected_error));
             assert_eq!(game.get_piece_at_square(&from_square), Some(white_bishop));

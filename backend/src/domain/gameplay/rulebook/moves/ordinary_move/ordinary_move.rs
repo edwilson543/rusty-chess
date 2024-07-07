@@ -14,7 +14,7 @@ pub struct OrdinaryMove {
 }
 
 #[derive(thiserror::Error, Debug, PartialEq)]
-pub enum MoveValidationError {
+pub enum OrdinaryMoveValidationError {
     CannotMovePieceToSameSquare,
     CannotCaptureOwnPiece,
     CannotCaptureOpponentKing,
@@ -22,7 +22,7 @@ pub enum MoveValidationError {
 }
 
 impl base_move::ChessMove for OrdinaryMove {
-    type Error = MoveValidationError;
+    type Error = OrdinaryMoveValidationError;
 
     fn apply(
         &self,
@@ -34,11 +34,11 @@ impl base_move::ChessMove for OrdinaryMove {
     fn validate(
         &self,
         chessboard_history: &Vec<chess_set::Chessboard>,
-    ) -> Result<(), MoveValidationError> {
+    ) -> Result<(), OrdinaryMoveValidationError> {
         let _ = chessboard_history; // To avoid a catch-all warning.
 
         if self.from_square == self.to_square {
-            return Err(MoveValidationError::CannotMovePieceToSameSquare);
+            return Err(OrdinaryMoveValidationError::CannotMovePieceToSameSquare);
         };
 
         if let Err(error) = self.validate_move_is_legal() {
@@ -73,7 +73,7 @@ impl OrdinaryMove {
 }
 
 impl OrdinaryMove {
-    fn validate_move_is_legal(&self) -> Result<(), MoveValidationError> {
+    fn validate_move_is_legal(&self) -> Result<(), OrdinaryMoveValidationError> {
         let piece_type = self.piece.get_piece_type();
         let mut move_rules = pieces::get_rules_for_piece(piece_type);
 
@@ -82,21 +82,21 @@ impl OrdinaryMove {
 
         match permitted_by_translation_rules {
             true => Ok(()),
-            false => Err(MoveValidationError::MoveIsNotLegalForPiece),
+            false => Err(OrdinaryMoveValidationError::MoveIsNotLegalForPiece),
         }
     }
 
-    fn validate_occupant_of_target_square(&self) -> Result<(), MoveValidationError> {
+    fn validate_occupant_of_target_square(&self) -> Result<(), OrdinaryMoveValidationError> {
         let Some(opponent_piece) = self.chessboard.get_piece(&self.to_square) else {
             return Ok(());
         };
 
         if opponent_piece.get_colour() == self.piece.get_colour() {
-            return Err(MoveValidationError::CannotCaptureOwnPiece);
+            return Err(OrdinaryMoveValidationError::CannotCaptureOwnPiece);
         };
 
         if opponent_piece.get_piece_type() == &chess_set::PieceType::King {
-            return Err(MoveValidationError::CannotCaptureOpponentKing);
+            return Err(OrdinaryMoveValidationError::CannotCaptureOpponentKing);
         };
 
         Ok(())
@@ -105,7 +105,7 @@ impl OrdinaryMove {
 
 // Trait implementations.
 
-impl fmt::Display for MoveValidationError {
+impl fmt::Display for OrdinaryMoveValidationError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{:?}", self)
     }
@@ -147,7 +147,7 @@ mod tests {
 
             let result = ordinary_move.validate(&vec![chessboard]);
 
-            let expected_error = MoveValidationError::CannotMovePieceToSameSquare;
+            let expected_error = OrdinaryMoveValidationError::CannotMovePieceToSameSquare;
             match result {
                 Err(error) => assert_eq!(error, expected_error),
                 Ok(_) => assert!(false),
@@ -168,7 +168,7 @@ mod tests {
             let ordinary_move = OrdinaryMove::new(&chessboard, &piece, &from_square, &to_square);
             let result = ordinary_move.validate(&vec![chessboard]);
 
-            let expected_error = MoveValidationError::CannotCaptureOwnPiece;
+            let expected_error = OrdinaryMoveValidationError::CannotCaptureOwnPiece;
             match result {
                 Err(error) => assert_eq!(error, expected_error),
                 Ok(_) => assert!(false),
@@ -190,7 +190,7 @@ mod tests {
                 OrdinaryMove::new(&chessboard, &white_pawn, &from_square, &to_square);
             let result = ordinary_move.validate(&vec![chessboard]);
 
-            let expected_error = MoveValidationError::CannotCaptureOpponentKing;
+            let expected_error = OrdinaryMoveValidationError::CannotCaptureOpponentKing;
             match result {
                 Err(error) => assert_eq!(error, expected_error),
                 Ok(_) => assert!(false),

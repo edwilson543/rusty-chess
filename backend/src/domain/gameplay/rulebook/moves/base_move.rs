@@ -45,7 +45,7 @@ pub trait ChessMove {
                 panic!("Potential move should be invalid, since it to opponent king's square.");
             };
             match error {
-                moves::MoveValidationError::CannotCaptureOpponentKing => return Ok(true),
+                moves::OrdinaryMoveValidationError::CannotCaptureOpponentKing => return Ok(true),
                 _ => continue,
             }
         }
