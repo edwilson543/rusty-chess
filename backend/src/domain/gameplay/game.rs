@@ -1,6 +1,6 @@
 use crate::domain::gameplay::chess_set;
 use crate::domain::gameplay::rulebook;
-use crate::domain::gameplay::rulebook::ChessMove;
+use crate::domain::gameplay::rulebook::Move;
 
 #[derive(thiserror::Error, Debug, PartialEq)]
 pub enum GameError {
@@ -16,8 +16,8 @@ pub enum GameError {
     #[error("{0}")]
     MoveValidationError(rulebook::MoveValidationError),
 
-    #[error("{0}")]
-    EnPassantValidationError(rulebook::EnPassantValidationError),
+    #[error("Cannot play move since it would leave player in check.")]
+    MoveWouldLeavePlayerInCheck,
 
     #[error("{0}")]
     ChessboardActionError(chess_set::ChessboardActionError),
@@ -56,10 +56,6 @@ impl Game {
         from_square: &chess_set::Square,
         to_square: &chess_set::Square,
     ) -> Result<&GameStatus, GameError> {
-        if let Err(error) = self.check_if_play_is_out_of_turn(player) {
-            return Err(error);
-        }
-
         let piece = match self.check_piece_at_square_belongs_to_player(player, from_square) {
             Ok(piece) => piece,
             Err(error) => return Err(error),
@@ -67,12 +63,53 @@ impl Game {
 
         let ordinary_move =
             rulebook::OrdinaryMove::new(&self.chessboard, &piece, &from_square, &to_square);
-        match ordinary_move.validate(&self.chessboard_history) {
+
+        self.play_move(player, Box::new(ordinary_move))
+    }
+
+    pub fn play_en_passant(
+        &mut self,
+        player: &chess_set::Colour,
+        from_square: &chess_set::Square,
+        to_square: &chess_set::Square,
+    ) -> Result<&GameStatus, GameError> {
+        let pawn = match self.check_piece_at_square_belongs_to_player(player, from_square) {
+            Ok(pawn) => pawn,
+            Err(error) => return Err(error),
+        };
+
+        let en_passant = rulebook::EnPassant::new(&pawn, from_square, to_square);
+
+        self.play_move(player, Box::new(en_passant))
+    }
+}
+
+// Private interface.
+impl Game {
+    // Mutators.
+    fn play_move(
+        &mut self,
+        player: &chess_set::Colour,
+        chess_move: Box<dyn Move>,
+    ) -> Result<&GameStatus, GameError> {
+        if let Err(error) = self.check_if_play_is_out_of_turn(player) {
+            return Err(error);
+        }
+
+        match chess_move.validate(&self.chessboard_history) {
             Ok(validated_move) => validated_move,
             Err(error) => return Err(GameError::MoveValidationError(error)),
         };
 
-        match ordinary_move.apply(&mut self.chessboard) {
+        match rulebook::would_player_be_left_in_check(player, &chess_move, &self.chessboard) {
+            Ok(check) => match check {
+                true => return Err(GameError::MoveWouldLeavePlayerInCheck),
+                false => {}
+            },
+            Err(error) => return Err(GameError::ChessboardActionError(error)),
+        };
+
+        match chess_move.apply(&mut self.chessboard) {
             Err(error) => return Err(GameError::ChessboardActionError(error)),
             Ok(()) => {}
         };
@@ -82,41 +119,6 @@ impl Game {
         Ok(&self.status)
     }
 
-    pub fn play_en_passant(
-        &mut self,
-        player: &chess_set::Colour,
-        from_square: &chess_set::Square,
-        to_square: &chess_set::Square,
-    ) -> Result<&GameStatus, GameError> {
-        if let Err(error) = self.check_if_play_is_out_of_turn(player) {
-            return Err(error);
-        }
-
-        let pawn = match self.check_piece_at_square_belongs_to_player(player, from_square) {
-            Ok(pawn) => pawn,
-            Err(error) => return Err(error),
-        };
-
-        let en_passant = rulebook::EnPassant::new(&pawn, from_square, to_square);
-        match en_passant.validate(&self.chessboard_history) {
-            Ok(en_passant) => en_passant,
-            Err(error) => return Err(GameError::EnPassantValidationError(error)),
-        };
-
-        match en_passant.apply(&mut self.chessboard) {
-            Err(error) => return Err(GameError::ChessboardActionError(error)),
-            Ok(_) => {}
-        };
-
-        self.clone_current_chessboard_to_history();
-        self.progress_game_status();
-        Ok(&self.status)
-    }
-}
-
-// Private interface.
-impl Game {
-    // Mutators.
     fn progress_game_status(&mut self) {
         // TODO - check for win / draw using rulebook.
         self.status = match self.status {

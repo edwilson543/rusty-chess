@@ -49,6 +49,32 @@ impl Chessboard {
         self.position.get(square).unwrap().clone()
     }
 
+    pub fn get_pieces(
+        &self,
+        colour: chess_set::Colour,
+    ) -> HashMap<chess_set::Square, chess_set::Piece> {
+        let mut pieces = HashMap::new();
+        for (square, maybe_piece) in self.position.clone() {
+            let Some(piece) = maybe_piece else { continue };
+            if piece.get_colour() == &colour {
+                pieces.insert(square, piece);
+            }
+        }
+        pieces
+    }
+
+    pub fn get_square_king_is_on(&self, colour: &chess_set::Colour) -> chess_set::Square {
+        for (square, maybe_piece) in self.position.clone().into_iter() {
+            let Some(piece) = maybe_piece else { continue };
+            if piece.get_colour() == colour && piece.get_piece_type() == &chess_set::PieceType::King
+            {
+                return square;
+            }
+        }
+
+        panic!("No {} king on chessboard!", colour)
+    }
+
     // Mutators
     pub fn move_piece(
         &mut self,
@@ -112,6 +138,68 @@ mod tests {
 
             assert_eq!(chessboard.get_piece(&square), Some(piece));
             assert_eq!(chessboard.get_piece(&other_square), None);
+        }
+    }
+
+    #[cfg(test)]
+    mod get_pieces_tests {
+        use super::super::*;
+        use crate::testing::factories;
+
+        #[test]
+        fn gets_black_pieces() {
+            let mut starting_position = HashMap::new();
+
+            let black_square = factories::some_square();
+            let black_king =
+                chess_set::Piece::new(chess_set::Colour::Black, chess_set::PieceType::King);
+            starting_position.insert(black_square, black_king);
+
+            let white_square = factories::some_other_square();
+            let white_pawn =
+                chess_set::Piece::new(chess_set::Colour::White, chess_set::PieceType::Pawn);
+            starting_position.insert(white_square, white_pawn);
+
+            let chessboard = Chessboard::new(starting_position);
+            let black_pieces = chessboard.get_pieces(chess_set::Colour::Black);
+
+            assert_eq!(black_pieces.get(&black_square), Some(&black_king));
+            assert_eq!(black_pieces.get(&white_square), None);
+        }
+    }
+
+    #[cfg(test)]
+    mod get_square_king_is_on_tests {
+        use super::super::*;
+        use crate::testing::factories;
+
+        #[test]
+        fn gets_starting_square_for_white_king() {
+            let chessboard = factories::chessboard();
+
+            let king_square = chessboard.get_square_king_is_on(&chess_set::Colour::White);
+
+            assert_eq!(king_square.get_rank(), &chess_set::Rank::One);
+            assert_eq!(king_square.get_file(), &chess_set::File::E);
+        }
+
+        #[test]
+        fn gets_starting_square_for_black_king() {
+            let chessboard = factories::chessboard();
+
+            let king_square = chessboard.get_square_king_is_on(&chess_set::Colour::Black);
+
+            assert_eq!(king_square.get_rank(), &chess_set::Rank::Eight);
+            assert_eq!(king_square.get_file(), &chess_set::File::E);
+        }
+
+        #[should_panic(expected = "No White king on chessboard!")]
+        #[test]
+        fn panics_when_no_king_matching_colour_is_on_board() {
+            let starting_position = HashMap::new();
+            let chessboard = Chessboard::new(starting_position);
+
+            let _ = chessboard.get_square_king_is_on(&chess_set::Colour::White);
         }
     }
 

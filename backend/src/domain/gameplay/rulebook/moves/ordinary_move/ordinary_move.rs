@@ -1,7 +1,6 @@
 use super::super::{base_move, translation};
 use super::{pieces, rule};
 use crate::domain::gameplay::chess_set;
-use std::fmt;
 
 /// A move of a single piece from one square to another.
 #[derive(Clone)]
@@ -13,15 +12,7 @@ pub struct OrdinaryMove {
     pub translation: translation::Translation,
 }
 
-#[derive(thiserror::Error, Debug, PartialEq)]
-pub enum MoveValidationError {
-    CannotMovePieceToSameSquare,
-    CannotCaptureOwnPiece,
-    CannotCaptureOpponentKing,
-    MoveIsNotLegalForPiece,
-}
-
-impl base_move::ChessMove<MoveValidationError> for OrdinaryMove {
+impl base_move::Move for OrdinaryMove {
     fn apply(
         &self,
         chessboard: &mut chess_set::Chessboard,
@@ -32,18 +23,18 @@ impl base_move::ChessMove<MoveValidationError> for OrdinaryMove {
     fn validate(
         &self,
         chessboard_history: &Vec<chess_set::Chessboard>,
-    ) -> Result<(), MoveValidationError> {
+    ) -> Result<(), base_move::MoveValidationError> {
         let _ = chessboard_history; // To avoid a catch-all warning.
 
         if self.from_square == self.to_square {
-            return Err(MoveValidationError::CannotMovePieceToSameSquare);
+            return Err(base_move::MoveValidationError::CannotMovePieceToSameSquare);
         };
 
-        if let Err(error) = self.validate_occupant_of_target_square() {
+        if let Err(error) = self.validate_move_is_legal() {
             return Err(error);
         }
 
-        if let Err(error) = self.validate_move_is_legal() {
+        if let Err(error) = self.validate_occupant_of_target_square() {
             return Err(error);
         }
 
@@ -71,7 +62,7 @@ impl OrdinaryMove {
 }
 
 impl OrdinaryMove {
-    fn validate_move_is_legal(&self) -> Result<(), MoveValidationError> {
+    fn validate_move_is_legal(&self) -> Result<(), base_move::MoveValidationError> {
         let piece_type = self.piece.get_piece_type();
         let mut move_rules = pieces::get_rules_for_piece(piece_type);
 
@@ -80,39 +71,31 @@ impl OrdinaryMove {
 
         match permitted_by_translation_rules {
             true => Ok(()),
-            false => Err(MoveValidationError::MoveIsNotLegalForPiece),
+            false => Err(base_move::MoveValidationError::MoveIsNotLegalForPiece),
         }
     }
 
-    fn validate_occupant_of_target_square(&self) -> Result<(), MoveValidationError> {
+    fn validate_occupant_of_target_square(&self) -> Result<(), base_move::MoveValidationError> {
         let Some(opponent_piece) = self.chessboard.get_piece(&self.to_square) else {
             return Ok(());
         };
 
         if opponent_piece.get_colour() == self.piece.get_colour() {
-            return Err(MoveValidationError::CannotCaptureOwnPiece);
+            return Err(base_move::MoveValidationError::CannotCaptureOwnPiece);
         };
 
         if opponent_piece.get_piece_type() == &chess_set::PieceType::King {
-            return Err(MoveValidationError::CannotCaptureOpponentKing);
+            return Err(base_move::MoveValidationError::CannotCaptureOpponentKing);
         };
 
         Ok(())
     }
 }
 
-// Trait implementations.
-
-impl fmt::Display for MoveValidationError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}", self)
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::domain::gameplay::rulebook::ChessMove;
+    use crate::domain::gameplay::rulebook::Move;
     use crate::testing::factories;
 
     #[test]
@@ -133,7 +116,7 @@ mod tests {
     mod test_can_square_be_moved_to {
         use super::super::*;
         use crate::domain::gameplay::chess_set;
-        use crate::domain::gameplay::rulebook::ChessMove;
+        use crate::domain::gameplay::rulebook::{Move, MoveValidationError};
         use crate::testing::factories;
 
         #[test]
