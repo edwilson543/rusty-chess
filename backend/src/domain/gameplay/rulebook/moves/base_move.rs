@@ -19,7 +19,7 @@ pub trait ChessMove {
     /// * Test whether any of the opponent's pieces can attack that square
     fn would_player_be_left_in_check(
         &self,
-        player: chess_set::Colour,
+        player: &chess_set::Colour,
         chessboard: &chess_set::Chessboard,
     ) -> Result<bool, chess_set::ChessboardActionError> {
         let mut trial_chessboard = chessboard.clone();
@@ -89,7 +89,7 @@ mod tests {
             &king_to_square,
         );
 
-        let result = chess_move.would_player_be_left_in_check(Colour::Black, &chessboard);
+        let result = chess_move.would_player_be_left_in_check(&Colour::Black, &chessboard);
 
         assert_eq!(result, Ok(true));
     }
@@ -116,7 +116,7 @@ mod tests {
             &king_to_square,
         );
 
-        let result = chess_move.would_player_be_left_in_check(Colour::White, &chessboard);
+        let result = chess_move.would_player_be_left_in_check(&Colour::White, &chessboard);
 
         assert_eq!(result, Ok(true));
     }
@@ -148,7 +148,7 @@ mod tests {
             &shield_to_square,
         );
 
-        let result = chess_move.would_player_be_left_in_check(Colour::Black, &chessboard);
+        let result = chess_move.would_player_be_left_in_check(&Colour::Black, &chessboard);
 
         assert_eq!(result, Ok(true));
     }
@@ -180,7 +180,7 @@ mod tests {
             &shield_to_square,
         );
 
-        let result = chess_move.would_player_be_left_in_check(Colour::White, &chessboard);
+        let result = chess_move.would_player_be_left_in_check(&Colour::White, &chessboard);
 
         assert_eq!(result, Ok(true));
     }
@@ -208,7 +208,7 @@ mod tests {
             &king_to_square,
         );
 
-        let result = chess_move.would_player_be_left_in_check(Colour::White, &chessboard);
+        let result = chess_move.would_player_be_left_in_check(&Colour::White, &chessboard);
 
         assert_eq!(result, Ok(true));
     }
@@ -236,7 +236,7 @@ mod tests {
             &black_king_to_square,
         );
 
-        let result = chess_move.would_player_be_left_in_check(Colour::Black, &chessboard);
+        let result = chess_move.would_player_be_left_in_check(&Colour::Black, &chessboard);
 
         assert_eq!(result, Ok(true));
     }
@@ -265,7 +265,7 @@ mod tests {
         let chess_move =
             rulebook::OrdinaryMove::new(&chessboard, &white_pawn, &from_square, &to_square);
 
-        let result = chess_move.would_player_be_left_in_check(Colour::White, &chessboard);
+        let result = chess_move.would_player_be_left_in_check(&Colour::White, &chessboard);
 
         assert_eq!(result, Ok(true));
     }
@@ -293,7 +293,7 @@ mod tests {
             &king_to_square,
         );
 
-        let result = chess_move.would_player_be_left_in_check(Colour::Black, &chessboard);
+        let result = chess_move.would_player_be_left_in_check(&Colour::Black, &chessboard);
 
         assert_eq!(result, Ok(false));
     }
@@ -328,7 +328,7 @@ mod tests {
             &king_to_square,
         );
 
-        let result = chess_move.would_player_be_left_in_check(Colour::White, &chessboard);
+        let result = chess_move.would_player_be_left_in_check(&Colour::White, &chessboard);
 
         assert_eq!(result, Ok(false));
     }
@@ -348,7 +348,7 @@ mod tests {
             &to_square,
         );
 
-        let result = chess_move.would_player_be_left_in_check(Colour::White, &empty_chessboard);
+        let result = chess_move.would_player_be_left_in_check(&Colour::White, &empty_chessboard);
 
         let expected_error = Err(ChessboardActionError::SquareIsEmpty(from_square));
         assert_eq!(result, expected_error);

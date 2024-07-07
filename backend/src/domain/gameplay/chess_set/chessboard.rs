@@ -63,11 +63,10 @@ impl Chessboard {
         pieces
     }
 
-    pub fn get_square_king_is_on(&self, colour: chess_set::Colour) -> chess_set::Square {
+    pub fn get_square_king_is_on(&self, colour: &chess_set::Colour) -> chess_set::Square {
         for (square, maybe_piece) in self.position.clone().into_iter() {
             let Some(piece) = maybe_piece else { continue };
-            if piece.get_colour() == &colour
-                && piece.get_piece_type() == &chess_set::PieceType::King
+            if piece.get_colour() == colour && piece.get_piece_type() == &chess_set::PieceType::King
             {
                 return square;
             }
@@ -178,7 +177,7 @@ mod tests {
         fn gets_starting_square_for_white_king() {
             let chessboard = factories::chessboard();
 
-            let king_square = chessboard.get_square_king_is_on(chess_set::Colour::White);
+            let king_square = chessboard.get_square_king_is_on(&chess_set::Colour::White);
 
             assert_eq!(king_square.get_rank(), &chess_set::Rank::One);
             assert_eq!(king_square.get_file(), &chess_set::File::E);
@@ -188,7 +187,7 @@ mod tests {
         fn gets_starting_square_for_black_king() {
             let chessboard = factories::chessboard();
 
-            let king_square = chessboard.get_square_king_is_on(chess_set::Colour::Black);
+            let king_square = chessboard.get_square_king_is_on(&chess_set::Colour::Black);
 
             assert_eq!(king_square.get_rank(), &chess_set::Rank::Eight);
             assert_eq!(king_square.get_file(), &chess_set::File::E);
@@ -200,7 +199,7 @@ mod tests {
             let starting_position = HashMap::new();
             let chessboard = Chessboard::new(starting_position);
 
-            let _ = chessboard.get_square_king_is_on(chess_set::Colour::White);
+            let _ = chessboard.get_square_king_is_on(&chess_set::Colour::White);
         }
     }
 

@@ -19,6 +19,9 @@ pub enum GameError {
     #[error("{0}")]
     EnPassantValidationError(rulebook::EnPassantValidationError),
 
+    #[error("Cannot play move since it would leave player in check.")]
+    MoveWouldLeavePlayerInCheck,
+
     #[error("{0}")]
     ChessboardActionError(chess_set::ChessboardActionError),
 }
@@ -67,9 +70,18 @@ impl Game {
 
         let ordinary_move =
             rulebook::OrdinaryMove::new(&self.chessboard, &piece, &from_square, &to_square);
+
         match ordinary_move.validate(&self.chessboard_history) {
             Ok(validated_move) => validated_move,
             Err(error) => return Err(GameError::OrdinaryMoveValidationError(error)),
+        };
+
+        match ordinary_move.would_player_be_left_in_check(player, &self.chessboard) {
+            Ok(check) => match check {
+                true => return Err(GameError::MoveWouldLeavePlayerInCheck),
+                false => {}
+            },
+            Err(error) => return Err(GameError::ChessboardActionError(error)),
         };
 
         match ordinary_move.apply(&mut self.chessboard) {
@@ -98,9 +110,18 @@ impl Game {
         };
 
         let en_passant = rulebook::EnPassant::new(&pawn, from_square, to_square);
+
         match en_passant.validate(&self.chessboard_history) {
             Ok(en_passant) => en_passant,
             Err(error) => return Err(GameError::EnPassantValidationError(error)),
+        };
+
+        match en_passant.would_player_be_left_in_check(player, &self.chessboard) {
+            Ok(check) => match check {
+                true => return Err(GameError::MoveWouldLeavePlayerInCheck),
+                false => {}
+            },
+            Err(error) => return Err(GameError::ChessboardActionError(error)),
         };
 
         match en_passant.apply(&mut self.chessboard) {
