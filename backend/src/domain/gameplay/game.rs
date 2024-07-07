@@ -101,7 +101,7 @@ impl Game {
             Err(error) => return Err(GameError::MoveValidationError(error)),
         };
 
-        match chess_move.would_player_be_left_in_check(player, &self.chessboard) {
+        match rulebook::would_player_be_left_in_check(player, &chess_move, &self.chessboard) {
             Ok(check) => match check {
                 true => return Err(GameError::MoveWouldLeavePlayerInCheck),
                 false => {}
