@@ -12,7 +12,7 @@ pub struct OrdinaryMove {
     pub translation: translation::Translation,
 }
 
-impl base_move::ChessMove for OrdinaryMove {
+impl base_move::Move for OrdinaryMove {
     fn apply(
         &self,
         chessboard: &mut chess_set::Chessboard,
@@ -95,7 +95,7 @@ impl OrdinaryMove {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::domain::gameplay::rulebook::ChessMove;
+    use crate::domain::gameplay::rulebook::Move;
     use crate::testing::factories;
 
     #[test]
@@ -116,7 +116,7 @@ mod tests {
     mod test_can_square_be_moved_to {
         use super::super::*;
         use crate::domain::gameplay::chess_set;
-        use crate::domain::gameplay::rulebook::{ChessMove, MoveValidationError};
+        use crate::domain::gameplay::rulebook::{Move, MoveValidationError};
         use crate::testing::factories;
 
         #[test]

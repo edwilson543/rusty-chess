@@ -5,7 +5,7 @@ use std::fmt;
 /// Enumeration of all errors that can be raised when validating chess moves.
 ///
 /// These are defined centrally rather than generically or by association,
-/// to allow passing `ChessMove`s around dynamically.
+/// to allow passing `Move`s around dynamically.
 #[derive(thiserror::Error, Debug, PartialEq)]
 pub enum MoveValidationError {
     // Ordinary moves.
@@ -20,7 +20,7 @@ pub enum MoveValidationError {
     EnPassantInvalidTranslation,
 }
 
-pub trait ChessMove {
+pub trait Move {
     fn apply(
         &self,
         chessboard: &mut chess_set::Chessboard,
@@ -84,7 +84,7 @@ impl fmt::Display for MoveValidationError {
 
 #[cfg(test)]
 mod tests {
-    use super::ChessMove;
+    use super::Move;
     use crate::domain::gameplay::chess_set::{
         Chessboard, ChessboardActionError, Colour, File, Piece, PieceType, Rank, Square,
     };

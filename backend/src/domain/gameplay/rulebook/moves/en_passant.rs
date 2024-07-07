@@ -11,7 +11,7 @@ pub struct EnPassant {
     translation: translation::Translation,
 }
 
-impl base_move::ChessMove for EnPassant {
+impl base_move::Move for EnPassant {
     fn apply(
         &self,
         chessboard: &mut chess_set::Chessboard,
@@ -133,7 +133,7 @@ mod tests {
     use crate::domain::gameplay::chess_set::{
         Chessboard, Colour, File, Piece, PieceType, Rank, Square,
     };
-    use crate::domain::gameplay::rulebook::{ChessMove, MoveValidationError};
+    use crate::domain::gameplay::rulebook::{Move, MoveValidationError};
     use crate::testing::factories;
     use rstest::rstest;
     use std::collections::HashMap;

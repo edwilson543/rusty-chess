@@ -1,6 +1,6 @@
 use crate::domain::gameplay::chess_set;
 use crate::domain::gameplay::rulebook;
-use crate::domain::gameplay::rulebook::ChessMove;
+use crate::domain::gameplay::rulebook::Move;
 
 #[derive(thiserror::Error, Debug, PartialEq)]
 pub enum GameError {
@@ -90,7 +90,7 @@ impl Game {
     fn play_move(
         &mut self,
         player: &chess_set::Colour,
-        chess_move: Box<dyn ChessMove>,
+        chess_move: Box<dyn Move>,
     ) -> Result<&GameStatus, GameError> {
         if let Err(error) = self.check_if_play_is_out_of_turn(player) {
             return Err(error);
