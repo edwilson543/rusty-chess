@@ -29,6 +29,36 @@ fn black_cannot_move_pawn_pinned_by_white_queen() {
         game.play_ordinary_move(&Colour::Black, &from_square, &captured_piece_square);
 
     let expected_error = Err(GameError::MoveWouldLeavePlayerInCheck);
+    assert_eq!(invalid_move, expected_error)
+}
 
+#[test]
+fn black_king_cannot_move_to_square_attacked_by_white_knight() {
+    let mut game = Game::new();
+
+    let from_square = Square::new(Rank::One, File::B);
+    let to_square = Square::new(Rank::Three, File::C);
+    let _ = game
+        .play_ordinary_move(&Colour::White, &from_square, &to_square)
+        .unwrap();
+
+    let from_square = Square::new(Rank::Seven, File::E);
+    let to_square = Square::new(Rank::Six, File::E);
+    let _ = game
+        .play_ordinary_move(&Colour::Black, &from_square, &to_square)
+        .unwrap();
+
+    let from_square = Square::new(Rank::Three, File::C);
+    let to_square = Square::new(Rank::Five, File::D);
+    let _ = game
+        .play_ordinary_move(&Colour::White, &from_square, &to_square)
+        .unwrap();
+
+    // Try moving the black king a square attacked by the white knight.
+    let from_square = Square::new(Rank::Eight, File::E);
+    let attacked_square = Square::new(Rank::Seven, File::E);
+    let invalid_move = game.play_ordinary_move(&Colour::Black, &from_square, &attacked_square);
+
+    let expected_error = Err(GameError::MoveWouldLeavePlayerInCheck);
     assert_eq!(invalid_move, expected_error)
 }
