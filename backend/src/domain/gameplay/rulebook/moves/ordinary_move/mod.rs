@@ -3,4 +3,4 @@ mod ordinary_move;
 mod pieces;
 mod rule;
 
-pub use ordinary_move::{OrdinaryMove, OrdinaryMoveValidationError};
+pub use ordinary_move::OrdinaryMove;

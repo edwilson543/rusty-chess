@@ -3,14 +3,6 @@ use super::translation;
 use super::base_move;
 use super::translation::ChessVector;
 use crate::domain::gameplay::chess_set;
-use std::fmt;
-
-#[derive(thiserror::Error, Debug, PartialEq)]
-pub enum EnPassantValidationError {
-    OnlyAllowedForPawns,
-    OnlyAllowedAfterDoubleAdvancement,
-    InvalidStartingSquare,
-}
 
 pub struct EnPassant {
     pawn: chess_set::Piece,
@@ -20,8 +12,6 @@ pub struct EnPassant {
 }
 
 impl base_move::ChessMove for EnPassant {
-    type Error = EnPassantValidationError;
-
     fn apply(
         &self,
         chessboard: &mut chess_set::Chessboard,
@@ -38,16 +28,16 @@ impl base_move::ChessMove for EnPassant {
     fn validate(
         &self,
         chessboard_history: &Vec<chess_set::Chessboard>,
-    ) -> Result<(), EnPassantValidationError> {
+    ) -> Result<(), base_move::MoveValidationError> {
         if !(self.pawn.get_piece_type() == &chess_set::PieceType::Pawn) {
-            return Err(EnPassantValidationError::OnlyAllowedForPawns);
+            return Err(base_move::MoveValidationError::EnPassantOnlyAllowedForPawns);
         }
         if !self.opponent_made_double_pawn_advancement_over_target_square(chessboard_history) {
-            return Err(EnPassantValidationError::OnlyAllowedAfterDoubleAdvancement);
+            return Err(base_move::MoveValidationError::EnPassantOnlyAllowedAfterDoubleAdvancement);
         }
 
         if !self.is_translation_valid() {
-            return Err(EnPassantValidationError::InvalidStartingSquare);
+            return Err(base_move::MoveValidationError::EnPassantInvalidTranslation);
         };
 
         return Ok(());
@@ -137,21 +127,13 @@ impl EnPassant {
     }
 }
 
-// Trait implementations.
-
-impl fmt::Display for EnPassantValidationError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}", self)
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::domain::gameplay::chess_set::{
         Chessboard, Colour, File, Piece, PieceType, Rank, Square,
     };
-    use crate::domain::gameplay::rulebook::ChessMove;
+    use crate::domain::gameplay::rulebook::{ChessMove, MoveValidationError};
     use crate::testing::factories;
     use rstest::rstest;
     use std::collections::HashMap;
@@ -232,7 +214,7 @@ mod tests {
 
         let result = en_passant.validate(&chessboard_history);
 
-        let expected_error = EnPassantValidationError::OnlyAllowedForPawns;
+        let expected_error = MoveValidationError::EnPassantOnlyAllowedForPawns;
         assert_eq!(result, Err(expected_error));
     }
 
@@ -259,7 +241,7 @@ mod tests {
 
         let result = en_passant.validate(&chessboard_history);
 
-        let expected_error = EnPassantValidationError::OnlyAllowedAfterDoubleAdvancement;
+        let expected_error = MoveValidationError::EnPassantOnlyAllowedAfterDoubleAdvancement;
         assert_eq!(result, Err(expected_error));
     }
 
@@ -294,7 +276,7 @@ mod tests {
 
         let result = en_passant.validate(&chessboard_history);
 
-        let expected_error = EnPassantValidationError::InvalidStartingSquare;
+        let expected_error = MoveValidationError::EnPassantInvalidTranslation;
         assert_eq!(result, Err(expected_error));
     }
 }

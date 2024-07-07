@@ -1,15 +1,35 @@
 use crate::domain::gameplay::chess_set;
 use crate::domain::gameplay::rulebook::moves;
+use std::fmt;
+
+/// Enumeration of all errors that can be raised when validating chess moves.
+///
+/// These are defined centrally rather than generically or by association,
+/// to allow passing `ChessMove`s around dynamically.
+#[derive(thiserror::Error, Debug, PartialEq)]
+pub enum MoveValidationError {
+    // Ordinary moves.
+    CannotMovePieceToSameSquare,
+    CannotCaptureOwnPiece,
+    CannotCaptureOpponentKing,
+    MoveIsNotLegalForPiece,
+
+    // En passant.
+    EnPassantOnlyAllowedForPawns,
+    EnPassantOnlyAllowedAfterDoubleAdvancement,
+    EnPassantInvalidTranslation,
+}
 
 pub trait ChessMove {
-    type Error;
-
     fn apply(
         &self,
         chessboard: &mut chess_set::Chessboard,
     ) -> Result<(), chess_set::ChessboardActionError>;
 
-    fn validate(&self, chessboard_history: &Vec<chess_set::Chessboard>) -> Result<(), Self::Error>;
+    fn validate(
+        &self,
+        chessboard_history: &Vec<chess_set::Chessboard>,
+    ) -> Result<(), MoveValidationError>;
 
     /// Test whether a move would leave a player in check.
     ///
@@ -45,12 +65,20 @@ pub trait ChessMove {
                 panic!("Potential move should be invalid, since it to opponent king's square.");
             };
             match error {
-                moves::OrdinaryMoveValidationError::CannotCaptureOpponentKing => return Ok(true),
+                MoveValidationError::CannotCaptureOpponentKing => return Ok(true),
                 _ => continue,
             }
         }
 
         Ok(false)
+    }
+}
+
+// Trait implementations.
+
+impl fmt::Display for MoveValidationError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}", self)
     }
 }
 

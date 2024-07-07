@@ -14,10 +14,7 @@ pub enum GameError {
     CannotMoveOpponentPiece(chess_set::Colour),
 
     #[error("{0}")]
-    OrdinaryMoveValidationError(rulebook::OrdinaryMoveValidationError),
-
-    #[error("{0}")]
-    EnPassantValidationError(rulebook::EnPassantValidationError),
+    MoveValidationError(rulebook::MoveValidationError),
 
     #[error("Cannot play move since it would leave player in check.")]
     MoveWouldLeavePlayerInCheck,
@@ -73,7 +70,7 @@ impl Game {
 
         match ordinary_move.validate(&self.chessboard_history) {
             Ok(validated_move) => validated_move,
-            Err(error) => return Err(GameError::OrdinaryMoveValidationError(error)),
+            Err(error) => return Err(GameError::MoveValidationError(error)),
         };
 
         match ordinary_move.would_player_be_left_in_check(player, &self.chessboard) {
@@ -113,7 +110,7 @@ impl Game {
 
         match en_passant.validate(&self.chessboard_history) {
             Ok(en_passant) => en_passant,
-            Err(error) => return Err(GameError::EnPassantValidationError(error)),
+            Err(error) => return Err(GameError::MoveValidationError(error)),
         };
 
         match en_passant.would_player_be_left_in_check(player, &self.chessboard) {
@@ -277,8 +274,8 @@ mod tests {
 
             let result = game.play_ordinary_move(&Colour::White, &from_square, &to_square);
 
-            let expected_error = GameError::OrdinaryMoveValidationError(
-                rulebook::OrdinaryMoveValidationError::MoveIsNotLegalForPiece,
+            let expected_error = GameError::MoveValidationError(
+                rulebook::MoveValidationError::MoveIsNotLegalForPiece,
             );
             assert_eq!(result, Err(expected_error));
             assert_eq!(game.get_piece_at_square(&from_square), Some(white_bishop));
