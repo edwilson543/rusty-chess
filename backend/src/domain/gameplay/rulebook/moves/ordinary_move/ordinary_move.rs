@@ -41,11 +41,11 @@ impl base_move::ChessMove for OrdinaryMove {
             return Err(MoveValidationError::CannotMovePieceToSameSquare);
         };
 
-        if let Err(error) = self.validate_occupant_of_target_square() {
+        if let Err(error) = self.validate_move_is_legal() {
             return Err(error);
         }
 
-        if let Err(error) = self.validate_move_is_legal() {
+        if let Err(error) = self.validate_occupant_of_target_square() {
             return Err(error);
         }
 

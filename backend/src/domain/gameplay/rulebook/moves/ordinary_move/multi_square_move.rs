@@ -43,12 +43,14 @@ impl MultiSquareMove {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashMap;
     use super::*;
-    use crate::domain::gameplay::chess_set::{Colour, File, Piece, PieceType, Rank, Square, Chessboard};
+    use crate::domain::gameplay::chess_set::{
+        Chessboard, Colour, File, Piece, PieceType, Rank, Square,
+    };
     use crate::domain::gameplay::rulebook::moves::ordinary_move::OrdinaryMove;
     use crate::domain::gameplay::rulebook::moves::translation;
     use crate::testing::factories;
+    use std::collections::HashMap;
 
     #[test]
     fn allows_multi_square_move_forward_white() {
