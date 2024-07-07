@@ -26,7 +26,7 @@ impl MultiSquareMove {
             return true;
         }
 
-        for scalar in 1..=chess_move.translation.scalar {
+        for scalar in 1..chess_move.translation.scalar {
             let rank_index =
                 chess_move.from_square.get_rank().index() + self.vector.y * (scalar as i8);
             let file_index =
@@ -43,8 +43,9 @@ impl MultiSquareMove {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::HashMap;
     use super::*;
-    use crate::domain::gameplay::chess_set::{Colour, File, Piece, PieceType, Rank, Square};
+    use crate::domain::gameplay::chess_set::{Colour, File, Piece, PieceType, Rank, Square, Chessboard};
     use crate::domain::gameplay::rulebook::moves::ordinary_move::OrdinaryMove;
     use crate::domain::gameplay::rulebook::moves::translation;
     use crate::testing::factories;
@@ -71,6 +72,25 @@ mod tests {
 
         let chessboard = factories::chessboard();
         let chess_move = OrdinaryMove::new(&chessboard, &piece, &from_square, &to_square);
+
+        let rule = MultiSquareMove::new(translation::ChessVector::new(0, -1));
+
+        assert!(rule.allows_move(&chess_move));
+    }
+
+    #[test]
+    fn allows_move_to_capture_opponent_piece() {
+        let from_square = Square::new(Rank::Five, File::D);
+        let to_square = Square::new(Rank::Three, File::D);
+        let black_rook = Piece::new(Colour::Black, PieceType::Rook);
+        let white_pawn = Piece::new(Colour::White, PieceType::Pawn);
+
+        let mut starting_position = HashMap::new();
+        starting_position.insert(from_square, black_rook);
+        starting_position.insert(to_square, white_pawn);
+
+        let chessboard = Chessboard::new(starting_position);
+        let chess_move = OrdinaryMove::new(&chessboard, &black_rook, &from_square, &to_square);
 
         let rule = MultiSquareMove::new(translation::ChessVector::new(0, -1));
 
