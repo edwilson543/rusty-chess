@@ -1,5 +1,7 @@
-// use chess::domain;
+use chess::interfaces::api;
+use rocket;
 
-fn main() {
-    println!("Hello, world!");
+#[rocket::launch]
+fn launch() -> rocket::Rocket<rocket::Build> {
+    api::rocket_build()
 }
