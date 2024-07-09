@@ -7,7 +7,7 @@ use thiserror;
 /// Note: this does not implement any gameplay logic or rules of the game.
 /// The only invariant enforced is that each square has at most one piece on it
 /// at any point in time (since the chessboard is represented by a hashmap).
-#[derive(Clone)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Chessboard {
     position: HashMap<chess_set::Square, Option<chess_set::Piece>>,
 }

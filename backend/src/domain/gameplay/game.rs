@@ -1,4 +1,5 @@
 use crate::domain::gameplay::chess_set;
+use crate::domain::gameplay::chess_set::Chessboard;
 use crate::domain::gameplay::rulebook;
 use crate::domain::gameplay::rulebook::Move;
 
@@ -23,7 +24,7 @@ pub enum GameError {
     ChessboardActionError(chess_set::ChessboardActionError),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum GameStatus {
     ToPlay(chess_set::Colour),
     Won(chess_set::Colour),
@@ -31,6 +32,7 @@ pub enum GameStatus {
 }
 
 /// A single game of chess.
+#[derive(Clone, Debug, PartialEq)]
 pub struct Game {
     id: i32,
     status: GameStatus,
@@ -85,6 +87,14 @@ impl Game {
         let en_passant = rulebook::EnPassant::new(&pawn, from_square, to_square);
 
         self.play_move(player, Box::new(en_passant))
+    }
+
+    // Queries.
+    pub fn get_id(&self) -> &i32 {
+        &self.id
+    }
+    pub fn get_chessboard_history(&self) -> &Vec<Chessboard> {
+        &self.chessboard_history
     }
 }
 
