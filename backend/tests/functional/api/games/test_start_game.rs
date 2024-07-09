@@ -1,6 +1,6 @@
 use chess::interfaces::api;
-use rocket::local;
 use rocket::http;
+use rocket::local;
 
 #[test]
 fn can_start_a_new_game() {

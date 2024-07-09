@@ -33,7 +33,6 @@ pub enum GameStatus {
 /// A single game of chess.
 pub struct Game {
     id: i32,
-    chessboard: chess_set::Chessboard,
     status: GameStatus,
     chessboard_history: Vec<chess_set::Chessboard>,
 }
@@ -46,9 +45,8 @@ impl Game {
 
         Self {
             id: id,
-            chessboard: chessboard.clone(),
             status: GameStatus::ToPlay(chess_set::Colour::White),
-            chessboard_history: vec![chessboard.clone()],
+            chessboard_history: vec![chessboard],
         }
     }
 
@@ -63,8 +61,12 @@ impl Game {
             Err(error) => return Err(error),
         };
 
-        let ordinary_move =
-            rulebook::OrdinaryMove::new(&self.chessboard, &piece, &from_square, &to_square);
+        let ordinary_move = rulebook::OrdinaryMove::new(
+            self.current_chessboard(),
+            &piece,
+            &from_square,
+            &to_square,
+        );
 
         self.play_move(player, Box::new(ordinary_move))
     }
@@ -103,7 +105,11 @@ impl Game {
             Err(error) => return Err(GameError::MoveValidationError(error)),
         };
 
-        match rulebook::would_player_be_left_in_check(player, &chess_move, &self.chessboard) {
+        match rulebook::would_player_be_left_in_check(
+            player,
+            &chess_move,
+            self.current_chessboard(),
+        ) {
             Ok(check) => match check {
                 true => return Err(GameError::MoveWouldLeavePlayerInCheck),
                 false => {}
@@ -111,12 +117,13 @@ impl Game {
             Err(error) => return Err(GameError::ChessboardActionError(error)),
         };
 
-        match chess_move.apply(&mut self.chessboard) {
+        let mut updated_chessboard = self.current_chessboard().clone();
+        match chess_move.apply(&mut updated_chessboard) {
             Err(error) => return Err(GameError::ChessboardActionError(error)),
             Ok(()) => {}
         };
 
-        self.clone_current_chessboard_to_history();
+        self.chessboard_history.push(updated_chessboard);
         self.progress_game_status();
         Ok(&self.status)
     }
@@ -129,13 +136,13 @@ impl Game {
         };
     }
 
-    fn clone_current_chessboard_to_history(&mut self) {
-        self.chessboard_history.push(self.chessboard.clone());
-    }
-
     // Queries.
     pub fn get_piece_at_square(&self, square: &chess_set::Square) -> Option<chess_set::Piece> {
-        self.chessboard.get_piece(square)
+        self.current_chessboard().get_piece(square)
+    }
+
+    fn current_chessboard(&self) -> &chess_set::Chessboard {
+        self.chessboard_history.last().unwrap()
     }
 
     fn check_if_play_is_out_of_turn(&self, player: &chess_set::Colour) -> Result<(), GameError> {
