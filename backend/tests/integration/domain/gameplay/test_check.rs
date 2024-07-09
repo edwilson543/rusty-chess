@@ -3,7 +3,7 @@ use chess::domain::gameplay::{Game, GameError};
 
 #[test]
 fn black_cannot_move_pawn_pinned_by_white_queen() {
-    let mut game = Game::new();
+    let mut game = Game::new(1);
 
     let from_square = Square::new(Rank::Two, File::E);
     let to_square = Square::new(Rank::Four, File::E);
@@ -34,7 +34,7 @@ fn black_cannot_move_pawn_pinned_by_white_queen() {
 
 #[test]
 fn black_king_cannot_move_to_square_attacked_by_white_knight() {
-    let mut game = Game::new();
+    let mut game = Game::new(1);
 
     let from_square = Square::new(Rank::One, File::B);
     let to_square = Square::new(Rank::Three, File::C);

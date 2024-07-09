@@ -3,7 +3,7 @@ use chess::domain::gameplay::{Game, GameStatus};
 
 #[test]
 fn white_can_play_en_passant() {
-    let mut game = Game::new();
+    let mut game = Game::new(1);
 
     let from_square = Square::new(Rank::Two, File::A);
     let to_square = Square::new(Rank::Four, File::A);
@@ -44,7 +44,7 @@ fn white_can_play_en_passant() {
 
 #[test]
 fn black_can_play_en_passant() {
-    let mut game = Game::new();
+    let mut game = Game::new(1);
 
     let from_square = Square::new(Rank::Two, File::A);
     let to_square = Square::new(Rank::Four, File::A);

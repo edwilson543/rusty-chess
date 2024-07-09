@@ -30,8 +30,9 @@ pub enum GameStatus {
     Drawn,
 }
 
-/// Event sourced representation of a game of chess.
+/// A single game of chess.
 pub struct Game {
+    id: i32,
     chessboard: chess_set::Chessboard,
     status: GameStatus,
     chessboard_history: Vec<chess_set::Chessboard>,
@@ -39,11 +40,12 @@ pub struct Game {
 
 // Public interface.
 impl Game {
-    pub fn new() -> Self {
+    pub fn new(id: i32) -> Self {
         let starting_position = rulebook::get_official_starting_position();
         let chessboard = chess_set::Chessboard::new(starting_position);
 
         Self {
+            id: id,
             chessboard: chessboard.clone(),
             status: GameStatus::ToPlay(chess_set::Colour::White),
             chessboard_history: vec![chessboard.clone()],
@@ -173,7 +175,7 @@ mod tests {
 
         #[test]
         fn can_make_1e4_pawn_opening() {
-            let mut game = Game::new();
+            let mut game = Game::new(1);
 
             let from_square = chess_set::Square::new(Rank::Two, File::E);
             let to_square = chess_set::Square::new(Rank::Four, File::E);
@@ -188,7 +190,7 @@ mod tests {
 
         #[test]
         fn can_make_nf3_knight_opening() {
-            let mut game = Game::new();
+            let mut game = Game::new(1);
 
             let from_square = chess_set::Square::new(Rank::One, File::G);
             let to_square = chess_set::Square::new(Rank::Three, File::F);
@@ -203,7 +205,7 @@ mod tests {
 
         #[test]
         fn errors_for_opening_made_by_black() {
-            let mut game = Game::new();
+            let mut game = Game::new(1);
 
             let from_square = chess_set::Square::new(Rank::Seven, File::C);
             let to_square = chess_set::Square::new(Rank::Six, File::C);
@@ -218,7 +220,7 @@ mod tests {
 
         #[test]
         fn errors_for_attempt_to_move_opponents_piece() {
-            let mut game = Game::new();
+            let mut game = Game::new(1);
 
             let from_square = chess_set::Square::new(Rank::Seven, File::C);
             let to_square = chess_set::Square::new(Rank::Six, File::C);
@@ -233,7 +235,7 @@ mod tests {
 
         #[test]
         fn errors_for_opening_from_empty_square() {
-            let mut game = Game::new();
+            let mut game = Game::new(1);
 
             let from_square = chess_set::Square::new(Rank::Three, File::H);
             let to_square = chess_set::Square::new(Rank::Four, File::H);
@@ -250,7 +252,7 @@ mod tests {
 
         #[test]
         fn errors_for_illegal_opening_move() {
-            let mut game = Game::new();
+            let mut game = Game::new(1);
 
             let from_square = chess_set::Square::new(Rank::One, File::C);
             let to_square = chess_set::Square::new(Rank::Three, File::A);
