@@ -1,34 +1,34 @@
-use crate::domain::gameplay;
+use crate::domain::gameplay::game;
 use std::collections::BTreeMap;
 
 pub trait GameRepository {
-    fn get(&self, id: i32) -> Option<gameplay::Game>;
+    fn get(&self, id: i32) -> Option<game::Game>;
 
-    fn create(&mut self) -> gameplay::Game;
+    fn create(&mut self) -> game::Game;
 
-    fn update(&mut self, game: &gameplay::Game);
+    fn update(&mut self, game: &game::Game);
 }
 
 pub struct FakeGameRepository {
-    games: BTreeMap<i32, gameplay::Game>,
+    games: BTreeMap<i32, game::Game>,
 }
 
 impl GameRepository for FakeGameRepository {
-    fn get(&self, id: i32) -> Option<gameplay::Game> {
+    fn get(&self, id: i32) -> Option<game::Game> {
         let Some(game) = self.games.get(&id) else {
             return None;
         };
         Some(game.clone())
     }
 
-    fn create(&mut self) -> gameplay::Game {
+    fn create(&mut self) -> game::Game {
         let id = self.get_next_id();
-        let game = gameplay::Game::new(id);
+        let game = game::Game::new(id);
         self.games.insert(id, game.clone());
         game
     }
 
-    fn update(&mut self, game: &gameplay::Game) {
+    fn update(&mut self, game: &game::Game) {
         self.games.insert(game.get_id().clone(), game.clone());
     }
 }
@@ -53,12 +53,12 @@ mod fake_tests {
     #[cfg(test)]
     mod get_tests {
         use super::super::{FakeGameRepository, GameRepository};
-        use crate::domain::gameplay;
+        use crate::domain::gameplay::game;
 
         #[test]
         fn gets_game_when_exists() {
             let mut repo = FakeGameRepository::new();
-            let game = gameplay::Game::new(3);
+            let game = game::Game::new(3);
             repo.games.insert(3, game.clone());
 
             let result = repo.get(3);
@@ -79,7 +79,7 @@ mod fake_tests {
     #[cfg(test)]
     mod create_tests {
         use super::super::{FakeGameRepository, GameRepository};
-        use crate::domain::gameplay;
+        use crate::domain::gameplay::game;
 
         #[test]
         fn creates_first_game_with_id_one() {
@@ -94,7 +94,7 @@ mod fake_tests {
         #[test]
         fn creates_subsequent_game_with_id_greater_than_one() {
             let mut repo = FakeGameRepository::new();
-            let game = gameplay::Game::new(9);
+            let game = game::Game::new(9);
             repo.games.insert(9, game.clone());
 
             let result = repo.create();
@@ -107,13 +107,13 @@ mod fake_tests {
     #[cfg(test)]
     mod update_tests {
         use super::super::{FakeGameRepository, GameRepository};
-        use crate::domain::gameplay;
         use crate::domain::gameplay::chess_set::{Colour, File, Rank, Square};
+        use crate::domain::gameplay::game;
 
         #[test]
         fn updates_game_to_new_instance() {
             let mut repo = FakeGameRepository::new();
-            let mut game = gameplay::Game::new(2);
+            let mut game = game::Game::new(2);
             repo.games.insert(2, game.clone());
 
             let from_square = Square::new(Rank::Two, File::A);
