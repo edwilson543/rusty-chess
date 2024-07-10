@@ -93,6 +93,11 @@ impl Game {
     pub fn get_id(&self) -> &i32 {
         &self.id
     }
+
+    pub fn get_status(&self) -> &GameStatus {
+        &self.status
+    }
+
     pub fn get_chessboard_history(&self) -> &Vec<Chessboard> {
         &self.chessboard_history
     }
