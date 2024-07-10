@@ -1,5 +1,4 @@
 use crate::domain::gameplay::chess_set;
-use crate::domain::gameplay::chess_set::Chessboard;
 use crate::domain::gameplay::rulebook;
 use crate::domain::gameplay::rulebook::Move;
 
@@ -98,7 +97,7 @@ impl Game {
         &self.status
     }
 
-    pub fn get_chessboard_history(&self) -> &Vec<Chessboard> {
+    pub fn get_chessboard_history(&self) -> &Vec<chess_set::Chessboard> {
         &self.chessboard_history
     }
 }

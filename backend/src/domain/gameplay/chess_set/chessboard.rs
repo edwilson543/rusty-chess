@@ -1,5 +1,5 @@
-use super::square;
 use super::piece;
+use super::square;
 use std::collections::HashMap;
 use thiserror;
 
@@ -50,10 +50,7 @@ impl Chessboard {
         self.position.get(square).unwrap().clone()
     }
 
-    pub fn get_pieces(
-        &self,
-        colour: piece::Colour,
-    ) -> HashMap<square::Square, piece::Piece> {
+    pub fn get_pieces(&self, colour: piece::Colour) -> HashMap<square::Square, piece::Piece> {
         let mut pieces = HashMap::new();
         for (square, maybe_piece) in self.position.clone() {
             let Some(piece) = maybe_piece else { continue };
@@ -67,8 +64,7 @@ impl Chessboard {
     pub fn get_square_king_is_on(&self, colour: &piece::Colour) -> square::Square {
         for (square, maybe_piece) in self.position.clone().into_iter() {
             let Some(piece) = maybe_piece else { continue };
-            if piece.get_colour() == colour && piece.get_piece_type() == &piece::PieceType::King
-            {
+            if piece.get_colour() == colour && piece.get_piece_type() == &piece::PieceType::King {
                 return square;
             }
         }
@@ -152,13 +148,11 @@ mod tests {
             let mut starting_position = HashMap::new();
 
             let black_square = factories::some_square();
-            let black_king =
-                piece::Piece::new(piece::Colour::Black, piece::PieceType::King);
+            let black_king = piece::Piece::new(piece::Colour::Black, piece::PieceType::King);
             starting_position.insert(black_square, black_king);
 
             let white_square = factories::some_other_square();
-            let white_pawn =
-                piece::Piece::new(piece::Colour::White, piece::PieceType::Pawn);
+            let white_pawn = piece::Piece::new(piece::Colour::White, piece::PieceType::Pawn);
             starting_position.insert(white_square, white_pawn);
 
             let chessboard = Chessboard::new(starting_position);
