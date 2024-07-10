@@ -1,6 +1,6 @@
-use super::super::{chess_move, translation};
 use super::{pieces, rule};
 use crate::domain::gameplay::chess_set;
+use crate::domain::gameplay::rulebook::moves::{chess_move, translation};
 
 /// A move of a single piece from one square to another.
 #[derive(Clone)]

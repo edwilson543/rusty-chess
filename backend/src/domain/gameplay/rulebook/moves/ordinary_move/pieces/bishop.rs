@@ -1,5 +1,5 @@
-use super::super::multi_square_move::MultiSquareMove;
-use super::super::rule::OrdinaryMoveRule;
+use crate::domain::gameplay::rulebook::moves::ordinary_move::multi_square_move::MultiSquareMove;
+use crate::domain::gameplay::rulebook::moves::ordinary_move::rule::OrdinaryMoveRule;
 use crate::domain::gameplay::rulebook::moves::translation;
 use std::vec;
 

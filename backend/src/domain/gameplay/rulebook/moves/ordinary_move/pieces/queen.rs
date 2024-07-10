@@ -1,5 +1,5 @@
-use super::super::rule::OrdinaryMoveRule;
 use super::{bishop, rook};
+use crate::domain::gameplay::rulebook::moves::ordinary_move::rule::OrdinaryMoveRule;
 use std::vec;
 
 pub fn get_queen_move_rules() -> vec::IntoIter<Box<dyn OrdinaryMoveRule>> {

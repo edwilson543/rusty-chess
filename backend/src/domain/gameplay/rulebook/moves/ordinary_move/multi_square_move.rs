@@ -1,7 +1,7 @@
-use super::super::translation;
 use super::ordinary_move::OrdinaryMove;
 use super::rule::OrdinaryMoveRule;
 use crate::domain::gameplay::chess_set;
+use crate::domain::gameplay::rulebook::moves::translation;
 
 pub struct MultiSquareMove {
     vector: translation::ChessVector,

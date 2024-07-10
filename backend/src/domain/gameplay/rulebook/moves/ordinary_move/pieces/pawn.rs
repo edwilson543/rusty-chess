@@ -1,6 +1,6 @@
-use super::super::rule::OrdinaryMoveRule;
-use super::super::OrdinaryMove;
 use crate::domain::gameplay::chess_set;
+use crate::domain::gameplay::rulebook::moves::ordinary_move::ordinary_move::OrdinaryMove;
+use crate::domain::gameplay::rulebook::moves::ordinary_move::rule::OrdinaryMoveRule;
 use crate::domain::gameplay::rulebook::moves::translation::ChessVector;
 use std::vec;
 
