@@ -1,4 +1,5 @@
-use crate::domain::gameplay::chess_set;
+use super::square;
+use super::piece;
 use std::collections::HashMap;
 use thiserror;
 
@@ -9,28 +10,28 @@ use thiserror;
 /// at any point in time (since the chessboard is represented by a hashmap).
 #[derive(Clone, Debug, PartialEq)]
 pub struct Chessboard {
-    position: HashMap<chess_set::Square, Option<chess_set::Piece>>,
+    position: HashMap<square::Square, Option<piece::Piece>>,
 }
 
 #[derive(thiserror::Error, Debug, PartialEq)]
 pub enum ChessboardActionError {
     #[error("{0} is empty.")]
-    SquareIsEmpty(chess_set::Square),
+    SquareIsEmpty(square::Square),
 
     #[error("{1} is not empty - it contains {0}!.")]
-    SquareIsNotEmpty(chess_set::Piece, chess_set::Square),
+    SquareIsNotEmpty(piece::Piece, square::Square),
 }
 
 impl Chessboard {
     // Factories
 
-    pub fn new(starting_position: HashMap<chess_set::Square, chess_set::Piece>) -> Self {
+    pub fn new(starting_position: HashMap<square::Square, piece::Piece>) -> Self {
         let mut position = HashMap::new();
 
         // Initialise an empty board.
-        for rank in chess_set::Rank::iter() {
-            for file in chess_set::File::iter() {
-                let square = chess_set::Square::new(rank, file);
+        for rank in square::Rank::iter() {
+            for file in square::File::iter() {
+                let square = square::Square::new(rank, file);
                 position.insert(square, None);
             }
         }
@@ -45,14 +46,14 @@ impl Chessboard {
 
     // Queries
 
-    pub fn get_piece(&self, square: &chess_set::Square) -> Option<chess_set::Piece> {
+    pub fn get_piece(&self, square: &square::Square) -> Option<piece::Piece> {
         self.position.get(square).unwrap().clone()
     }
 
     pub fn get_pieces(
         &self,
-        colour: chess_set::Colour,
-    ) -> HashMap<chess_set::Square, chess_set::Piece> {
+        colour: piece::Colour,
+    ) -> HashMap<square::Square, piece::Piece> {
         let mut pieces = HashMap::new();
         for (square, maybe_piece) in self.position.clone() {
             let Some(piece) = maybe_piece else { continue };
@@ -63,10 +64,10 @@ impl Chessboard {
         pieces
     }
 
-    pub fn get_square_king_is_on(&self, colour: &chess_set::Colour) -> chess_set::Square {
+    pub fn get_square_king_is_on(&self, colour: &piece::Colour) -> square::Square {
         for (square, maybe_piece) in self.position.clone().into_iter() {
             let Some(piece) = maybe_piece else { continue };
-            if piece.get_colour() == colour && piece.get_piece_type() == &chess_set::PieceType::King
+            if piece.get_colour() == colour && piece.get_piece_type() == &piece::PieceType::King
             {
                 return square;
             }
@@ -78,8 +79,8 @@ impl Chessboard {
     // Mutators
     pub fn move_piece(
         &mut self,
-        from_square: &chess_set::Square,
-        to_square: &chess_set::Square,
+        from_square: &square::Square,
+        to_square: &square::Square,
     ) -> Result<(), ChessboardActionError> {
         let Ok(piece) = self.remove_piece(from_square) else {
             return Err(ChessboardActionError::SquareIsEmpty(from_square.clone()));
@@ -91,8 +92,8 @@ impl Chessboard {
 
     pub fn add_piece(
         &mut self,
-        piece: chess_set::Piece,
-        to_square: &chess_set::Square,
+        piece: piece::Piece,
+        to_square: &square::Square,
     ) -> Result<(), ChessboardActionError> {
         if let Some(piece) = self.get_piece(to_square) {
             return Err(ChessboardActionError::SquareIsNotEmpty(
@@ -106,8 +107,8 @@ impl Chessboard {
 
     pub fn remove_piece(
         &mut self,
-        from_square: &chess_set::Square,
-    ) -> Result<chess_set::Piece, ChessboardActionError> {
+        from_square: &square::Square,
+    ) -> Result<piece::Piece, ChessboardActionError> {
         let Some(piece) = self.get_piece(from_square) else {
             return Err(ChessboardActionError::SquareIsEmpty(from_square.clone()));
         };
@@ -152,16 +153,16 @@ mod tests {
 
             let black_square = factories::some_square();
             let black_king =
-                chess_set::Piece::new(chess_set::Colour::Black, chess_set::PieceType::King);
+                piece::Piece::new(piece::Colour::Black, piece::PieceType::King);
             starting_position.insert(black_square, black_king);
 
             let white_square = factories::some_other_square();
             let white_pawn =
-                chess_set::Piece::new(chess_set::Colour::White, chess_set::PieceType::Pawn);
+                piece::Piece::new(piece::Colour::White, piece::PieceType::Pawn);
             starting_position.insert(white_square, white_pawn);
 
             let chessboard = Chessboard::new(starting_position);
-            let black_pieces = chessboard.get_pieces(chess_set::Colour::Black);
+            let black_pieces = chessboard.get_pieces(piece::Colour::Black);
 
             assert_eq!(black_pieces.get(&black_square), Some(&black_king));
             assert_eq!(black_pieces.get(&white_square), None);
@@ -177,20 +178,20 @@ mod tests {
         fn gets_starting_square_for_white_king() {
             let chessboard = factories::chessboard();
 
-            let king_square = chessboard.get_square_king_is_on(&chess_set::Colour::White);
+            let king_square = chessboard.get_square_king_is_on(&piece::Colour::White);
 
-            assert_eq!(king_square.get_rank(), &chess_set::Rank::One);
-            assert_eq!(king_square.get_file(), &chess_set::File::E);
+            assert_eq!(king_square.get_rank(), &square::Rank::One);
+            assert_eq!(king_square.get_file(), &square::File::E);
         }
 
         #[test]
         fn gets_starting_square_for_black_king() {
             let chessboard = factories::chessboard();
 
-            let king_square = chessboard.get_square_king_is_on(&chess_set::Colour::Black);
+            let king_square = chessboard.get_square_king_is_on(&piece::Colour::Black);
 
-            assert_eq!(king_square.get_rank(), &chess_set::Rank::Eight);
-            assert_eq!(king_square.get_file(), &chess_set::File::E);
+            assert_eq!(king_square.get_rank(), &square::Rank::Eight);
+            assert_eq!(king_square.get_file(), &square::File::E);
         }
 
         #[should_panic(expected = "No White king on chessboard!")]
@@ -199,7 +200,7 @@ mod tests {
             let starting_position = HashMap::new();
             let chessboard = Chessboard::new(starting_position);
 
-            let _ = chessboard.get_square_king_is_on(&chess_set::Colour::White);
+            let _ = chessboard.get_square_king_is_on(&piece::Colour::White);
         }
     }
 
