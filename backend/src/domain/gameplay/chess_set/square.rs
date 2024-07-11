@@ -14,7 +14,7 @@ pub enum Rank {
     Eight,
 }
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, serde::Serialize)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub enum File {
     A,
     B,

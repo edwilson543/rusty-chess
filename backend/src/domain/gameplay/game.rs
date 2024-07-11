@@ -193,31 +193,6 @@ mod tests {
     mod play_ordinary_move_tests {
         use super::super::*;
         use crate::domain::gameplay::chess_set::{Colour, File, PieceType, Rank};
-        use crate::testing::factories;
-
-        #[test]
-        fn game_is_serializable() {
-            use crate::domain::gameplay::game;
-            use crate::testing::factories;
-            use rocket::serde::json;
-
-            // let sq = factories::some_square();
-            // let s_sq = json::to_string(&sq);
-            // println!("{:?}", s_sq)
-
-            // let p = factories::some_piece();
-            // let s_p = json::to_string(&p);
-            // println!("{:?}", s_p)
-
-            let c = factories::chessboard();
-            let s_c = json::to_string(&c);
-            println!("{:?}", s_c)
-
-            // let g = game::Game::new(1);
-            // let j = json::to_string(&g);
-            //
-            // println!("{:?}", j);
-        }
 
         #[test]
         fn can_make_1e4_pawn_opening() {
