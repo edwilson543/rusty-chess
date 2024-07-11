@@ -1,7 +1,8 @@
 use core::array;
+use serde;
 use std::fmt;
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, serde::Serialize)]
 pub enum Rank {
     One,
     Two,
@@ -13,7 +14,7 @@ pub enum Rank {
     Eight,
 }
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, serde::Serialize)]
 pub enum File {
     A,
     B,
@@ -25,7 +26,7 @@ pub enum File {
     H,
 }
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, serde::Serialize)]
 pub struct Square {
     rank: Rank,
     file: File,

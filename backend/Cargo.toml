@@ -5,6 +5,8 @@ edition = "2021"
 
 [dependencies]
 rocket = { version = "0.5.1", features = ["json"] }
+serde = "1.0.204"
+serde_with = "3.8.3"
 thiserror = "1.0.61"
 
 [dev-dependencies]
