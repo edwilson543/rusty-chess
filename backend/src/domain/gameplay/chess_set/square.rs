@@ -2,7 +2,7 @@ use core::array;
 use serde;
 use std::fmt;
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, serde::Serialize)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub enum Rank {
     One,
     Two,
