@@ -7,7 +7,7 @@ fn can_start_a_new_game() {
     let build = api::rocket_build();
     let client = local::blocking::Client::tracked(build).unwrap();
 
-    let request = client.post("/api/games/");
+    let request = client.post("/api/start-game/");
     let response = request.dispatch();
 
     assert_eq!(response.status(), http::Status::Created);
