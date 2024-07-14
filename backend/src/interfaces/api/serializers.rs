@@ -22,6 +22,18 @@ impl serde::Serialize for chess_set::File {
     }
 }
 
+impl serde::Serialize for chess_set::Square {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let mut file = self.get_file().to_string();
+        let rank = format!("{}", &self.get_rank().index()).clone();
+        file.push_str(rank.as_str()); // e.g. A1; B3; F5
+        serializer.serialize_str(file.as_str())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -43,5 +55,16 @@ mod tests {
         let file_json = json::to_string(&file);
 
         assert_eq!(file_json.unwrap(), "\"F\"");
+    }
+
+    #[test]
+    fn serializes_square_to_string_letter_integer_coordinate() {
+        let square = chess_set::Square::new(
+            chess_set::Rank::Eight, chess_set::File::E
+        );
+
+        let square_json = json::to_string(&square);
+
+        assert_eq!(square_json.unwrap(), "\"E8\"");
     }
 }
