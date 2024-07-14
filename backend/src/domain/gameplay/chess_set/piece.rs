@@ -1,7 +1,6 @@
-use serde;
 use std::fmt;
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq, serde::Serialize)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum Colour {
     Black,
     White,
@@ -18,7 +17,7 @@ impl Colour {
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum PieceType {
-    Pawn, // For convenience, pawns are modelled as ordinary_move within the chess set.
+    Pawn, // For convenience, pawns are modelled as `pieces` within the chess set.
     Knight,
     Bishop,
     Rook,

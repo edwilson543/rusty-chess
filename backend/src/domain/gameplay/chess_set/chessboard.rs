@@ -5,7 +5,7 @@ use serde_with;
 use std::collections::HashMap;
 use thiserror;
 
-/// Representation of a physical chessboard, and the current position of all ordinary_move.
+/// Representation of a physical chessboard, and the current position of all pieces.
 ///
 /// Note: this does not implement any gameplay logic or rules of the game.
 /// The only invariant enforced is that each square has at most one piece on it

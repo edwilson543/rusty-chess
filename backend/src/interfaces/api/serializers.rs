@@ -37,6 +37,12 @@ impl serde::Serialize for chess_set::Square {
 
 // Piece.
 
+impl serde::Serialize for chess_set::Colour {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where S: Serializer {
+        serializer.serialize_str(self.to_string().as_str())
+    }
+}
+
 impl serde::Serialize for chess_set::PieceType {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where S: Serializer {
         serializer.serialize_str(self.to_string().as_str())
@@ -75,6 +81,15 @@ mod tests {
         let square_json = json::to_string(&square);
 
         assert_eq!(square_json.unwrap(), "\"E8\"");
+    }
+
+    #[test]
+    fn serializes_colour_to_string() {
+        let colour = chess_set::Colour::Black;
+
+        let colour_json = json::to_string(&colour);
+
+        assert_eq!(colour_json.unwrap(), "\"Black\"");
     }
 
     #[test]
