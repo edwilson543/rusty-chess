@@ -17,3 +17,26 @@ fn can_start_a_new_game() {
     let actual_json = response.into_string().unwrap().replace(r"\", "");
     assert!(actual_json.starts_with(expected_json_snip));
 }
+
+// #[test]
+fn ws_can_start_a_new_game() {
+    let build = api::rocket_build();
+    let client = local::blocking::Client::tracked(build).unwrap();
+
+    // Create client request to initiate WebSocket opening handshake.
+    let mut request = client.get("/api/ws-trial/");
+    let ws_key = "SOME-KEY";
+
+    let connection_upgrade = http::Header::new("Connection", "upgrade");
+    request.add_header(connection_upgrade);
+    let upgrade_to_websocket = http::Header::new("Upgrade", "websocket");
+    request.add_header(upgrade_to_websocket);
+    let upgrade_to_websocket = http::Header::new("Sec-WebSocket-Version", "13");
+    request.add_header(upgrade_to_websocket);
+    let upgrade_to_websocket = http::Header::new("Sec-WebSocket-Key", ws_key.clone());
+    request.add_header(upgrade_to_websocket);
+
+    let response = request.dispatch();
+
+    assert_eq!(response.status(), http::Status::SwitchingProtocols);
+}
