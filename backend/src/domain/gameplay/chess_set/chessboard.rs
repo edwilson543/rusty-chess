@@ -1,7 +1,5 @@
 use super::piece;
 use super::square;
-use serde;
-use serde_with;
 use std::collections::HashMap;
 use thiserror;
 
@@ -10,11 +8,9 @@ use thiserror;
 /// Note: this does not implement any gameplay logic or rules of the game.
 /// The only invariant enforced is that each square has at most one piece on it
 /// at any point in time (since the chessboard is represented by a hashmap).
-#[serde_with::serde_as]
-#[derive(Clone, Debug, PartialEq, serde::Serialize)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Chessboard {
-    #[serde_as(as = "Vec<(_, _)>")]
-    position: HashMap<square::Square, Option<piece::Piece>>,
+    pub position: HashMap<square::Square, Option<piece::Piece>>,
 }
 
 #[derive(thiserror::Error, Debug, PartialEq)]

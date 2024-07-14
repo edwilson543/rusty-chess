@@ -1,6 +1,6 @@
 use crate::domain::gameplay::chess_set;
 use serde;
-use serde::Serializer;
+use serde::ser::SerializeStruct;
 
 // Square.
 
@@ -38,24 +38,45 @@ impl serde::Serialize for chess_set::Square {
 // Piece.
 
 impl serde::Serialize for chess_set::Colour {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where S: Serializer {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
         serializer.serialize_str(self.to_string().as_str())
     }
 }
 
 impl serde::Serialize for chess_set::PieceType {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where S: Serializer {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
         serializer.serialize_str(self.to_string().as_str())
+    }
+}
+
+// Chessboard.
+
+impl serde::Serialize for chess_set::Chessboard {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let mut state = serializer.serialize_struct("chess_set::Chessboard", 1)?;
+        state.serialize_field("position", &self.position)?;
+        state.end()
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::testing::factories;
+    use rocket::form::validate::Contains;
     use rocket::serde::json;
 
     #[test]
-    fn serializes_rank_to_string_integer() {
+    fn serializes_rank_to_json() {
         let rank = chess_set::Rank::Three;
 
         let rank_json = json::to_string(&rank);
@@ -64,7 +85,7 @@ mod tests {
     }
 
     #[test]
-    fn serializes_file_to_string_letter() {
+    fn serializes_file_to_json() {
         let file = chess_set::File::F;
 
         let file_json = json::to_string(&file);
@@ -73,10 +94,8 @@ mod tests {
     }
 
     #[test]
-    fn serializes_square_to_string_letter_integer_coordinate() {
-        let square = chess_set::Square::new(
-            chess_set::Rank::Eight, chess_set::File::E
-        );
+    fn serializes_square_to_json() {
+        let square = chess_set::Square::new(chess_set::Rank::Eight, chess_set::File::E);
 
         let square_json = json::to_string(&square);
 
@@ -84,7 +103,16 @@ mod tests {
     }
 
     #[test]
-    fn serializes_colour_to_string() {
+    fn serializes_piece_type_to_json() {
+        let piece_type = chess_set::PieceType::Knight;
+
+        let piece_type_json = json::to_string(&piece_type);
+
+        assert_eq!(piece_type_json.unwrap(), "\"Knight\"");
+    }
+
+    #[test]
+    fn serializes_colour_to_json() {
         let colour = chess_set::Colour::Black;
 
         let colour_json = json::to_string(&colour);
@@ -93,11 +121,14 @@ mod tests {
     }
 
     #[test]
-    fn serializes_piece_type_to_string() {
-        let piece_type = chess_set::PieceType::Knight;
+    fn serializes_chessboard_to_json() {
+        let chessboard = factories::chessboard();
 
-        let piece_type_json = json::to_string(&piece_type);
+        let chessboard_json = json::to_string(&chessboard).unwrap();
 
-        assert_eq!(piece_type_json.unwrap(), "\"Knight\"");
+        assert!(chessboard_json.contains("position"));
+        assert!(chessboard_json.contains(r#""A8":{"colour":"Black","piece_type":"Rook"}"#));
+        assert!(chessboard_json.contains(r#""D2":{"colour":"White","piece_type":"Pawn"}"#));
+        assert!(chessboard_json.contains(r#""G5":null"#));
     }
 }
