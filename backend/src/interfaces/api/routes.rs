@@ -12,7 +12,7 @@ pub async fn start_game() -> (http::Status, json::Json<String>) {
 
     let uow = config::get_unit_of_work();
     let game = games::start_game(uow);
-    let payload = json::to_string(&game).unwrap();
+    let payload = serde_json::to_string(&game).unwrap();
     (http::Status::Created, json::Json(payload))
 }
 
@@ -29,6 +29,6 @@ pub async fn ws_trial(ws: rocket_ws::WebSocket) -> rocket_ws::Stream!['static] {
 fn game_started_message() -> rocket_ws::Message {
     let uow = config::get_unit_of_work();
     let game = games::start_game(uow);
-    let payload = json::to_string(&game).unwrap();
+    let payload = serde_json::to_string(&game).unwrap();
     rocket_ws::Message::Text(payload)
 }

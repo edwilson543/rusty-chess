@@ -38,5 +38,10 @@ fn ws_can_start_a_new_game() {
 
     let response = request.dispatch();
 
+    let encoded_accept_key = "py4cEXb0rIHAdKoYJjw61ZJTHR4=";
+    assert_eq!(
+        response.headers().get("Sec-WebSocket-Accept").next(),
+        Some(encoded_accept_key)
+    );
     assert_eq!(response.status(), http::Status::SwitchingProtocols);
 }

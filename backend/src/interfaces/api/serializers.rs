@@ -72,14 +72,13 @@ impl serde::Serialize for chess_set::Chessboard {
 mod tests {
     use super::*;
     use crate::testing::factories;
-    use rocket::form::validate::Contains;
-    use rocket::serde::json;
+    use serde_json;
 
     #[test]
     fn serializes_rank_to_json() {
         let rank = chess_set::Rank::Three;
 
-        let rank_json = json::to_string(&rank);
+        let rank_json = serde_json::to_string(&rank);
 
         assert_eq!(rank_json.unwrap(), "\"3\"");
     }
@@ -88,7 +87,7 @@ mod tests {
     fn serializes_file_to_json() {
         let file = chess_set::File::F;
 
-        let file_json = json::to_string(&file);
+        let file_json = serde_json::to_string(&file);
 
         assert_eq!(file_json.unwrap(), "\"F\"");
     }
@@ -97,7 +96,7 @@ mod tests {
     fn serializes_square_to_json() {
         let square = chess_set::Square::new(chess_set::Rank::Eight, chess_set::File::E);
 
-        let square_json = json::to_string(&square);
+        let square_json = serde_json::to_string(&square);
 
         assert_eq!(square_json.unwrap(), "\"E8\"");
     }
@@ -106,7 +105,7 @@ mod tests {
     fn serializes_piece_type_to_json() {
         let piece_type = chess_set::PieceType::Knight;
 
-        let piece_type_json = json::to_string(&piece_type);
+        let piece_type_json = serde_json::to_string(&piece_type);
 
         assert_eq!(piece_type_json.unwrap(), "\"Knight\"");
     }
@@ -115,7 +114,7 @@ mod tests {
     fn serializes_colour_to_json() {
         let colour = chess_set::Colour::Black;
 
-        let colour_json = json::to_string(&colour);
+        let colour_json = serde_json::to_string(&colour);
 
         assert_eq!(colour_json.unwrap(), "\"Black\"");
     }
@@ -124,7 +123,7 @@ mod tests {
     fn serializes_chessboard_to_json() {
         let chessboard = factories::chessboard();
 
-        let chessboard_json = json::to_string(&chessboard).unwrap();
+        let chessboard_json = serde_json::to_string(&chessboard).unwrap();
 
         assert!(chessboard_json.contains("position"));
         assert!(chessboard_json.contains(r#""A8":{"colour":"Black","piece_type":"Rook"}"#));
