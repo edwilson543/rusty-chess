@@ -1,5 +1,5 @@
-use super::super::rule::OrdinaryMoveRule;
-use super::super::OrdinaryMove;
+use crate::domain::gameplay::rulebook::moves::ordinary_move::ordinary_move::OrdinaryMove;
+use crate::domain::gameplay::rulebook::moves::ordinary_move::rule::OrdinaryMoveRule;
 use crate::domain::gameplay::rulebook::moves::translation;
 use std::vec;
 

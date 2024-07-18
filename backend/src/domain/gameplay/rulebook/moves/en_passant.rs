@@ -1,6 +1,6 @@
 use super::translation;
 
-use super::base_move;
+use super::chess_move;
 use super::translation::ChessVector;
 use crate::domain::gameplay::chess_set;
 
@@ -11,7 +11,7 @@ pub struct EnPassant {
     translation: translation::Translation,
 }
 
-impl base_move::Move for EnPassant {
+impl chess_move::Move for EnPassant {
     fn apply(
         &self,
         chessboard: &mut chess_set::Chessboard,
@@ -28,16 +28,18 @@ impl base_move::Move for EnPassant {
     fn validate(
         &self,
         chessboard_history: &Vec<chess_set::Chessboard>,
-    ) -> Result<(), base_move::MoveValidationError> {
+    ) -> Result<(), chess_move::MoveValidationError> {
         if !(self.pawn.get_piece_type() == &chess_set::PieceType::Pawn) {
-            return Err(base_move::MoveValidationError::EnPassantOnlyAllowedForPawns);
+            return Err(chess_move::MoveValidationError::EnPassantOnlyAllowedForPawns);
         }
         if !self.opponent_made_double_pawn_advancement_over_target_square(chessboard_history) {
-            return Err(base_move::MoveValidationError::EnPassantOnlyAllowedAfterDoubleAdvancement);
+            return Err(
+                chess_move::MoveValidationError::EnPassantOnlyAllowedAfterDoubleAdvancement,
+            );
         }
 
         if !self.is_translation_valid() {
-            return Err(base_move::MoveValidationError::EnPassantInvalidTranslation);
+            return Err(chess_move::MoveValidationError::EnPassantInvalidTranslation);
         };
 
         return Ok(());

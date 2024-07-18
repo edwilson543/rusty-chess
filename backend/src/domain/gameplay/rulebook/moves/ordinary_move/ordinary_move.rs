@@ -1,6 +1,6 @@
-use super::super::{base_move, translation};
 use super::{pieces, rule};
 use crate::domain::gameplay::chess_set;
+use crate::domain::gameplay::rulebook::moves::{chess_move, translation};
 
 /// A move of a single piece from one square to another.
 #[derive(Clone)]
@@ -12,7 +12,7 @@ pub struct OrdinaryMove {
     pub translation: translation::Translation,
 }
 
-impl base_move::Move for OrdinaryMove {
+impl chess_move::Move for OrdinaryMove {
     fn apply(
         &self,
         chessboard: &mut chess_set::Chessboard,
@@ -23,11 +23,11 @@ impl base_move::Move for OrdinaryMove {
     fn validate(
         &self,
         chessboard_history: &Vec<chess_set::Chessboard>,
-    ) -> Result<(), base_move::MoveValidationError> {
+    ) -> Result<(), chess_move::MoveValidationError> {
         let _ = chessboard_history; // To avoid a catch-all warning.
 
         if self.from_square == self.to_square {
-            return Err(base_move::MoveValidationError::CannotMovePieceToSameSquare);
+            return Err(chess_move::MoveValidationError::CannotMovePieceToSameSquare);
         };
 
         if let Err(error) = self.validate_move_is_legal() {
@@ -62,7 +62,7 @@ impl OrdinaryMove {
 }
 
 impl OrdinaryMove {
-    fn validate_move_is_legal(&self) -> Result<(), base_move::MoveValidationError> {
+    fn validate_move_is_legal(&self) -> Result<(), chess_move::MoveValidationError> {
         let piece_type = self.piece.get_piece_type();
         let mut move_rules = pieces::get_rules_for_piece(piece_type);
 
@@ -71,21 +71,21 @@ impl OrdinaryMove {
 
         match permitted_by_translation_rules {
             true => Ok(()),
-            false => Err(base_move::MoveValidationError::MoveIsNotLegalForPiece),
+            false => Err(chess_move::MoveValidationError::MoveIsNotLegalForPiece),
         }
     }
 
-    fn validate_occupant_of_target_square(&self) -> Result<(), base_move::MoveValidationError> {
+    fn validate_occupant_of_target_square(&self) -> Result<(), chess_move::MoveValidationError> {
         let Some(opponent_piece) = self.chessboard.get_piece(&self.to_square) else {
             return Ok(());
         };
 
         if opponent_piece.get_colour() == self.piece.get_colour() {
-            return Err(base_move::MoveValidationError::CannotCaptureOwnPiece);
+            return Err(chess_move::MoveValidationError::CannotCaptureOwnPiece);
         };
 
         if opponent_piece.get_piece_type() == &chess_set::PieceType::King {
-            return Err(base_move::MoveValidationError::CannotCaptureOpponentKing);
+            return Err(chess_move::MoveValidationError::CannotCaptureOpponentKing);
         };
 
         Ok(())

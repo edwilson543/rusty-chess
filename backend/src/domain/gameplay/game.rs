@@ -1,6 +1,7 @@
 use crate::domain::gameplay::chess_set;
 use crate::domain::gameplay::rulebook;
 use crate::domain::gameplay::rulebook::Move;
+use serde;
 
 #[derive(thiserror::Error, Debug, PartialEq)]
 pub enum GameError {
@@ -23,30 +24,31 @@ pub enum GameError {
     ChessboardActionError(chess_set::ChessboardActionError),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, serde::Serialize)]
 pub enum GameStatus {
     ToPlay(chess_set::Colour),
     Won(chess_set::Colour),
     Drawn,
 }
 
-/// Event sourced representation of a game of chess.
+/// A single game of chess.
+#[derive(Clone, Debug, PartialEq, serde::Serialize)]
 pub struct Game {
-    chessboard: chess_set::Chessboard,
+    id: i32,
     status: GameStatus,
     chessboard_history: Vec<chess_set::Chessboard>,
 }
 
 // Public interface.
 impl Game {
-    pub fn new() -> Self {
+    pub fn new(id: i32) -> Self {
         let starting_position = rulebook::get_official_starting_position();
         let chessboard = chess_set::Chessboard::new(starting_position);
 
         Self {
-            chessboard: chessboard.clone(),
+            id: id,
             status: GameStatus::ToPlay(chess_set::Colour::White),
-            chessboard_history: vec![chessboard.clone()],
+            chessboard_history: vec![chessboard],
         }
     }
 
@@ -61,8 +63,12 @@ impl Game {
             Err(error) => return Err(error),
         };
 
-        let ordinary_move =
-            rulebook::OrdinaryMove::new(&self.chessboard, &piece, &from_square, &to_square);
+        let ordinary_move = rulebook::OrdinaryMove::new(
+            self.current_chessboard(),
+            &piece,
+            &from_square,
+            &to_square,
+        );
 
         self.play_move(player, Box::new(ordinary_move))
     }
@@ -81,6 +87,19 @@ impl Game {
         let en_passant = rulebook::EnPassant::new(&pawn, from_square, to_square);
 
         self.play_move(player, Box::new(en_passant))
+    }
+
+    // Queries.
+    pub fn get_id(&self) -> &i32 {
+        &self.id
+    }
+
+    pub fn get_status(&self) -> &GameStatus {
+        &self.status
+    }
+
+    pub fn get_chessboard_history(&self) -> &Vec<chess_set::Chessboard> {
+        &self.chessboard_history
     }
 }
 
@@ -101,7 +120,11 @@ impl Game {
             Err(error) => return Err(GameError::MoveValidationError(error)),
         };
 
-        match rulebook::would_player_be_left_in_check(player, &chess_move, &self.chessboard) {
+        match rulebook::would_player_be_left_in_check(
+            player,
+            &chess_move,
+            self.current_chessboard(),
+        ) {
             Ok(check) => match check {
                 true => return Err(GameError::MoveWouldLeavePlayerInCheck),
                 false => {}
@@ -109,12 +132,13 @@ impl Game {
             Err(error) => return Err(GameError::ChessboardActionError(error)),
         };
 
-        match chess_move.apply(&mut self.chessboard) {
+        let mut updated_chessboard = self.current_chessboard().clone();
+        match chess_move.apply(&mut updated_chessboard) {
             Err(error) => return Err(GameError::ChessboardActionError(error)),
             Ok(()) => {}
         };
 
-        self.clone_current_chessboard_to_history();
+        self.chessboard_history.push(updated_chessboard);
         self.progress_game_status();
         Ok(&self.status)
     }
@@ -127,13 +151,13 @@ impl Game {
         };
     }
 
-    fn clone_current_chessboard_to_history(&mut self) {
-        self.chessboard_history.push(self.chessboard.clone());
-    }
-
     // Queries.
     pub fn get_piece_at_square(&self, square: &chess_set::Square) -> Option<chess_set::Piece> {
-        self.chessboard.get_piece(square)
+        self.current_chessboard().get_piece(square)
+    }
+
+    fn current_chessboard(&self) -> &chess_set::Chessboard {
+        self.chessboard_history.last().unwrap()
     }
 
     fn check_if_play_is_out_of_turn(&self, player: &chess_set::Colour) -> Result<(), GameError> {
@@ -165,7 +189,6 @@ impl Game {
 
 #[cfg(test)]
 mod tests {
-
     #[cfg(test)]
     mod play_ordinary_move_tests {
         use super::super::*;
@@ -173,7 +196,7 @@ mod tests {
 
         #[test]
         fn can_make_1e4_pawn_opening() {
-            let mut game = Game::new();
+            let mut game = Game::new(1);
 
             let from_square = chess_set::Square::new(Rank::Two, File::E);
             let to_square = chess_set::Square::new(Rank::Four, File::E);
@@ -188,7 +211,7 @@ mod tests {
 
         #[test]
         fn can_make_nf3_knight_opening() {
-            let mut game = Game::new();
+            let mut game = Game::new(1);
 
             let from_square = chess_set::Square::new(Rank::One, File::G);
             let to_square = chess_set::Square::new(Rank::Three, File::F);
@@ -203,7 +226,7 @@ mod tests {
 
         #[test]
         fn errors_for_opening_made_by_black() {
-            let mut game = Game::new();
+            let mut game = Game::new(1);
 
             let from_square = chess_set::Square::new(Rank::Seven, File::C);
             let to_square = chess_set::Square::new(Rank::Six, File::C);
@@ -218,7 +241,7 @@ mod tests {
 
         #[test]
         fn errors_for_attempt_to_move_opponents_piece() {
-            let mut game = Game::new();
+            let mut game = Game::new(1);
 
             let from_square = chess_set::Square::new(Rank::Seven, File::C);
             let to_square = chess_set::Square::new(Rank::Six, File::C);
@@ -233,7 +256,7 @@ mod tests {
 
         #[test]
         fn errors_for_opening_from_empty_square() {
-            let mut game = Game::new();
+            let mut game = Game::new(1);
 
             let from_square = chess_set::Square::new(Rank::Three, File::H);
             let to_square = chess_set::Square::new(Rank::Four, File::H);
@@ -250,7 +273,7 @@ mod tests {
 
         #[test]
         fn errors_for_illegal_opening_move() {
-            let mut game = Game::new();
+            let mut game = Game::new(1);
 
             let from_square = chess_set::Square::new(Rank::One, File::C);
             let to_square = chess_set::Square::new(Rank::Three, File::A);

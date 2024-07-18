@@ -17,7 +17,7 @@ impl Colour {
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum PieceType {
-    Pawn, // For convenience, pawns are modelled as ordinary_move within the chess set.
+    Pawn, // For convenience, pawns are modelled as `pieces` within the chess set.
     Knight,
     Bishop,
     Rook,
@@ -25,7 +25,7 @@ pub enum PieceType {
     King,
 }
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, serde::Serialize)]
 pub struct Piece {
     colour: Colour,
     piece_type: PieceType,
