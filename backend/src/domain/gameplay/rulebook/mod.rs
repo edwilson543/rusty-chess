@@ -1,4 +1,5 @@
 mod check;
+mod checkmate;
 mod moves;
 mod starting_position;
 
