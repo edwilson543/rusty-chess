@@ -1,6 +1,8 @@
 use super::piece;
 use super::square;
 use std::collections::HashMap;
+use std::fmt;
+use std::fmt::Formatter;
 use thiserror;
 
 /// Representation of a physical chessboard, and the current position of all pieces.
@@ -113,8 +115,63 @@ impl Chessboard {
     }
 }
 
+impl fmt::Display for Chessboard {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        let mut representation = "--|---- ---- ---- ---- ---- ---- ---- ----|".to_string();
+
+        for rank in square::Rank::iter().rev() {
+            let mut rank_repr = format!("\n{} |", rank.index());
+
+            for file in square::File::iter() {
+                let square = square::Square::new(rank, file);
+                match self.get_piece(&square) {
+                    Some(piece) => rank_repr.push_str(format!(" {} ", piece).as_str()),
+                    None => rank_repr.push_str("    "),
+                }
+                rank_repr.push_str("|");
+            }
+
+            representation.push_str(rank_repr.as_str());
+            representation.push_str("\n  |---- ---- ---- ---- ---- ---- ---- ----|");
+        }
+
+        representation.push_str("\n--| A    B    C    D    E    F    G    H  |");
+        write!(f, "{}", representation)
+    }
+}
+
 #[cfg(test)]
 mod tests {
+    use crate::testing::factories;
+
+    #[test]
+    fn formats_board_in_a_useful_way() {
+        let chessboard = factories::chessboard();
+
+        let formatted_chessboard = format!("{}", chessboard);
+
+        let expected = "\
+--|---- ---- ---- ---- ---- ---- ---- ----|
+8 | BR | BN | BB | BQ | BK | BB | BN | BR |
+  |---- ---- ---- ---- ---- ---- ---- ----|
+7 | BP | BP | BP | BP | BP | BP | BP | BP |
+  |---- ---- ---- ---- ---- ---- ---- ----|
+6 |    |    |    |    |    |    |    |    |
+  |---- ---- ---- ---- ---- ---- ---- ----|
+5 |    |    |    |    |    |    |    |    |
+  |---- ---- ---- ---- ---- ---- ---- ----|
+4 |    |    |    |    |    |    |    |    |
+  |---- ---- ---- ---- ---- ---- ---- ----|
+3 |    |    |    |    |    |    |    |    |
+  |---- ---- ---- ---- ---- ---- ---- ----|
+2 | WP | WP | WP | WP | WP | WP | WP | WP |
+  |---- ---- ---- ---- ---- ---- ---- ----|
+1 | WR | WN | WB | WQ | WK | WB | WN | WR |
+  |---- ---- ---- ---- ---- ---- ---- ----|
+--| A    B    C    D    E    F    G    H  |";
+
+        assert_eq!(formatted_chessboard, expected)
+    }
 
     #[cfg(test)]
     mod new_tests {
@@ -188,7 +245,7 @@ mod tests {
             assert_eq!(king_square.get_file(), &square::File::E);
         }
 
-        #[should_panic(expected = "No White king on chessboard!")]
+        #[should_panic(expected = "No W king on chessboard!")]
         #[test]
         fn panics_when_no_king_matching_colour_is_on_board() {
             let starting_position = HashMap::new();
