@@ -144,11 +144,18 @@ impl Game {
     }
 
     fn progress_game_status(&mut self) {
-        // TODO - check for win / draw using rulebook.
-        self.status = match self.status {
-            GameStatus::ToPlay(colour) => GameStatus::ToPlay(colour.swap()),
-            _ => panic!("TODO."),
+        let GameStatus::ToPlay(colour) = self.status else {
+            panic!("Game should have ended sooner!");
         };
+
+        let to_play_colour = colour.swap();
+
+        // Check for a win or draw. // TODO -> check for draw.
+        if rulebook::is_player_checkmated(to_play_colour, self.current_chessboard()) {
+            self.status = GameStatus::Won(colour);
+        } else {
+            self.status = GameStatus::ToPlay(to_play_colour)
+        }
     }
 
     // Queries.

@@ -107,7 +107,7 @@ mod tests {
 
         let piece_type_json = serde_json::to_string(&piece_type);
 
-        assert_eq!(piece_type_json.unwrap(), "\"Knight\"");
+        assert_eq!(piece_type_json.unwrap(), "\"N\"");
     }
 
     #[test]
@@ -116,7 +116,7 @@ mod tests {
 
         let colour_json = serde_json::to_string(&colour);
 
-        assert_eq!(colour_json.unwrap(), "\"Black\"");
+        assert_eq!(colour_json.unwrap(), "\"B\"");
     }
 
     #[test]
@@ -126,8 +126,8 @@ mod tests {
         let chessboard_json = serde_json::to_string(&chessboard).unwrap();
 
         assert!(chessboard_json.contains("position"));
-        assert!(chessboard_json.contains(r#""A8":{"colour":"Black","piece_type":"Rook"}"#));
-        assert!(chessboard_json.contains(r#""D2":{"colour":"White","piece_type":"Pawn"}"#));
+        assert!(chessboard_json.contains(r#""A8":{"colour":"B","piece_type":"R"}"#));
+        assert!(chessboard_json.contains(r#""D2":{"colour":"W","piece_type":"P"}"#));
         assert!(chessboard_json.contains(r#""G5":null"#));
     }
 }

@@ -118,6 +118,7 @@ mod tests {
         use crate::domain::gameplay::chess_set;
         use crate::domain::gameplay::rulebook::{Move, MoveValidationError};
         use crate::testing::factories;
+        use std::collections::HashMap;
 
         #[test]
         fn cannot_move_piece_to_same_square() {
@@ -137,14 +138,17 @@ mod tests {
 
         #[test]
         fn cannot_move_piece_to_square_occupied_by_another_piece_of_the_same_colour() {
-            let mut chessboard = factories::chessboard();
+            let mut starting_position = HashMap::new();
+            let piece = chess_set::Piece::new(chess_set::Colour::White, chess_set::PieceType::Rook);
             let from_square = chess_set::Square::new(chess_set::Rank::Two, chess_set::File::A);
-            let piece = chessboard.get_piece(&from_square).unwrap();
+            starting_position.insert(from_square, piece);
 
             let to_square = chess_set::Square::new(chess_set::Rank::Three, chess_set::File::A);
             let other_piece =
-                chess_set::Piece::new(piece.get_colour().clone(), chess_set::PieceType::Pawn);
-            let _ = chessboard.add_piece(other_piece, &to_square);
+                chess_set::Piece::new(chess_set::Colour::White, chess_set::PieceType::Bishop);
+            starting_position.insert(to_square, other_piece);
+
+            let chessboard = chess_set::Chessboard::new(starting_position);
 
             let ordinary_move = OrdinaryMove::new(&chessboard, &piece, &from_square, &to_square);
             let result = ordinary_move.validate(&vec![chessboard]);

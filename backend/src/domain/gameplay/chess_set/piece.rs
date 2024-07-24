@@ -54,19 +54,29 @@ impl Piece {
 
 impl fmt::Display for Colour {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}", self)
+        match self {
+            Colour::White => write!(f, "W"),
+            Colour::Black => write!(f, "B"),
+        }
     }
 }
 
 impl fmt::Display for PieceType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}", self)
+        match self {
+            PieceType::Pawn => write!(f, "P"),
+            PieceType::Knight => write!(f, "N"),
+            PieceType::Bishop => write!(f, "B"),
+            PieceType::Rook => write!(f, "R"),
+            PieceType::Queen => write!(f, "Q"),
+            PieceType::King => write!(f, "K"),
+        }
     }
 }
 
 impl fmt::Display for Piece {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{} {}", self.colour, self.piece_type)
+        write!(f, "{}{}", self.colour, self.piece_type)
     }
 }
 

@@ -17,31 +17,30 @@ pub fn would_player_be_left_in_check(
     match chess_move.apply(&mut trial_chessboard) {
         Ok(_) => {}
         Err(error) => return Err(error),
-    }
+    };
+    Ok(is_player_in_check(&player, trial_chessboard))
+}
 
+pub fn is_player_in_check(player: &chess_set::Colour, chessboard: chess_set::Chessboard) -> bool {
     // Locate the king on the _trial_ chessboard, in case the king has moved.
-    let king_location = trial_chessboard.get_square_king_is_on(player);
+    let king_location = chessboard.get_square_king_is_on(player);
     let opponent_player = player.swap();
 
     for (from_square, opponent_piece) in chessboard.get_pieces(opponent_player) {
-        let potential_move = moves::OrdinaryMove::new(
-            &trial_chessboard,
-            &opponent_piece,
-            &from_square,
-            &king_location,
-        );
+        let potential_move =
+            moves::OrdinaryMove::new(&chessboard, &opponent_piece, &from_square, &king_location);
 
         // Chessboard history isn't needed here, so we just supply an empty vector.
         let Err(error) = potential_move.validate(&vec![]) else {
             panic!("Potential move should be invalid, since it to opponent king's square.");
         };
         match error {
-            moves::MoveValidationError::CannotCaptureOpponentKing => return Ok(true),
+            moves::MoveValidationError::CannotCaptureOpponentKing => return true,
             _ => continue,
         }
     }
 
-    Ok(false)
+    false
 }
 
 #[cfg(test)]

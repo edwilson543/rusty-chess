@@ -23,8 +23,11 @@ impl OrdinaryMoveRule for OneSquaresForwardMove {
 
         let is_forwards = chess_move.translation.vector == forwards;
         let is_one_square = chess_move.translation.scalar == 1;
+        let is_square_occupied = chess_move
+            .chessboard
+            .is_square_occupied(&chess_move.to_square);
 
-        is_forwards && is_one_square
+        is_forwards && is_one_square && !is_square_occupied
     }
 }
 
@@ -37,8 +40,11 @@ impl OrdinaryMoveRule for TwoSquaresForwardMove {
         let is_forwards = chess_move.translation.vector == forwards;
         let is_two_squares = chess_move.translation.scalar == 2;
         let is_first_move_for_pawn = is_first_move_for_pawn(chess_move);
+        let is_square_occupied = chess_move
+            .chessboard
+            .is_square_occupied(&chess_move.to_square);
 
-        is_forwards && is_two_squares && is_first_move_for_pawn
+        is_forwards && is_two_squares && is_first_move_for_pawn && !is_square_occupied
     }
 }
 
@@ -79,10 +85,13 @@ fn is_square_occupied_by_opponent_piece(chess_move: &OrdinaryMove) -> bool {
 #[cfg(test)]
 mod tests {
     use super::get_pawn_move_rules;
-    use crate::domain::gameplay::chess_set::{Colour, File, Piece, PieceType, Rank, Square};
+    use crate::domain::gameplay::chess_set::{
+        Chessboard, Colour, File, Piece, PieceType, Rank, Square,
+    };
     use crate::domain::gameplay::rulebook::moves::OrdinaryMove;
     use crate::testing::factories;
     use rstest::rstest;
+    use std::collections::HashMap;
 
     fn is_move_allowed(chess_move: &OrdinaryMove) -> bool {
         let mut rules = get_pawn_move_rules();
@@ -208,6 +217,46 @@ mod tests {
 
         let chessboard = factories::chessboard();
         let chess_move = OrdinaryMove::new(&chessboard, &pawn, &from_square, &to_square);
+
+        assert!(!is_move_allowed(&chess_move));
+    }
+
+    #[rstest]
+    #[case::white(Colour::White)]
+    #[case::white(Colour::Black)]
+    fn disallows_one_square_forward_capture(#[case] other_piece_colour: Colour) {
+        let mut starting_position = HashMap::new();
+
+        let white_pawn = Piece::new(Colour::White, PieceType::Pawn);
+        let from_square = Square::new(Rank::Two, File::B);
+        starting_position.insert(from_square, white_pawn);
+        let to_square = Square::new(Rank::Three, File::B);
+
+        let other_piece = Piece::new(other_piece_colour, PieceType::Bishop);
+        starting_position.insert(to_square, other_piece);
+
+        let chessboard = Chessboard::new(starting_position);
+        let chess_move = OrdinaryMove::new(&chessboard, &white_pawn, &from_square, &to_square);
+
+        assert!(!is_move_allowed(&chess_move));
+    }
+
+    #[rstest]
+    #[case::white(Colour::White)]
+    #[case::white(Colour::Black)]
+    fn disallows_double_square_forward_capture(#[case] other_piece_colour: Colour) {
+        let mut starting_position = HashMap::new();
+
+        let white_pawn = Piece::new(Colour::White, PieceType::Pawn);
+        let from_square = Square::new(Rank::Two, File::B);
+        starting_position.insert(from_square, white_pawn);
+        let to_square = Square::new(Rank::Four, File::B);
+
+        let other_piece = Piece::new(other_piece_colour, PieceType::Knight);
+        starting_position.insert(to_square, other_piece);
+
+        let chessboard = Chessboard::new(starting_position);
+        let chess_move = OrdinaryMove::new(&chessboard, &white_pawn, &from_square, &to_square);
 
         assert!(!is_move_allowed(&chess_move));
     }
