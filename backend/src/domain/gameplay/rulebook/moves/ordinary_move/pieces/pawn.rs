@@ -23,8 +23,9 @@ impl OrdinaryMoveRule for OneSquaresForwardMove {
 
         let is_forwards = chess_move.translation.vector == forwards;
         let is_one_square = chess_move.translation.scalar == 1;
+        let is_square_occupied = chess_move.chessboard.get_piece(&chess_move.to_square) == None;
 
-        is_forwards && is_one_square
+        is_forwards && is_one_square && !is_square_occupied
     }
 }
 

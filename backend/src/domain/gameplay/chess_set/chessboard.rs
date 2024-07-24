@@ -74,6 +74,14 @@ impl Chessboard {
         panic!("No {} king on chessboard!", colour)
     }
 
+    pub fn is_square_occupied(&self, square: &square::Square) -> bool {
+        if let Some(_) = self.position.get(square).unwrap() {
+            true
+        } else {
+            false
+        }
+    }
+
     // Mutators
     pub fn move_piece(
         &mut self,
@@ -252,6 +260,36 @@ mod tests {
             let chessboard = Chessboard::new(starting_position);
 
             let _ = chessboard.get_square_king_is_on(&piece::Colour::White);
+        }
+    }
+
+    #[cfg(test)]
+    mod is_square_occupied_tests {
+        use super::super::Chessboard;
+        use crate::testing::factories;
+        use std::collections::HashMap;
+
+        #[test]
+        fn is_occupied() {
+            let mut starting_position = HashMap::new();
+
+            let square = factories::some_square();
+            let piece = factories::some_piece();
+            starting_position.insert(square, piece);
+
+            let chessboard = Chessboard::new(starting_position);
+
+            assert!(chessboard.is_square_occupied(&square));
+        }
+
+        #[test]
+        fn is_not_occupied() {
+            let starting_position = HashMap::new();
+            let chessboard = Chessboard::new(starting_position);
+
+            let square = factories::some_square();
+
+            assert!(!chessboard.is_square_occupied(&square));
         }
     }
 
