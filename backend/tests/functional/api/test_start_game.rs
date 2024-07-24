@@ -19,6 +19,7 @@ fn can_start_a_new_game() {
 }
 
 // #[test]
+#[allow(dead_code)]
 fn ws_can_start_a_new_game() {
     let build = api::rocket_build();
     let client = local::blocking::Client::tracked(build).unwrap();
@@ -33,7 +34,7 @@ fn ws_can_start_a_new_game() {
     request.add_header(upgrade_to_websocket);
     let upgrade_to_websocket = http::Header::new("Sec-WebSocket-Version", "13");
     request.add_header(upgrade_to_websocket);
-    let upgrade_to_websocket = http::Header::new("Sec-WebSocket-Key", ws_key.clone());
+    let upgrade_to_websocket = http::Header::new("Sec-WebSocket-Key", ws_key);
     request.add_header(upgrade_to_websocket);
 
     let response = request.dispatch();
