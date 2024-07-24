@@ -118,6 +118,7 @@ mod tests {
         use crate::domain::gameplay::chess_set;
         use crate::domain::gameplay::rulebook::{Move, MoveValidationError};
         use crate::testing::factories;
+        use std::collections::HashMap;
 
         #[test]
         fn cannot_move_piece_to_same_square() {
