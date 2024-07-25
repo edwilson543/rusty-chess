@@ -16,8 +16,8 @@ pub async fn start_game() -> (http::Status, json::Json<String>) {
     (http::Status::Created, json::Json(payload))
 }
 
-#[rocket::get("/ws-trial")]
-pub async fn ws_trial(ws: rocket_ws::WebSocket) -> rocket_ws::Stream!['static] {
+#[rocket::get("/play")]
+pub async fn play(ws: rocket_ws::WebSocket) -> rocket_ws::Stream!['static] {
     rocket_ws::Stream! { ws =>
         yield game_started_message();
         for await message in ws {

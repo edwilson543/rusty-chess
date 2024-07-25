@@ -25,7 +25,7 @@ fn ws_can_start_a_new_game() {
     let client = local::blocking::Client::tracked(build).unwrap();
 
     // Create client request to initiate WebSocket opening handshake.
-    let mut request = client.get("/api/ws-trial/");
+    let mut request = client.get("/api/play/");
     let ws_key = "SOME-KEY";
 
     let connection_upgrade = http::Header::new("Connection", "upgrade");
