@@ -1,4 +1,4 @@
-import useWebSocket from "react-use-websocket";
+import useWebSocket, {ReadyState} from "react-use-websocket";
 import { useState, useEffect } from "react";
 
 export const useGameWebSocket = () => {
@@ -7,7 +7,14 @@ export const useGameWebSocket = () => {
     [],
   );
 
-  const { sendMessage, lastMessage } = useWebSocket(socketUrl);
+  const { sendMessage, lastMessage, readyState } = useWebSocket(socketUrl);
+    const connectionStatus = {
+    [ReadyState.CONNECTING]: 'Connecting',
+    [ReadyState.OPEN]: 'Open',
+    [ReadyState.CLOSING]: 'Closing',
+    [ReadyState.CLOSED]: 'Closed',
+    [ReadyState.UNINSTANTIATED]: 'Uninstantiated',
+  }[readyState];
 
   useEffect(() => {
     if (lastMessage !== null) {
@@ -15,5 +22,5 @@ export const useGameWebSocket = () => {
     }
   }, [lastMessage]);
 
-  return { sendMessage, messageHistory };
+  return { sendMessage, messageHistory, connectionStatus };
 };
