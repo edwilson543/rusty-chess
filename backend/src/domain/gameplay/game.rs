@@ -32,7 +32,7 @@ pub enum GameStatus {
 }
 
 /// A single game of chess.
-#[derive(Clone, Debug, PartialEq, serde::Serialize)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Game {
     id: i32,
     status: GameStatus,
@@ -101,6 +101,10 @@ impl Game {
     pub fn get_chessboard_history(&self) -> &Vec<chess_set::Chessboard> {
         &self.chessboard_history
     }
+
+    pub fn current_chessboard(&self) -> &chess_set::Chessboard {
+        self.chessboard_history.last().unwrap()
+    }
 }
 
 // Private interface.
@@ -161,10 +165,6 @@ impl Game {
     // Queries.
     pub fn get_piece_at_square(&self, square: &chess_set::Square) -> Option<chess_set::Piece> {
         self.current_chessboard().get_piece(square)
-    }
-
-    fn current_chessboard(&self) -> &chess_set::Chessboard {
-        self.chessboard_history.last().unwrap()
     }
 
     fn check_if_play_is_out_of_turn(&self, player: &chess_set::Colour) -> Result<(), GameError> {
