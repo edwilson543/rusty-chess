@@ -1,5 +1,6 @@
-import useWebSocket, {ReadyState} from "react-use-websocket";
 import { useState, useEffect } from "react";
+
+import useWebSocket, { ReadyState } from "react-use-websocket";
 
 export const useGameWebSocket = () => {
   const socketUrl = "ws://127.0.0.1:8000/api/play/";
@@ -8,12 +9,12 @@ export const useGameWebSocket = () => {
   );
 
   const { sendMessage, lastMessage, readyState } = useWebSocket(socketUrl);
-    const connectionStatus = {
-    [ReadyState.CONNECTING]: 'Connecting',
-    [ReadyState.OPEN]: 'Open',
-    [ReadyState.CLOSING]: 'Closing',
-    [ReadyState.CLOSED]: 'Closed',
-    [ReadyState.UNINSTANTIATED]: 'Uninstantiated',
+  const connectionStatus = {
+    [ReadyState.CONNECTING]: "Connecting",
+    [ReadyState.OPEN]: "Open",
+    [ReadyState.CLOSING]: "Closing",
+    [ReadyState.CLOSED]: "Closed",
+    [ReadyState.UNINSTANTIATED]: "Uninstantiated",
   }[readyState];
 
   useEffect(() => {

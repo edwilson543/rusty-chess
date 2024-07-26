@@ -1,5 +1,5 @@
-import "./styles/App.css";
 import { useGameWebSocket } from "./lib/websocket";
+import "./styles/App.css";
 
 function App() {
   const { sendMessage, messageHistory, connectionStatus } = useGameWebSocket();
@@ -7,7 +7,7 @@ function App() {
   return (
     <>
       <h1>Chess</h1>
-        <div>Connection status: {connectionStatus}</div>
+      <div>Connection status: {connectionStatus}</div>
       <div className="card">
         <button onClick={() => sendMessage("Hello server")}>
           Send message

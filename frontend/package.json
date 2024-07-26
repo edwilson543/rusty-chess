@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint . && prettier --check .",
     "test": "echo 'write some frontend tests...'",
-    "format": "prettier --write .",
+    "format": "eslint --fix . && prettier --write .",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -23,6 +23,7 @@
     "@typescript-eslint/parser": "^7.15.0",
     "@vitejs/plugin-react-swc": "^3.5.0",
     "eslint": "^8.57.0",
+    "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-react": "^7.35.0",
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-refresh": "^0.4.7",
