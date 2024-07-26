@@ -1,1 +1,1 @@
-export { useGameWebSocket } from "./websocket";
+export { useGameWebSocket } from "./useGameWebsocket.ts";
