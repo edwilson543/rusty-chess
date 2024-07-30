@@ -1,1 +1,1 @@
-export { GameMachine } from "./machine";
+export { default as GameMachine } from "./machine";

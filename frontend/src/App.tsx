@@ -1,5 +1,7 @@
-import { useGameWebSocket } from "./lib/websocket";
 import "./styles/App.css";
+import { Game } from "./components/Game.tsx";
+import { GameMachineContext } from "./context.ts";
+import { useGameWebSocket } from "./lib/websocket";
 
 function App() {
   const { sendMessage, messageHistory, connectionStatus } = useGameWebSocket();
@@ -8,6 +10,9 @@ function App() {
     <>
       <h1>Chess</h1>
       <div>Connection status: {connectionStatus}</div>
+      <GameMachineContext.Provider>
+        <Game />
+      </GameMachineContext.Provider>
       <div className="card">
         <button onClick={() => sendMessage("Hello server")}>
           Send message
