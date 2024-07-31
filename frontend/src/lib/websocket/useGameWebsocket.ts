@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import useWebSocket, { ReadyState } from "react-use-websocket";
 import { EventFromLogic } from "xstate";
 
-import { newGameMessage } from "./inboundMessageSchema.ts";
+import { newGameMessage, NewGameMessage } from "./inboundMessageSchema.ts";
 import { GameMachineContext } from "../../context.ts";
 import { GameTypes, GameMachine } from "../../machines/game";
 
@@ -26,7 +26,9 @@ export const useGameWebSocket = () => {
 
   useEffect(() => {
     if (lastMessage !== null) {
-      forwardMessageToGameMachine(lastMessage as MessageEvent<string>, gameMachineRef.send);
+      const message = parseMessage(lastMessage as MessageEvent<string>);
+      gameMachineRef.send(message);
+
       setMessageHistory((prevState) => prevState.concat(lastMessage));
     }
   }, [lastMessage, gameMachineRef]);
@@ -34,30 +36,23 @@ export const useGameWebSocket = () => {
   return { sendMessage, messageHistory, connectionStatus };
 };
 
-const forwardMessageToGameMachine = (
+const parseMessage = (
   message: MessageEvent<string>,
-  send: (event: EventFromLogic<typeof GameMachine>) => void,
-) => {
-  if (newGameMessage.safeParse(message.data)) {
-    send({
-      type: GameTypes.GameEvent.StartNewGame,
-      game: newGameMessageToGame(message),
-    });
-    return message;
+): EventFromLogic<typeof GameMachine> => {
+  const parsedMessage = newGameMessage.safeParse(JSON.parse(message.data));
+
+  if (parsedMessage.success) {
+    const game = newGameMessageToGame(parsedMessage.data);
+    return { type: GameTypes.GameEvent.StartNewGame, game: game };
   } else {
-    throw new Error("Unrecognized message type.");
+    throw new Error("Unrecognized message.");
   }
 };
 
 const newGameMessageToGame = (
-  validatedMessage: MessageEvent<string>,
+  parsedMessage: NewGameMessage,
 ): GameTypes.Game => {
-  const parsedMessage = newGameMessage.parse(validatedMessage.data);
-
-  const chessboardPosition: Record<
-    GameTypes.File,
-    Record<GameTypes.Rank, GameTypes.Piece | null>
-  > = {};
+  const chessboardPosition = [];
 
   for (const [key, value] of Object.entries(
     parsedMessage.payload.chessboard.position,
@@ -69,7 +64,12 @@ const newGameMessageToGame = (
     if (value !== null) {
       piece = positionValueToPiece(value);
     }
-    chessboardPosition[file][rank] = piece;
+
+    chessboardPosition.push({
+      rank: rank,
+      file: file,
+      piece: piece,
+    });
   }
 
   return {
@@ -80,7 +80,7 @@ const newGameMessageToGame = (
 };
 
 const positionKeyToRank = (key: string): GameTypes.Rank => {
-  const rank = key[1];
+  const rank = parseInt(key[1]) as unknown as GameTypes.Rank;
   if (Object.values(GameTypes.Rank).includes(rank)) {
     return rank as unknown as GameTypes.Rank;
   }
@@ -88,7 +88,7 @@ const positionKeyToRank = (key: string): GameTypes.Rank => {
 };
 
 const positionKeyToFile = (key: string): GameTypes.File => {
-  const file = parseInt(key[1]) as unknown as GameTypes.File;
+  const file = key[0] as unknown as GameTypes.File;
   if (Object.values(GameTypes.File).includes(file)) {
     return file;
   }
@@ -97,21 +97,21 @@ const positionKeyToFile = (key: string): GameTypes.File => {
 
 const positionValueToPiece = ({
   colour,
-  pieceType,
+  piece_type,
 }: {
   colour: string;
-  pieceType: string;
+  piece_type: string;
 }): GameTypes.Piece | null => {
   if (!Object.values(GameTypes.Colour).includes(colour)) {
     throw new Error(`${colour} is not a recognised Colour.`);
   }
 
-  if (!Object.values(GameTypes.PieceType).includes(pieceType)) {
-    throw new Error(`${pieceType} is not a recognised PieceType.`);
+  if (!Object.values(GameTypes.PieceType).includes(piece_type)) {
+    throw new Error(`${piece_type} is not a recognised PieceType.`);
   }
 
   return {
     colour: colour as unknown as GameTypes.Colour,
-    pieceType: pieceType as unknown as GameTypes.PieceType,
+    pieceType: piece_type as unknown as GameTypes.PieceType,
   };
 };
