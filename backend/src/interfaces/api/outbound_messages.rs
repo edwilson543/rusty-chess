@@ -1,6 +1,7 @@
 use crate::config;
 use crate::services::games;
 
+use crate::domain::gameplay::game;
 use serde;
 use serde_json;
 
@@ -12,21 +13,26 @@ enum MessageName {
 #[derive(serde::Serialize)]
 struct Message {
     name: MessageName,
-    payload: String,
+    payload: game::Game,
+}
+
+impl Message {
+    fn new(name: MessageName, payload: game::Game) -> Self {
+        Self {
+            name: name,
+            payload,
+        }
+    }
+
+    fn to_rocket_message(&self) -> rocket_ws::Message {
+        let message_json = serde_json::to_string(&self).unwrap();
+        rocket_ws::Message::Text(message_json)
+    }
 }
 
 pub fn new_game_message() -> rocket_ws::Message {
     let uow = config::get_unit_of_work();
     let game = games::start_game(uow);
-    let payload = serde_json::to_string(&game).unwrap();
-    message_from_payload(MessageName::NewGame, payload)
-}
-
-fn message_from_payload(name: MessageName, payload: String) -> rocket_ws::Message {
-    let message = Message {
-        name: name,
-        payload: payload,
-    };
-    let message_json = serde_json::to_string(&message).unwrap();
-    rocket_ws::Message::Text(message_json)
+    let message = Message::new(MessageName::NewGame, game);
+    message.to_rocket_message()
 }
