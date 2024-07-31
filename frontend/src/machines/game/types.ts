@@ -1,29 +1,53 @@
 // Context
 
-enum Colour {
-  Black = "BLACK",
-  White = "WHITE",
+export enum Rank {
+    One = 1,
+    Two = 2,
+    Three = 3,
+    Four = 4,
+    Five = 5,
+    Six = 6,
+    Seven = 7,
+    Eight = 8,
 }
 
-enum PieceType {
-  Pawn = "PAWN",
-  Knight = "Knight",
-  Bishop = "Bishop",
-  Rook = "Rook",
-  Queen = "Queen",
-  King = "King",
+export enum File {
+    A = "A",
+    B = "B",
+    C = "C",
+    D = "D",
+    E = "E",
+    F = "F",
+    G = "G",
+    H = "H",
 }
 
-interface ChessboardSquare {
+export enum Colour {
+  Black = "B",
+  White = "W",
+}
+
+export enum PieceType {
+  Pawn = "P",
+  Knight = "N",
+  Bishop = "B",
+  Rook = "R",
+  Queen = "Q",
+  King = "K",
+}
+
+export interface Piece {
   colour: Colour;
   pieceType: PieceType;
 }
 
-interface Chessboard {
-  position: Record<string, ChessboardSquare>;
+
+export interface Chessboard {
+  position: Record<File, Record<Rank, Piece | null>>;
 }
 
-interface Game {
+export interface Game {
+  id: number,
   chessboard: Chessboard;
   player: Colour;
 }

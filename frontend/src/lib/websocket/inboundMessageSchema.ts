@@ -21,7 +21,7 @@ const chessboardSquare = z.object({
 });
 
 const chessboard = z.object({
-  position: z.map(z.string(), chessboardSquare),
+  position: z.map(z.string(), chessboardSquare.nullable()),
 });
 
 // Messages.

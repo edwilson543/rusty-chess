@@ -1,7 +1,18 @@
+import {useSelector} from "@xstate/react";
+
+import { GameMachineContext } from "../context.ts";
 import { useGameWebSocket } from "../lib/websocket";
+
 
 export const Game = () => {
   const { sendMessage, messageHistory, connectionStatus } = useGameWebSocket();
+  const gameMachineRef = GameMachineContext.useActorRef();
+
+  const game = useSelector(gameMachineRef, (state) => state.context.game);
+
+  // TODO -> send new game message into game machine.
+
+
   return (
     <>
       <div>
