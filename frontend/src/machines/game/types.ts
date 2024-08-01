@@ -58,7 +58,7 @@ export interface Game {
 }
 
 export interface GameContextProps {
-  game?: Game;
+  game: Game | null;
 }
 
 // Events
@@ -78,6 +78,6 @@ export type GameEventProps = SetActiveGameEvent;
 
 export enum GameState {
   Idle = "IDLE",
-  PlayerTurn = "PLAYER_TURNS",
+  PlayerTurn = "PLAYER_TURN",
   OpponentTurn = "OPPONENT_TURN",
 }

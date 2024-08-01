@@ -1,4 +1,4 @@
-import { setup, assign, assertEvent } from "xstate";
+import { assertEvent, assign, setup } from "xstate";
 
 import * as types from "./types";
 
@@ -17,6 +17,7 @@ const GameMachine = setup({
   },
 }).createMachine({
   id: "game",
+  context: { game: null },
   initial: types.GameState.Idle,
   predictableActionArguments: true,
   states: {
@@ -24,6 +25,7 @@ const GameMachine = setup({
       on: {
         [types.GameEvent.StartNewGame]: {
           target: types.GameState.PlayerTurn,
+          actions: "setActiveGame",
         },
       },
     },
