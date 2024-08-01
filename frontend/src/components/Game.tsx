@@ -1,5 +1,6 @@
 import { useSelector } from "@xstate/react";
 
+import { Chessboard } from "./Chessboard";
 import { GameMachineContext } from "../context.ts";
 import { useGameWebSocket } from "../lib/websocket";
 
@@ -8,13 +9,9 @@ export const Game = () => {
   const gameMachineRef = GameMachineContext.useActorRef();
   const game = useSelector(gameMachineRef, (state) => state.context.game);
 
-  console.log("GAME: ", game);
-
   return (
     <>
-      <div>
-        <p>I am a chess game.</p>
-      </div>
+      {game && <Chessboard chessboard={game.chessboard} />}
 
       <div>Connection status: {connectionStatus}</div>
       <div className="card">
