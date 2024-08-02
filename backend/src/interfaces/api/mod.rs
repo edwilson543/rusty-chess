@@ -1,4 +1,5 @@
 mod build;
+mod outbound_messages;
 mod routes;
 mod serializers;
 

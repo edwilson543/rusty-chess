@@ -25,7 +25,7 @@ pub enum PieceType {
     King,
 }
 
-#[derive(Copy, Clone, Debug, PartialEq, serde::Serialize)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub struct Piece {
     colour: Colour,
     piece_type: PieceType,

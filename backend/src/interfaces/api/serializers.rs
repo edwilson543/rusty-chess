@@ -1,4 +1,4 @@
-use crate::domain::gameplay::chess_set;
+use crate::domain::gameplay::{chess_set, game};
 use serde;
 use serde::ser::SerializeStruct;
 
@@ -55,7 +55,19 @@ impl serde::Serialize for chess_set::PieceType {
     }
 }
 
-// Chessboard.
+impl serde::Serialize for chess_set::Piece {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let mut state = serializer.serialize_struct("chess_set::Piece", 2)?;
+        state.serialize_field("colour", &self.get_colour())?;
+        state.serialize_field("piece_type", &self.get_piece_type())?;
+        state.end()
+    }
+}
+
+// Chessboard & Game.
 
 impl serde::Serialize for chess_set::Chessboard {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -64,6 +76,19 @@ impl serde::Serialize for chess_set::Chessboard {
     {
         let mut state = serializer.serialize_struct("chess_set::Chessboard", 1)?;
         state.serialize_field("position", &self.position)?;
+        state.end()
+    }
+}
+
+impl serde::Serialize for game::Game {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let mut state = serializer.serialize_struct("game::Game", 1)?;
+        state.serialize_field("id", &self.get_id())?;
+        state.serialize_field("status", &self.get_status())?;
+        state.serialize_field("chessboard", &self.current_chessboard())?;
         state.end()
     }
 }
