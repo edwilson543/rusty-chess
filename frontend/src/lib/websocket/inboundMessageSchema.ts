@@ -82,13 +82,21 @@ const chessboard = z.object({
   }),
 });
 
+const gameStatus = z.enum([
+  "ToPlayWhite",
+  "ToPlayBlack",
+  "WonByWhite",
+  "WonByBlack",
+  "Drawn",
+]);
+
 // Messages.
 
 export const newGameMessage = z.object({
   name: z.literal("NewGame"),
   payload: z.object({
     id: z.number(),
-    status: z.object({ ToPlay: white }),
+    status: gameStatus,
     chessboard: chessboard,
   }),
 });

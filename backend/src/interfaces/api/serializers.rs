@@ -155,4 +155,15 @@ mod tests {
         assert!(chessboard_json.contains(r#""D2":{"colour":"W","piece_type":"P"}"#));
         assert!(chessboard_json.contains(r#""G5":null"#));
     }
+
+    #[test]
+    fn serializes_game_to_json() {
+        let game = game::Game::new(1);
+
+        let game_json = serde_json::to_string(&game).unwrap();
+
+        assert!(
+            game_json.starts_with(r#"{"id":1,"status":"ToPlayWhite","chessboard":{"position":{"#)
+        );
+    }
 }

@@ -1,37 +1,37 @@
 .PHONY:runbe
 runbe:
-	cd backend && cargo run
+	cd backend && make run
 
 .PHONY:runfe
 runfe:
-	cd frontend && npm run dev
+	cd frontend && make run
 
 
 .PHONY:build
 build:
-	cd backend && cargo build
-	cd frontend && npm run build
+	cd backend && make build
+	cd frontend && make build
 
 
 .PHONY:local_ci
-local_ci: test lint
+local_ci:
+	cd backend && make local_ci
+	cd frontend && make local_ci
 
 
 .PHONY:test
 test:
-	cd backend && cargo test
-	cd frontend && npm test
+	cd backend && make test
+	cd frontend && make test
 
 
 .PHONY:lint
 lint:
-	cd backend && cargo check
-	cd backend && cargo fmt --all --check
-	cd frontend && npm run lint
-	cd frontend && npm run format
+	cd backend && make lint
+	cd frontend && make lint
 
 
 .PHONY:format
 format:
-	cd backend && cargo fmt
-	cd frontend && npm run format
+	cd backend && make format
+	cd frontend && make format

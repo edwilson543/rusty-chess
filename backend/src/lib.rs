@@ -1,4 +1,5 @@
 pub mod config;
+pub mod data;
 pub mod domain;
 pub mod interfaces;
 pub mod repository;
