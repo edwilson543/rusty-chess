@@ -29,7 +29,7 @@ fn fools_mate_by_black() {
         .play_ordinary_move(&Colour::Black, &from_square, &to_square)
         .unwrap();
 
-    assert_eq!(game.get_status(), &GameStatus::Won(Colour::Black));
+    assert_eq!(game.get_status(), &GameStatus::WonByBlack);
 }
 
 #[test]
@@ -78,5 +78,5 @@ fn scholars_mate_by_white() {
         .play_ordinary_move(&Colour::White, &from_square, &to_square)
         .unwrap();
 
-    assert_eq!(game.get_status(), &GameStatus::Won(Colour::White));
+    assert_eq!(game.get_status(), &GameStatus::WonByWhite);
 }

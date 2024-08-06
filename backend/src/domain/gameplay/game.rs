@@ -26,8 +26,10 @@ pub enum GameError {
 
 #[derive(Clone, Debug, PartialEq, serde::Serialize)]
 pub enum GameStatus {
-    ToPlay(chess_set::Colour),
-    Won(chess_set::Colour),
+    ToPlayWhite,
+    ToPlayBlack,
+    WonByWhite,
+    WonByBlack,
     Drawn,
 }
 
@@ -47,7 +49,7 @@ impl Game {
 
         Self {
             id: id,
-            status: GameStatus::ToPlay(chess_set::Colour::White),
+            status: GameStatus::ToPlayWhite,
             chessboard_history: vec![chessboard],
         }
     }
@@ -148,7 +150,7 @@ impl Game {
     }
 
     fn progress_game_status(&mut self) {
-        let GameStatus::ToPlay(colour) = self.status else {
+        let Some(colour) = self.status.to_play_colour() else {
             panic!("Game should have ended sooner!");
         };
 
@@ -156,9 +158,9 @@ impl Game {
 
         // Check for a win or draw. // TODO -> check for draw.
         if rulebook::is_player_checkmated(to_play_colour, self.current_chessboard()) {
-            self.status = GameStatus::Won(colour);
+            self.status = GameStatus::from_winning_colour(colour);
         } else {
-            self.status = GameStatus::ToPlay(to_play_colour)
+            self.status = GameStatus::from_to_play_colour(to_play_colour)
         }
     }
 
@@ -168,7 +170,7 @@ impl Game {
     }
 
     fn check_if_play_is_out_of_turn(&self, player: &chess_set::Colour) -> Result<(), GameError> {
-        let GameStatus::ToPlay(to_play_colour) = self.status else {
+        let Some(to_play_colour) = self.status.to_play_colour() else {
             return Err(GameError::GameHasAlreadyEnded);
         };
         if !(player == &to_play_colour) {
@@ -194,6 +196,30 @@ impl Game {
     }
 }
 
+impl GameStatus {
+    fn from_winning_colour(colour: chess_set::Colour) -> Self {
+        match colour {
+            chess_set::Colour::White => GameStatus::WonByWhite,
+            chess_set::Colour::Black => GameStatus::WonByBlack,
+        }
+    }
+
+    fn from_to_play_colour(colour: chess_set::Colour) -> Self {
+        match colour {
+            chess_set::Colour::White => GameStatus::ToPlayWhite,
+            chess_set::Colour::Black => GameStatus::ToPlayBlack,
+        }
+    }
+
+    fn to_play_colour(&self) -> Option<chess_set::Colour> {
+        match self {
+            GameStatus::ToPlayWhite => Some(chess_set::Colour::White),
+            GameStatus::ToPlayBlack => Some(chess_set::Colour::Black),
+            _ => None,
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     #[cfg(test)]
@@ -210,7 +236,7 @@ mod tests {
 
             let result = game.play_ordinary_move(&Colour::White, &from_square, &to_square);
 
-            assert_eq!(result, Ok(&GameStatus::ToPlay(Colour::Black)));
+            assert_eq!(result, Ok(&GameStatus::ToPlayBlack));
             assert_eq!(game.get_piece_at_square(&from_square), None);
             let moved_pawn = game.get_piece_at_square(&to_square).unwrap();
             assert_eq!(moved_pawn.get_piece_type(), &PieceType::Pawn);
@@ -225,7 +251,7 @@ mod tests {
 
             let result = game.play_ordinary_move(&Colour::White, &from_square, &to_square);
 
-            assert_eq!(result, Ok(&GameStatus::ToPlay(Colour::Black)));
+            assert_eq!(result, Ok(&GameStatus::ToPlayBlack));
             assert_eq!(game.get_piece_at_square(&from_square), None);
             let moved_knight = game.get_piece_at_square(&to_square).unwrap();
             assert_eq!(moved_knight.get_piece_type(), &PieceType::Knight);
