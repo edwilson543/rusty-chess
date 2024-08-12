@@ -51,3 +51,47 @@ impl ChessboardSquare {
         Some(chess_set::Piece::new(colour, piece_type))
     }
 }
+
+// Db specific serializers.
+
+impl chess_set::Colour {
+    fn to_index(&self) -> i16 {
+        match &self {
+            chess_set::Colour::White => 0,
+            chess_set::Colour::Black => 1,
+        }
+    }
+
+    fn from_index(index: i16) -> chess_set::Colour {
+        match index {
+            0 => chess_set::Colour::White,
+            1 => chess_set::Colour::Black,
+            _ => panic!("Invalid colour index!")
+        }
+    }
+}
+
+impl chess_set::PieceType {
+    fn to_index(&self) -> i16 {
+        match &self {
+            chess_set::PieceType::Pawn => 0,
+            chess_set::PieceType::Knight => 1,
+            chess_set::PieceType::Bishop => 2,
+            chess_set::PieceType::Rook => 3,
+            chess_set::PieceType::Queen => 4,
+            chess_set::PieceType::King => 5,
+        }
+    }
+
+    fn from_index(index: i16) -> chess_set::PieceType {
+        match index {
+            0 => chess_set::PieceType::Pawn,
+            1 => chess_set::PieceType::Knight,
+            2 => chess_set::PieceType::Bishop,
+            3 => chess_set::PieceType::Rook,
+            4 => chess_set::PieceType::Queen,
+            5 => chess_set::PieceType::King,
+            _ => panic!("Invalid piece index!")
+        }
+    }
+}
