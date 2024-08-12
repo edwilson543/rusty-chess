@@ -1,34 +1,143 @@
 use super::schema;
 use diesel::prelude::*;
+use serde;
 
 use crate::domain::gameplay::{chess_set, game};
 
-#[derive(Selectable, Insertable)]
+#[derive(Queryable, Selectable)]
 #[diesel(table_name = schema::game)]
 pub struct Game {
     pub id: i32,
     pub status: i16,
 }
 
-#[derive(Queryable, Insertable)]
+#[derive(Insertable)]
+#[diesel(table_name = schema::game)]
+struct NewGame {
+    status: i16,
+}
+
+#[derive(Selectable, Queryable)]
 #[diesel(table_name = schema::chessboard_square)]
 pub struct ChessboardSquare {
     pub id: i32,
     pub game_id: i32,
+    pub chessboard_history_index: i16,
     pub rank: i16,
     pub file: i16,
-    pub chessboard_history_index: i16,
     pub piece_colour: Option<i16>,
     pub piece_type: Option<i16>,
 }
 
+#[derive(Insertable)]
+#[diesel(table_name = schema::chessboard_square)]
+struct NewChessboardSquare {
+    game_id: i32,
+    chessboard_history_index: i16,
+    rank: i16,
+    file: i16,
+    piece_colour: Option<i16>,
+    piece_type: Option<i16>,
+}
+
 impl Game {
-    pub fn to_domain(&self) -> game::Game {
-        game::Game::new(1) // TODO.
+    // SQL.
+    fn create(conn: &mut PgConnection, status: game::GameStatus) -> Self {
+        use crate::data::schema::game;
+
+        let new_game = NewGame {
+            status: status.to_index(),
+        };
+        diesel::insert_into(game::table)
+            .values(&new_game)
+            .returning(Self::as_returning())
+            .get_result(conn)
+            .expect("Error saving new post")
+    }
+
+    fn update_status(conn: &mut PgConnection, updated_game: game::Game) {
+        use crate::data::schema::game::dsl::{game, status};
+
+        let _ = diesel::update(game.find(updated_game.get_id()))
+            .set(status.eq(updated_game.get_status().to_index()))
+            .execute(conn);
+    }
+
+    fn update_chessboard(
+        conn: &mut PgConnection,
+        updated_game: game::Game,
+    ) {
+        let chessboard_history_index = updated_game.get_chessboard_history().len();
+        for (square, piece) in updated_game
+            .current_chessboard()
+            .clone()
+            .position
+            .into_iter()
+        {
+            // TODO -> bulk insert.
+            ChessboardSquare::create(
+                conn,
+                *updated_game.get_id(),
+                chessboard_history_index as i16,
+                square,
+                piece,
+            )
+        }
+    }
+
+    // Domain factories.
+
+    pub fn to_domain(&self, chessboard_history: Vec<chess_set::Chessboard>) -> game::Game {
+        game::Game::reincarnate(
+            self.id,
+            game::GameStatus::from_index(self.status),
+            chessboard_history,
+        )
     }
 }
 
 impl ChessboardSquare {
+    // SQL.
+
+    fn create(
+        conn: &mut PgConnection,
+        game_id: i32,
+        chessboard_history_index: i16,
+        square: chess_set::Square,
+        piece: Option<chess_set::Piece>,
+    ) {
+        use crate::data::schema::chessboard_square;
+
+        let new_square = NewChessboardSquare {
+            game_id: game_id,
+            chessboard_history_index: chessboard_history_index,
+            rank: square.get_rank().index() as i16,
+            file: square.get_file().index() as i16,
+            piece_colour: match piece {
+                Some(piece) => Some(piece.get_colour().to_index()),
+                None => None,
+            },
+            piece_type: match piece {
+                Some(piece) => Some(piece.get_piece_type().to_index()),
+                None => None,
+            },
+        };
+
+        let _ = diesel::insert_into(chessboard_square::table)
+            .values(&new_square)
+            .execute(conn);
+    }
+
+    fn select_for_game(conn: &mut PgConnection, for_game_id: i32) -> Vec<ChessboardSquare> {
+        use crate::data::schema::chessboard_square::dsl::{chessboard_square, game_id};
+
+        chessboard_square
+            .filter(game_id.eq(for_game_id))
+            .select(ChessboardSquare::as_select())
+            .load(conn)
+            .expect("Error loading chessboard!")
+    }
+
     // Domain factories.
 
     fn to_domain_square(&self) -> chess_set::Square {
@@ -54,6 +163,29 @@ impl ChessboardSquare {
 
 // Db specific serializers & deserializers.
 
+impl game::GameStatus {
+    fn to_index(&self) -> i16 {
+        match &self {
+            game::GameStatus::ToPlayWhite => 0,
+            game::GameStatus::ToPlayBlack => 1,
+            game::GameStatus::WonByWhite => 2,
+            game::GameStatus::WonByBlack => 3,
+            game::GameStatus::Drawn => 4,
+        }
+    }
+
+    fn from_index(index: i16) -> game::GameStatus {
+        match index {
+            0 => game::GameStatus::ToPlayWhite,
+            1 => game::GameStatus::ToPlayBlack,
+            2 => game::GameStatus::WonByWhite,
+            3 => game::GameStatus::WonByBlack,
+            4 => game::GameStatus::Drawn,
+            _ => panic!("Invalid game status index!"),
+        }
+    }
+}
+
 impl chess_set::Colour {
     fn to_index(&self) -> i16 {
         match &self {
@@ -66,7 +198,7 @@ impl chess_set::Colour {
         match index {
             0 => chess_set::Colour::White,
             1 => chess_set::Colour::Black,
-            _ => panic!("Invalid colour index!")
+            _ => panic!("Invalid colour index!"),
         }
     }
 }
@@ -91,7 +223,7 @@ impl chess_set::PieceType {
             3 => chess_set::PieceType::Rook,
             4 => chess_set::PieceType::Queen,
             5 => chess_set::PieceType::King,
-            _ => panic!("Invalid piece index!")
+            _ => panic!("Invalid piece index!"),
         }
     }
 }
@@ -102,7 +234,7 @@ mod tests {
     #[cfg(test)]
     mod chessboard_square_domain_factory_tests {
         use super::super::ChessboardSquare;
-        use crate::domain::gameplay::chess_set::{Rank, File, PieceType, Colour};
+        use crate::domain::gameplay::chess_set::{Colour, File, PieceType, Rank};
 
         #[test]
         fn chessboard_square_is_deserialized_to_a_square() {

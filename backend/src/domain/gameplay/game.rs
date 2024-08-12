@@ -54,6 +54,18 @@ impl Game {
         }
     }
 
+    pub fn reincarnate(
+        id: i32,
+        status: GameStatus,
+        chessboard_history: Vec<chess_set::Chessboard>,
+    ) -> Game {
+        Self {
+            id: id,
+            status: status,
+            chessboard_history: chessboard_history,
+        }
+    }
+
     pub fn play_ordinary_move(
         &mut self,
         player: &chess_set::Colour,
