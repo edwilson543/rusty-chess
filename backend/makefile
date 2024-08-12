@@ -26,3 +26,16 @@ lint:
 .PHONY:format
 format:
 	cargo fmt
+
+# Diesel.
+
+.PHONY:setup_db
+setup_db:
+	createdb chess
+	diesel setup
+	make migrate
+
+.PHONY:migrate
+migrate:
+	diesel migration run
+	diesel migration redo
