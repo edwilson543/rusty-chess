@@ -8,7 +8,7 @@ CREATE TABLE chessboard_square (
     game_id INTEGER NOT NULL REFERENCES game(id),
     rank SMALLINT NOT NULL CHECK(rank >= 1 AND rank <= 8),
     file SMALLINT NOT NULL CHECK(file >= 1 AND file <= 8),
-    max_sequence_index SMALLINT NOT NULL,
+    chessboard_history_index SMALLINT NOT NULL CHECK(chessboard_history_index >= 0),
     piece_type TEXT,
     piece_colour TEXT
 );

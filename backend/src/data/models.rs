@@ -17,7 +17,7 @@ pub struct ChessboardSquare {
     pub game_id: i32,
     pub rank: i16,
     pub file: i16,
-    pub max_sequence_index: i16,
+    pub chessboard_history_index: i16,
     pub piece_type: Option<String>,
     pub piece_colour: Option<String>,
 }
