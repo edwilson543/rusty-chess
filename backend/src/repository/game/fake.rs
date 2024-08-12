@@ -1,19 +1,12 @@
+use super::repo;
 use crate::domain::gameplay::game;
 use std::collections::BTreeMap;
-
-pub trait GameRepository {
-    fn get(&self, id: i32) -> Option<game::Game>;
-
-    fn create(&mut self) -> game::Game;
-
-    fn update(&mut self, game: &game::Game);
-}
 
 pub struct FakeGameRepository {
     games: BTreeMap<i32, game::Game>,
 }
 
-impl GameRepository for FakeGameRepository {
+impl repo::GameRepository for FakeGameRepository {
     fn get(&self, id: i32) -> Option<game::Game> {
         let Some(game) = self.games.get(&id) else {
             return None;
@@ -49,10 +42,11 @@ impl FakeGameRepository {
 }
 
 #[cfg(test)]
-mod fake_tests {
+mod tests {
     #[cfg(test)]
     mod get_tests {
-        use super::super::{FakeGameRepository, GameRepository};
+        use super::super::repo::GameRepository;
+        use super::super::FakeGameRepository;
         use crate::domain::gameplay::game;
 
         #[test]
@@ -78,7 +72,8 @@ mod fake_tests {
 
     #[cfg(test)]
     mod create_tests {
-        use super::super::{FakeGameRepository, GameRepository};
+        use super::super::repo::GameRepository;
+        use super::super::FakeGameRepository;
         use crate::domain::gameplay::game;
 
         #[test]
@@ -106,7 +101,8 @@ mod fake_tests {
 
     #[cfg(test)]
     mod update_tests {
-        use super::super::{FakeGameRepository, GameRepository};
+        use super::super::repo::GameRepository;
+        use super::super::FakeGameRepository;
         use crate::domain::gameplay::chess_set::{Colour, File, Rank, Square};
         use crate::domain::gameplay::game;
 
