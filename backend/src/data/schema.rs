@@ -15,7 +15,7 @@ diesel::table! {
 diesel::table! {
     game (id) {
         id -> Int4,
-        status -> Text,
+        status -> Int2,
     }
 }
 

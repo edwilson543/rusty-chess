@@ -1,6 +1,6 @@
 CREATE TABLE game (
     id SERIAL PRIMARY KEY,
-    status TEXT NOT NULL
+    status SMALLINT NOT NULL CHECK(status >= 0 AND status <= 5)
 );
 
 CREATE TABLE chessboard_square (

@@ -7,7 +7,7 @@ use crate::domain::gameplay::{chess_set, game};
 #[diesel(table_name = schema::game)]
 pub struct Game {
     pub id: i32,
-    pub status: String,
+    pub status: i16,
 }
 
 #[derive(Queryable, Insertable)]
