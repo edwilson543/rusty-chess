@@ -18,8 +18,8 @@ pub struct ChessboardSquare {
     pub rank: i16,
     pub file: i16,
     pub chessboard_history_index: i16,
-    pub piece_type: Option<String>,
-    pub piece_colour: Option<String>,
+    pub piece_type: Option<i16>,
+    pub piece_colour: Option<i16>,
 }
 
 impl Game {

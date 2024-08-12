@@ -7,8 +7,8 @@ diesel::table! {
         rank -> Int2,
         file -> Int2,
         chessboard_history_index -> Int2,
-        piece_type -> Nullable<Text>,
-        piece_colour -> Nullable<Text>,
+        piece_colour -> Nullable<Int2>,
+        piece_type -> Nullable<Int2>,
     }
 }
 
