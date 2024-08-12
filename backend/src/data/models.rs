@@ -18,8 +18,8 @@ pub struct ChessboardSquare {
     pub rank: i16,
     pub file: i16,
     pub chessboard_history_index: i16,
-    pub piece_type: Option<i16>,
     pub piece_colour: Option<i16>,
+    pub piece_type: Option<i16>,
 }
 
 impl Game {
@@ -45,14 +45,14 @@ impl ChessboardSquare {
             return None;
         };
 
-        let colour = chess_set::Colour::White; // TODO.
-        let piece_type = chess_set::PieceType::Pawn; // TODO.
+        let colour = chess_set::Colour::from_index(*piece_colour);
+        let piece_type = chess_set::PieceType::from_index(*piece_type);
 
         Some(chess_set::Piece::new(colour, piece_type))
     }
 }
 
-// Db specific serializers.
+// Db specific serializers & deserializers.
 
 impl chess_set::Colour {
     fn to_index(&self) -> i16 {
@@ -92,6 +92,70 @@ impl chess_set::PieceType {
             4 => chess_set::PieceType::Queen,
             5 => chess_set::PieceType::King,
             _ => panic!("Invalid piece index!")
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+
+    #[cfg(test)]
+    mod chessboard_square_domain_factory_tests {
+        use super::super::ChessboardSquare;
+        use crate::domain::gameplay::chess_set::{Rank, File, PieceType, Colour};
+
+        #[test]
+        fn chessboard_square_is_deserialized_to_a_square() {
+            let db_square = ChessboardSquare {
+                id: 1,
+                game_id: 2,
+                rank: 3,
+                file: 7,
+                chessboard_history_index: 4,
+                piece_colour: None,
+                piece_type: None,
+            };
+
+            let domain_square = db_square.to_domain_square();
+
+            assert_eq!(domain_square.get_rank(), &Rank::Three);
+            assert_eq!(domain_square.get_file(), &File::G);
+        }
+
+        #[test]
+        fn chessboard_square_is_deserialized_to_a_piece_when_occupied() {
+            let db_square = ChessboardSquare {
+                id: 1,
+                game_id: 2,
+                rank: 3,
+                file: 7,
+                chessboard_history_index: 4,
+                piece_colour: Some(1),
+                piece_type: Some(3),
+            };
+
+            let domain_piece = db_square.to_domain_piece();
+
+            domain_piece.unwrap_or_else(|| panic!("Square should be occupied!"));
+            assert_eq!(domain_piece.unwrap().get_colour(), &Colour::Black);
+            assert_eq!(domain_piece.unwrap().get_piece_type(), &PieceType::Rook);
+        }
+
+        #[test]
+        fn chessboard_square_is_deserialized_to_null_when_unoccupied() {
+            let db_square = ChessboardSquare {
+                id: 1,
+                game_id: 2,
+                rank: 3,
+                file: 7,
+                chessboard_history_index: 4,
+                piece_colour: None,
+                piece_type: None,
+            };
+
+            let domain_piece = db_square.to_domain_piece();
+
+            assert_eq!(domain_piece, None);
         }
     }
 }
