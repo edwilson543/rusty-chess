@@ -287,4 +287,23 @@ mod tests {
             assert_eq!(domain_piece, None);
         }
     }
+
+    #[cfg(test)]
+    mod game_domain_factory_tests {
+        use super::super::Game;
+        use crate::domain::gameplay::game;
+        use crate::testing::factories;
+
+        #[test]
+        fn chessboard_square_is_deserialized_to_a_square() {
+            let db_game = Game { id: 1, status: 1 };
+            let chessboard = factories::chessboard();
+
+            let domain_game = db_game.to_domain(vec![chessboard.clone()]);
+
+            assert_eq!(domain_game.get_id(), &db_game.id);
+            assert_eq!(domain_game.get_status(), &game::GameStatus::ToPlayBlack);
+            assert_eq!(domain_game.get_chessboard_history(), &vec![chessboard]);
+        }
+    }
 }
