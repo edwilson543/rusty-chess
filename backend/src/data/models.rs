@@ -42,7 +42,7 @@ struct NewChessboardSquare {
 
 impl Game {
     // SQL.
-    fn get(conn: &mut PgConnection, id: i32) -> Option<Self> {
+    pub fn get(conn: &mut PgConnection, id: i32) -> Option<Self> {
         use crate::data::schema::game::dsl;
 
         let game = dsl::game
@@ -57,7 +57,7 @@ impl Game {
         }
     }
 
-    fn create(conn: &mut PgConnection, status: game::GameStatus) -> Self {
+    pub fn create(conn: &mut PgConnection, status: game::GameStatus) -> Self {
         use crate::data::schema::game;
 
         let new_game = NewGame {
@@ -70,7 +70,7 @@ impl Game {
             .expect("Error saving new post")
     }
 
-    fn update_status(conn: &mut PgConnection, updated_game: game::Game) {
+    pub fn update_status(conn: &mut PgConnection, updated_game: &game::Game) {
         use crate::data::schema::game::dsl::{game, status};
 
         let _ = diesel::update(game.find(updated_game.get_id()))
@@ -78,7 +78,7 @@ impl Game {
             .execute(conn);
     }
 
-    fn update_chessboard(conn: &mut PgConnection, updated_game: game::Game) {
+    pub fn update_chessboard(conn: &mut PgConnection, updated_game: &game::Game) {
         let chessboard_history_index = updated_game.get_chessboard_history().len();
         for (square, piece) in updated_game
             .current_chessboard()
