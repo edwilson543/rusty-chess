@@ -42,6 +42,21 @@ struct NewChessboardSquare {
 
 impl Game {
     // SQL.
+    fn get(conn: &mut PgConnection, id: i32) -> Option<Self> {
+        use crate::data::schema::game::dsl;
+
+        let game = dsl::game
+            .find(id)
+            .select(Game::as_select())
+            .first(conn)
+            .optional();
+
+        match game {
+            Ok(maybe_game) => maybe_game,
+            Err(err) => panic!("{}", err),
+        }
+    }
+
     fn create(conn: &mut PgConnection, status: game::GameStatus) -> Self {
         use crate::data::schema::game;
 
