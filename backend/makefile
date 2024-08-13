@@ -14,7 +14,10 @@ local_ci: test lint
 
 .PHONY:test
 test:
-	cargo test
+	createdb chess-test || true
+	DATABASE_URL=postgres://postgres:postgres@localhost/chess-test diesel migration run
+	DATABASE_URL=postgres://postgres:postgres@localhost/chess-test cargo test || true
+	dropdb chess-test
 
 
 .PHONY:lint
