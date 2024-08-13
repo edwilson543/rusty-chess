@@ -7,7 +7,7 @@ pub struct FakeGameRepository {
 }
 
 impl repo::GameRepository for FakeGameRepository {
-    fn get(&self, id: i32) -> Option<game::Game> {
+    fn get(&mut self, id: i32) -> Option<game::Game> {
         let Some(game) = self.games.get(&id) else {
             return None;
         };
@@ -62,7 +62,7 @@ mod tests {
 
         #[test]
         fn gets_none_when_game_does_not_exist() {
-            let repo = FakeGameRepository::new();
+            let mut repo = FakeGameRepository::new();
 
             let result = repo.get(7);
 
