@@ -79,7 +79,9 @@ impl Game {
     }
 
     pub fn update_chessboard(conn: &mut PgConnection, updated_game: &game::Game) {
-        let chessboard_history_index = updated_game.get_chessboard_history().len();
+        let chessboard_history_index = updated_game.get_chessboard_history().len() - 1;
+
+        // TODO -> only store occupied squares!
         for (square, piece) in updated_game
             .current_chessboard()
             .clone()
@@ -140,25 +142,26 @@ impl ChessboardSquare {
             .execute(conn);
     }
 
-    fn select_for_game(conn: &mut PgConnection, for_game_id: i32) -> Vec<ChessboardSquare> {
-        use crate::data::schema::chessboard_square::dsl::{chessboard_square, game_id};
+    pub fn select_for_game(conn: &mut PgConnection, for_game_id: &i32) -> Vec<ChessboardSquare> {
+        use crate::data::schema::chessboard_square::dsl::{chessboard_square, game_id, chessboard_history_index};
 
         chessboard_square
             .filter(game_id.eq(for_game_id))
             .select(ChessboardSquare::as_select())
+            .order(chessboard_history_index.asc())
             .load(conn)
             .expect("Error loading chessboard!")
     }
 
     // Domain factories.
 
-    fn to_domain_square(&self) -> chess_set::Square {
+    pub fn to_domain_square(&self) -> chess_set::Square {
         let rank = chess_set::Rank::from_index(self.rank as i8);
         let file = chess_set::File::from_index(self.file as i8);
         chess_set::Square::new(rank, file)
     }
 
-    fn to_domain_piece(&self) -> Option<chess_set::Piece> {
+    pub fn to_domain_piece(&self) -> Option<chess_set::Piece> {
         let Some(piece_type) = &self.piece_type else {
             return None;
         };

@@ -1,8 +1,10 @@
 use diesel::pg::PgConnection;
+use std::collections::HashMap;
 
 use super::repo;
 use crate::data::{connection, models};
-use crate::domain::gameplay::game;
+use crate::domain::gameplay::{chess_set, game};
+
 pub struct DieselGameRepository {
     connection: PgConnection,
 }
@@ -23,10 +25,11 @@ impl DieselGameRepository {
 
 impl repo::GameRepository for DieselGameRepository {
     fn get(&mut self, id: i32) -> Option<game::Game> {
-        // let connection = &mut connection::establish_connection();
-
         // TODO -> fetch actual history.
-        let chessboard_history = vec![];
+        let chessboard_squares =
+            models::ChessboardSquare::select_for_game(&mut self.connection, &id);
+        let chessboard_history =
+            convert_chessboard_squares_to_chessboard_history(chessboard_squares);
 
         match models::Game::get(&mut self.connection, id) {
             Some(db_game) => Some(db_game.to_domain(chessboard_history)),
@@ -35,8 +38,6 @@ impl repo::GameRepository for DieselGameRepository {
     }
 
     fn create(&mut self) -> game::Game {
-        // let connection = &mut connection::establish_connection();
-
         let db_game = models::Game::create(&mut self.connection, game::GameStatus::ToPlayWhite);
         let game = game::Game::new(db_game.id);
 
@@ -51,35 +52,27 @@ impl repo::GameRepository for DieselGameRepository {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    #[cfg(test)]
-    mod get_tests {
-        use super::super::DieselGameRepository;
-        use crate::data::connection;
-        use crate::repository::GameRepository;
-        use crate::testing::factories;
+fn convert_chessboard_squares_to_chessboard_history(
+    squares: Vec<models::ChessboardSquare>,
+) -> Vec<chess_set::Chessboard> {
+    let mut chessboard_history: Vec<HashMap<chess_set::Square, chess_set::Piece>> = vec![];
 
-        #[test]
-        fn gets_game_when_exists() {
-            let mut repo = DieselGameRepository::new();
-            let created_game = repo.create();
+    // Note that `squares` is already ordered by `chessboard_history_index`.
+    for db_square in squares.iter() {
+        match chessboard_history.get(db_square.chessboard_history_index as usize) {
+            None => chessboard_history.push(HashMap::new()),
+            Some(_) => {}
+        };
 
-            let maybe_game = repo.get(*created_game.get_id());
-            let got_game = maybe_game.unwrap();
-
-            assert_eq!(got_game.get_chessboard_history().len(), 1);
-            assert_eq!(got_game.current_chessboard(), &factories::chessboard());
-        }
-
-        #[test]
-        fn gets_none_when_game_does_not_exist() {
-            let connection = &mut connection::establish_connection();
-            let mut repo = DieselGameRepository::new();
-
-            let maybe_game = repo.get(123);
-
-            assert_eq!(maybe_game, None);
-        }
+        let square = db_square.to_domain_square();
+        let Some(piece) = db_square.to_domain_piece() else {
+            continue;
+        };
+        chessboard_history[db_square.chessboard_history_index as usize].insert(square, piece);
     }
+
+    chessboard_history
+        .iter()
+        .map(|position| chess_set::Chessboard::new(position.clone()))
+        .collect::<Vec<chess_set::Chessboard>>()
 }

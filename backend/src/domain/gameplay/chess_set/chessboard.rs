@@ -10,7 +10,7 @@ use thiserror;
 /// Note: this does not implement any gameplay logic or rules of the game.
 /// The only invariant enforced is that each square has at most one piece on it
 /// at any point in time (since the chessboard is represented by a hashmap).
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug)]
 pub struct Chessboard {
     pub position: HashMap<square::Square, Option<piece::Piece>>,
 }
@@ -147,6 +147,7 @@ impl fmt::Display for Chessboard {
         write!(f, "{}", representation)
     }
 }
+
 
 #[cfg(test)]
 mod tests {
