@@ -91,7 +91,7 @@ mod tests {
     use crate::domain::gameplay::rulebook::moves::OrdinaryMove;
     use crate::testing::factories;
     use rstest::rstest;
-    use std::collections::HashMap;
+    use std::collections::BTreeMap;
 
     fn is_move_allowed(chess_move: &OrdinaryMove) -> bool {
         let mut rules = get_pawn_move_rules();
@@ -225,7 +225,7 @@ mod tests {
     #[case::white(Colour::White)]
     #[case::white(Colour::Black)]
     fn disallows_one_square_forward_capture(#[case] other_piece_colour: Colour) {
-        let mut starting_position = HashMap::new();
+        let mut starting_position = BTreeMap::new();
 
         let white_pawn = Piece::new(Colour::White, PieceType::Pawn);
         let from_square = Square::new(Rank::Two, File::B);
@@ -245,7 +245,7 @@ mod tests {
     #[case::white(Colour::White)]
     #[case::white(Colour::Black)]
     fn disallows_double_square_forward_capture(#[case] other_piece_colour: Colour) {
-        let mut starting_position = HashMap::new();
+        let mut starting_position = BTreeMap::new();
 
         let white_pawn = Piece::new(Colour::White, PieceType::Pawn);
         let from_square = Square::new(Rank::Two, File::B);

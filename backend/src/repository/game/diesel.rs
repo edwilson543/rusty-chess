@@ -1,5 +1,5 @@
 use diesel::pg::PgConnection;
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use super::repo;
 use crate::data::{connection, models};
@@ -55,12 +55,12 @@ impl repo::GameRepository for DieselGameRepository {
 fn convert_chessboard_squares_to_chessboard_history(
     squares: Vec<models::ChessboardSquare>,
 ) -> Vec<chess_set::Chessboard> {
-    let mut chessboard_history: Vec<HashMap<chess_set::Square, chess_set::Piece>> = vec![];
+    let mut chessboard_history: Vec<BTreeMap<chess_set::Square, chess_set::Piece>> = vec![];
 
     // Note that `squares` is already ordered by `chessboard_history_index`.
     for db_square in squares.iter() {
         match chessboard_history.get(db_square.chessboard_history_index as usize) {
-            None => chessboard_history.push(HashMap::new()),
+            None => chessboard_history.push(BTreeMap::new()),
             Some(_) => {}
         };
 

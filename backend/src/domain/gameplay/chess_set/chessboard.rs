@@ -1,6 +1,6 @@
 use super::piece;
 use super::square;
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::fmt;
 use std::fmt::Formatter;
 use thiserror;
@@ -9,10 +9,10 @@ use thiserror;
 ///
 /// Note: this does not implement any gameplay logic or rules of the game.
 /// The only invariant enforced is that each square has at most one piece on it
-/// at any point in time (since the chessboard is represented by a hashmap).
-#[derive(Clone, Debug)]
+/// at any point in time (since the chessboard is represented by a BTreeMap).
+#[derive(Clone, Debug, PartialEq)]
 pub struct Chessboard {
-    pub position: HashMap<square::Square, Option<piece::Piece>>,
+    pub position: BTreeMap<square::Square, Option<piece::Piece>>,
 }
 
 #[derive(thiserror::Error, Debug, PartialEq)]
@@ -27,8 +27,8 @@ pub enum ChessboardActionError {
 impl Chessboard {
     // Factories
 
-    pub fn new(starting_position: HashMap<square::Square, piece::Piece>) -> Self {
-        let mut position = HashMap::new();
+    pub fn new(starting_position: BTreeMap<square::Square, piece::Piece>) -> Self {
+        let mut position = BTreeMap::new();
 
         // Initialise an empty board.
         for rank in square::Rank::iter() {
@@ -52,8 +52,8 @@ impl Chessboard {
         self.position.get(square).unwrap().clone()
     }
 
-    pub fn get_pieces(&self, colour: piece::Colour) -> HashMap<square::Square, piece::Piece> {
-        let mut pieces = HashMap::new();
+    pub fn get_pieces(&self, colour: piece::Colour) -> BTreeMap<square::Square, piece::Piece> {
+        let mut pieces = BTreeMap::new();
         for (square, maybe_piece) in self.position.clone() {
             let Some(piece) = maybe_piece else { continue };
             if piece.get_colour() == &colour {
@@ -148,7 +148,6 @@ impl fmt::Display for Chessboard {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use crate::testing::factories;
@@ -189,7 +188,7 @@ mod tests {
 
         #[test]
         fn can_create_new_board() {
-            let mut starting_position = HashMap::new();
+            let mut starting_position = BTreeMap::new();
 
             let square = factories::some_square();
             let piece = factories::some_piece();
@@ -211,7 +210,7 @@ mod tests {
 
         #[test]
         fn gets_black_pieces() {
-            let mut starting_position = HashMap::new();
+            let mut starting_position = BTreeMap::new();
 
             let black_square = factories::some_square();
             let black_king = piece::Piece::new(piece::Colour::Black, piece::PieceType::King);
@@ -257,7 +256,7 @@ mod tests {
         #[should_panic(expected = "No W king on chessboard!")]
         #[test]
         fn panics_when_no_king_matching_colour_is_on_board() {
-            let starting_position = HashMap::new();
+            let starting_position = BTreeMap::new();
             let chessboard = Chessboard::new(starting_position);
 
             let _ = chessboard.get_square_king_is_on(&piece::Colour::White);
@@ -268,11 +267,11 @@ mod tests {
     mod is_square_occupied_tests {
         use super::super::Chessboard;
         use crate::testing::factories;
-        use std::collections::HashMap;
+        use std::collections::BTreeMap;
 
         #[test]
         fn is_occupied() {
-            let mut starting_position = HashMap::new();
+            let mut starting_position = BTreeMap::new();
 
             let square = factories::some_square();
             let piece = factories::some_piece();
@@ -285,7 +284,7 @@ mod tests {
 
         #[test]
         fn is_not_occupied() {
-            let starting_position = HashMap::new();
+            let starting_position = BTreeMap::new();
             let chessboard = Chessboard::new(starting_position);
 
             let square = factories::some_square();
@@ -301,7 +300,7 @@ mod tests {
 
         #[test]
         fn can_move_piece_to_empty_square() {
-            let mut starting_position = HashMap::new();
+            let mut starting_position = BTreeMap::new();
 
             let from_square = factories::some_square();
             let piece = factories::some_piece();
@@ -320,7 +319,7 @@ mod tests {
 
         #[test]
         fn can_move_piece_to_occupied_square() {
-            let mut starting_position = HashMap::new();
+            let mut starting_position = BTreeMap::new();
 
             let from_square = factories::some_square();
             let piece = factories::some_piece();
@@ -341,7 +340,7 @@ mod tests {
 
         #[test]
         fn error_when_moving_from_empty_square() {
-            let starting_position = HashMap::new();
+            let starting_position = BTreeMap::new();
             let mut chessboard = Chessboard::new(starting_position);
 
             let from_square = factories::some_square();
@@ -365,7 +364,7 @@ mod tests {
 
         #[test]
         fn can_add_piece_to_empty_square() {
-            let starting_position = HashMap::new();
+            let starting_position = BTreeMap::new();
             let mut chessboard = Chessboard::new(starting_position);
 
             let square = factories::some_square();
@@ -379,7 +378,7 @@ mod tests {
 
         #[test]
         fn error_when_adding_piece_to_occupied_square() {
-            let mut starting_position = HashMap::new();
+            let mut starting_position = BTreeMap::new();
 
             let square = factories::some_square();
             let piece = factories::some_piece();

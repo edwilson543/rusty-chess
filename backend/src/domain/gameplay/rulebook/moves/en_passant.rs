@@ -138,7 +138,7 @@ mod tests {
     use crate::domain::gameplay::rulebook::{Move, MoveValidationError};
     use crate::testing::factories;
     use rstest::rstest;
-    use std::collections::HashMap;
+    use std::collections::BTreeMap;
 
     #[rstest]
     #[case(File::C)]
@@ -249,7 +249,7 @@ mod tests {
 
     #[test]
     fn cannot_play_en_passant_from_invalid_starting_square() {
-        let mut starting_position = HashMap::new();
+        let mut starting_position = BTreeMap::new();
 
         // Create an initial state with a black pawn at D5.
         let black_pawn = Piece::new(Colour::Black, PieceType::Pawn);

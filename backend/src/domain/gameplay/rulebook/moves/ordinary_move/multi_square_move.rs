@@ -50,7 +50,7 @@ mod tests {
     use crate::domain::gameplay::rulebook::moves::ordinary_move::OrdinaryMove;
     use crate::domain::gameplay::rulebook::moves::translation;
     use crate::testing::factories;
-    use std::collections::HashMap;
+    use std::collections::BTreeMap;
 
     #[test]
     fn allows_multi_square_move_forward_white() {
@@ -87,7 +87,7 @@ mod tests {
         let black_rook = Piece::new(Colour::Black, PieceType::Rook);
         let white_pawn = Piece::new(Colour::White, PieceType::Pawn);
 
-        let mut starting_position = HashMap::new();
+        let mut starting_position = BTreeMap::new();
         starting_position.insert(from_square, black_rook);
         starting_position.insert(to_square, white_pawn);
 

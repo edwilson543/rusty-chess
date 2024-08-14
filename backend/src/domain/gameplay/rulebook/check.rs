@@ -53,13 +53,13 @@ mod tests {
     use crate::domain::gameplay::rulebook;
     use crate::testing::factories;
     use rstest::rstest;
-    use std::collections::HashMap;
+    use std::collections::BTreeMap;
 
     // Check scenarios.
 
     #[test]
     fn king_cannot_move_into_check_from_rook() {
-        let mut position = HashMap::new();
+        let mut position = BTreeMap::new();
 
         let white_rook = Piece::new(Colour::White, PieceType::Rook);
         let rook_square = Square::new(Rank::Two, File::F);
@@ -87,7 +87,7 @@ mod tests {
 
     #[test]
     fn king_cannot_move_into_check_from_knight() {
-        let mut position = HashMap::new();
+        let mut position = BTreeMap::new();
 
         let black_knight = Piece::new(Colour::Black, PieceType::Knight);
         let knight_square = Square::new(Rank::Three, File::C);
@@ -116,7 +116,7 @@ mod tests {
 
     #[test]
     fn cannot_move_piece_shielding_king_from_check_from_bishop() {
-        let mut position = HashMap::new();
+        let mut position = BTreeMap::new();
 
         let white_bishop = Piece::new(Colour::White, PieceType::Bishop);
         let bishop_square = Square::new(Rank::Two, File::F);
@@ -149,7 +149,7 @@ mod tests {
 
     #[test]
     fn cannot_move_piece_shielding_king_from_check_from_queen() {
-        let mut position = HashMap::new();
+        let mut position = BTreeMap::new();
 
         let black_queen = Piece::new(Colour::Black, PieceType::Bishop);
         let queen_square = Square::new(Rank::Eight, File::A);
@@ -182,7 +182,7 @@ mod tests {
 
     #[test]
     fn king_cannot_move_into_check_from_pawn() {
-        let mut position = HashMap::new();
+        let mut position = BTreeMap::new();
 
         let black_pawn = Piece::new(Colour::Black, PieceType::Pawn);
         let pawn_square = Square::new(Rank::Two, File::E);
@@ -211,7 +211,7 @@ mod tests {
 
     #[test]
     fn white_king_would_leave_black_king_in_check() {
-        let mut position = HashMap::new();
+        let mut position = BTreeMap::new();
 
         let white_king = Piece::new(Colour::White, PieceType::King);
         let white_king_square = Square::new(Rank::Four, File::D);
@@ -240,7 +240,7 @@ mod tests {
 
     #[test]
     fn king_must_move_out_of_check() {
-        let mut position = HashMap::new();
+        let mut position = BTreeMap::new();
 
         let black_pawn = Piece::new(Colour::Black, PieceType::Pawn);
         let pawn_square = Square::new(Rank::Two, File::E);
@@ -271,7 +271,7 @@ mod tests {
     // Non-check scenarios.
     #[test]
     fn piece_does_not_check_king_when_cannot_attack_square() {
-        let mut position = HashMap::new();
+        let mut position = BTreeMap::new();
 
         let white_rook = Piece::new(Colour::White, PieceType::Rook);
         let rook_square = Square::new(Rank::Two, File::F);
@@ -301,7 +301,7 @@ mod tests {
     #[case::white(Colour::White)]
     #[case::black(Colour::Black)]
     fn rook_does_not_check_king_when_obstructed(#[case] shield_piece_colour: Colour) {
-        let mut position = HashMap::new();
+        let mut position = BTreeMap::new();
 
         let black_rook = Piece::new(Colour::Black, PieceType::Rook);
         let rook_square = Square::new(Rank::Two, File::E);
@@ -336,7 +336,7 @@ mod tests {
     // Invalid board state scenarios.
     #[test]
     fn error_if_chessboard_action_not_valid() {
-        let position = HashMap::new();
+        let position = BTreeMap::new();
         let empty_chessboard = Chessboard::new(position);
 
         let from_square = factories::some_square();

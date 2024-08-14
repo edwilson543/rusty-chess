@@ -1,4 +1,5 @@
 use core::array;
+use std::cmp;
 use std::fmt;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
@@ -160,5 +161,47 @@ impl fmt::Display for File {
 impl fmt::Display for Square {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}, {}", self.file, self.rank)
+    }
+}
+
+impl Ord for Rank {
+    fn cmp(&self, other: &Self) -> cmp::Ordering {
+        self.index().cmp(&other.index())
+    }
+}
+
+impl Ord for File {
+    fn cmp(&self, other: &Self) -> cmp::Ordering {
+        self.index().cmp(&other.index())
+    }
+}
+
+impl Ord for Square {
+    fn cmp(&self, other: &Self) -> cmp::Ordering {
+        match self.get_rank().cmp(&other.get_rank()) {
+            cmp::Ordering::Equal => self.get_file().cmp(&other.get_file()),
+            result => result,
+        }
+    }
+}
+
+impl PartialOrd for Rank {
+    fn partial_cmp(&self, other: &Self) -> Option<cmp::Ordering> {
+        self.index().partial_cmp(&other.index())
+    }
+}
+
+impl PartialOrd for File {
+    fn partial_cmp(&self, other: &Self) -> Option<cmp::Ordering> {
+        self.index().partial_cmp(&other.index())
+    }
+}
+
+impl PartialOrd for Square {
+    fn partial_cmp(&self, other: &Self) -> Option<cmp::Ordering> {
+        match self.get_rank().partial_cmp(&other.get_rank()) {
+            Some(cmp::Ordering::Equal) => self.get_file().partial_cmp(&other.get_file()),
+            result => result,
+        }
     }
 }

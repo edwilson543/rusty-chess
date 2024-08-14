@@ -1,8 +1,8 @@
 use crate::domain::gameplay::chess_set;
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
-pub fn get_official_starting_position() -> HashMap<chess_set::Square, chess_set::Piece> {
-    let mut starting_position = HashMap::new();
+pub fn get_official_starting_position() -> BTreeMap<chess_set::Square, chess_set::Piece> {
+    let mut starting_position = BTreeMap::new();
 
     let home_rank = get_home_rank();
     for (index, file) in chess_set::File::iter().enumerate() {
@@ -51,7 +51,7 @@ mod tests {
     };
 
     #[test]
-    fn creates_hashmap_representing_starting_position() {
+    fn creates_btree_map_representing_starting_position() {
         let starting_position = get_official_starting_position();
 
         let spot_checks = [

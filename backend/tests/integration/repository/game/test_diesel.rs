@@ -1,10 +1,10 @@
-use chess::repository::{GameRepository, DieselGameRepository};
+use chess::repository::{DieselGameRepository, GameRepository};
 
 #[cfg(test)]
 mod get_and_create_tests {
     use super::*;
-    use chess::repository::GameRepository;
     use chess::domain::gameplay::game;
+    use chess::repository::GameRepository;
 
     #[test]
     fn gets_game_when_exists() {

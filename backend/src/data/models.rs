@@ -143,7 +143,9 @@ impl ChessboardSquare {
     }
 
     pub fn select_for_game(conn: &mut PgConnection, for_game_id: &i32) -> Vec<ChessboardSquare> {
-        use crate::data::schema::chessboard_square::dsl::{chessboard_square, game_id, chessboard_history_index};
+        use crate::data::schema::chessboard_square::dsl::{
+            chessboard_history_index, chessboard_square, game_id,
+        };
 
         chessboard_square
             .filter(game_id.eq(for_game_id))

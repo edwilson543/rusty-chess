@@ -53,13 +53,13 @@ mod tests {
     use crate::domain::gameplay::chess_set::{
         Chessboard, Colour, File, Piece, PieceType, Rank, Square,
     };
-    use std::collections::HashMap;
+    use std::collections::BTreeMap;
 
     // Checkmate scenarios.
 
     #[test]
     fn test_back_rank_mate() {
-        let mut starting_position = HashMap::new();
+        let mut starting_position = BTreeMap::new();
 
         let black_king = Piece::new(Colour::Black, PieceType::King);
         let black_king_square = Square::new(Rank::Eight, File::E);
@@ -80,7 +80,7 @@ mod tests {
 
     #[test]
     fn test_smothered_mate() {
-        let mut starting_position = HashMap::new();
+        let mut starting_position = BTreeMap::new();
 
         let black_king = Piece::new(Colour::Black, PieceType::King);
         let black_king_square = Square::new(Rank::Eight, File::H);
@@ -108,7 +108,7 @@ mod tests {
 
     #[test]
     fn test_damianos_mate() {
-        let mut starting_position = HashMap::new();
+        let mut starting_position = BTreeMap::new();
 
         let black_king = Piece::new(Colour::Black, PieceType::King);
         let black_king_square = Square::new(Rank::Eight, File::A);
@@ -130,7 +130,7 @@ mod tests {
 
     #[test]
     fn test_blackburnes_mate() {
-        let mut starting_position = HashMap::new();
+        let mut starting_position = BTreeMap::new();
 
         let black_king = Piece::new(Colour::Black, PieceType::King);
         let black_king_square = Square::new(Rank::Eight, File::H);
@@ -157,7 +157,7 @@ mod tests {
 
     #[test]
     fn test_not_checkmate_when_not_in_check() {
-        let mut starting_position = HashMap::new();
+        let mut starting_position = BTreeMap::new();
 
         let black_king = Piece::new(Colour::Black, PieceType::King);
         let black_king_square = Square::new(Rank::Eight, File::A);
@@ -170,7 +170,7 @@ mod tests {
 
     #[test]
     fn test_not_checkmate_when_king_can_move_out_of_check() {
-        let mut starting_position = HashMap::new();
+        let mut starting_position = BTreeMap::new();
 
         let black_king = Piece::new(Colour::Black, PieceType::King);
         let black_king_square = Square::new(Rank::Eight, File::A);
@@ -187,7 +187,7 @@ mod tests {
 
     #[test]
     fn test_not_checkmate_when_king_can_capture_attacking_piece() {
-        let mut starting_position = HashMap::new();
+        let mut starting_position = BTreeMap::new();
 
         let black_king = Piece::new(Colour::Black, PieceType::King);
         let black_king_square = Square::new(Rank::Eight, File::A);
@@ -204,7 +204,7 @@ mod tests {
 
     #[test]
     fn test_not_checkmate_when_another_piece_can_block_check() {
-        let mut starting_position = HashMap::new();
+        let mut starting_position = BTreeMap::new();
 
         let black_king = Piece::new(Colour::Black, PieceType::King);
         let black_king_square = Square::new(Rank::Eight, File::A);
@@ -230,7 +230,7 @@ mod tests {
 
     #[test]
     fn test_not_checkmate_when_another_piece_can_capture_attacking_piece() {
-        let mut starting_position = HashMap::new();
+        let mut starting_position = BTreeMap::new();
 
         let black_king = Piece::new(Colour::Black, PieceType::King);
         let black_king_square = Square::new(Rank::Eight, File::A);
