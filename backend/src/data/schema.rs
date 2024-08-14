@@ -21,7 +21,4 @@ diesel::table! {
 
 diesel::joinable!(occupied_chessboard_square -> game (game_id));
 
-diesel::allow_tables_to_appear_in_same_query!(
-    game,
-    occupied_chessboard_square,
-);
+diesel::allow_tables_to_appear_in_same_query!(game, occupied_chessboard_square,);

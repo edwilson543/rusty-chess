@@ -42,7 +42,10 @@ impl repo::GameRepository for DieselGameRepository {
         let game = game::Game::new(db_game.id);
 
         // Persist the initial chessboard.
-        models::Game::update_chessboard(&mut self.connection, &game);
+        models::OccupiedChessboardSquare::bulk_create_for_latest_chessboard(
+            &mut self.connection,
+            &game,
+        );
 
         game
     }

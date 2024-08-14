@@ -78,27 +78,6 @@ impl Game {
             .execute(conn);
     }
 
-    pub fn update_chessboard(conn: &mut PgConnection, updated_game: &game::Game) {
-        let chessboard_history_index = updated_game.get_chessboard_history().len() - 1;
-
-        for (square, maybe_piece) in updated_game
-            .current_chessboard()
-            .clone()
-            .position
-            .into_iter()
-        {
-            let Some(piece) = maybe_piece else {continue};
-            // TODO -> bulk insert.
-            OccupiedChessboardSquare::create(
-                conn,
-                *updated_game.get_id(),
-                chessboard_history_index as i16,
-                square,
-                piece,
-            )
-        }
-    }
-
     // Domain factories.
 
     pub fn to_domain(&self, chessboard_history: Vec<chess_set::Chessboard>) -> game::Game {
@@ -113,32 +92,38 @@ impl Game {
 impl OccupiedChessboardSquare {
     // SQL.
 
-    fn create(
-        conn: &mut PgConnection,
-        game_id: i32,
-        chessboard_history_index: i16,
-        square: chess_set::Square,
-        piece: chess_set::Piece,
-    ) {
+    pub fn bulk_create_for_latest_chessboard(conn: &mut PgConnection, game: &game::Game) {
         use crate::data::schema::occupied_chessboard_square;
 
-        let new_square = NewChessboardSquare {
-            game_id: game_id,
-            chessboard_history_index: chessboard_history_index,
-            rank: square.get_rank().index() as i16,
-            file: square.get_file().index() as i16,
-            piece_colour: piece.get_colour().to_index(),
-            piece_type: piece.get_piece_type().to_index(),
-        };
+        let chessboard_history_index = game.get_chessboard_history().len() - 1;
+        let chessboard = game.current_chessboard().clone();
+
+        let mut new_squares = vec![];
+        for (square, maybe_piece) in chessboard.position.into_iter() {
+            let Some(piece) = maybe_piece else { continue };
+
+            let new_square = NewChessboardSquare {
+                game_id: *game.get_id(),
+                chessboard_history_index: chessboard_history_index as i16,
+                rank: square.get_rank().index() as i16,
+                file: square.get_file().index() as i16,
+                piece_colour: piece.get_colour().to_index(),
+                piece_type: piece.get_piece_type().to_index(),
+            };
+            new_squares.push(new_square);
+        }
 
         let _ = diesel::insert_into(occupied_chessboard_square::table)
-            .values(&new_square)
+            .values(&new_squares)
             .execute(conn);
     }
 
-    pub fn select_for_game(conn: &mut PgConnection, for_game_id: &i32) -> Vec<OccupiedChessboardSquare> {
+    pub fn select_for_game(
+        conn: &mut PgConnection,
+        for_game_id: &i32,
+    ) -> Vec<OccupiedChessboardSquare> {
         use crate::data::schema::occupied_chessboard_square::dsl::{
-            chessboard_history_index, occupied_chessboard_square, game_id,
+            chessboard_history_index, game_id, occupied_chessboard_square,
         };
 
         occupied_chessboard_square
