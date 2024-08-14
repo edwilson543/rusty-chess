@@ -27,7 +27,7 @@ impl repo::GameRepository for DieselGameRepository {
     fn get(&mut self, id: i32) -> Option<game::Game> {
         // TODO -> fetch actual history.
         let chessboard_squares =
-            models::ChessboardSquare::select_for_game(&mut self.connection, &id);
+            models::OccupiedChessboardSquare::select_for_game(&mut self.connection, &id);
         let chessboard_history =
             convert_chessboard_squares_to_chessboard_history(chessboard_squares);
 
@@ -53,7 +53,7 @@ impl repo::GameRepository for DieselGameRepository {
 }
 
 fn convert_chessboard_squares_to_chessboard_history(
-    squares: Vec<models::ChessboardSquare>,
+    squares: Vec<models::OccupiedChessboardSquare>,
 ) -> Vec<chess_set::Chessboard> {
     let mut chessboard_history: Vec<BTreeMap<chess_set::Square, chess_set::Piece>> = vec![];
 
@@ -65,9 +65,7 @@ fn convert_chessboard_squares_to_chessboard_history(
         };
 
         let square = db_square.to_domain_square();
-        let Some(piece) = db_square.to_domain_piece() else {
-            continue;
-        };
+        let piece = db_square.to_domain_piece();
         chessboard_history[db_square.chessboard_history_index as usize].insert(square, piece);
     }
 

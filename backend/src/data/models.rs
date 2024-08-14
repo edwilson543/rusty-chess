@@ -18,26 +18,26 @@ struct NewGame {
 }
 
 #[derive(Selectable, Queryable)]
-#[diesel(table_name = schema::chessboard_square)]
-pub struct ChessboardSquare {
+#[diesel(table_name = schema::occupied_chessboard_square)]
+pub struct OccupiedChessboardSquare {
     pub id: i32,
     pub game_id: i32,
     pub chessboard_history_index: i16,
     pub rank: i16,
     pub file: i16,
-    pub piece_colour: Option<i16>,
-    pub piece_type: Option<i16>,
+    pub piece_colour: i16,
+    pub piece_type: i16,
 }
 
 #[derive(Insertable)]
-#[diesel(table_name = schema::chessboard_square)]
+#[diesel(table_name = schema::occupied_chessboard_square)]
 struct NewChessboardSquare {
     game_id: i32,
     chessboard_history_index: i16,
     rank: i16,
     file: i16,
-    piece_colour: Option<i16>,
-    piece_type: Option<i16>,
+    piece_colour: i16,
+    piece_type: i16,
 }
 
 impl Game {
@@ -82,14 +82,15 @@ impl Game {
         let chessboard_history_index = updated_game.get_chessboard_history().len() - 1;
 
         // TODO -> only store occupied squares!
-        for (square, piece) in updated_game
+        for (square, maybe_piece) in updated_game
             .current_chessboard()
             .clone()
             .position
             .into_iter()
         {
+            let Some(piece) = maybe_piece else {continue};
             // TODO -> bulk insert.
-            ChessboardSquare::create(
+            OccupiedChessboardSquare::create(
                 conn,
                 *updated_game.get_id(),
                 chessboard_history_index as i16,
@@ -110,7 +111,7 @@ impl Game {
     }
 }
 
-impl ChessboardSquare {
+impl OccupiedChessboardSquare {
     // SQL.
 
     fn create(
@@ -118,38 +119,32 @@ impl ChessboardSquare {
         game_id: i32,
         chessboard_history_index: i16,
         square: chess_set::Square,
-        piece: Option<chess_set::Piece>,
+        piece: chess_set::Piece,
     ) {
-        use crate::data::schema::chessboard_square;
+        use crate::data::schema::occupied_chessboard_square;
 
         let new_square = NewChessboardSquare {
             game_id: game_id,
             chessboard_history_index: chessboard_history_index,
             rank: square.get_rank().index() as i16,
             file: square.get_file().index() as i16,
-            piece_colour: match piece {
-                Some(piece) => Some(piece.get_colour().to_index()),
-                None => None,
-            },
-            piece_type: match piece {
-                Some(piece) => Some(piece.get_piece_type().to_index()),
-                None => None,
-            },
+            piece_colour: piece.get_colour().to_index(),
+            piece_type: piece.get_piece_type().to_index(),
         };
 
-        let _ = diesel::insert_into(chessboard_square::table)
+        let _ = diesel::insert_into(occupied_chessboard_square::table)
             .values(&new_square)
             .execute(conn);
     }
 
-    pub fn select_for_game(conn: &mut PgConnection, for_game_id: &i32) -> Vec<ChessboardSquare> {
-        use crate::data::schema::chessboard_square::dsl::{
-            chessboard_history_index, chessboard_square, game_id,
+    pub fn select_for_game(conn: &mut PgConnection, for_game_id: &i32) -> Vec<OccupiedChessboardSquare> {
+        use crate::data::schema::occupied_chessboard_square::dsl::{
+            chessboard_history_index, occupied_chessboard_square, game_id,
         };
 
-        chessboard_square
+        occupied_chessboard_square
             .filter(game_id.eq(for_game_id))
-            .select(ChessboardSquare::as_select())
+            .select(OccupiedChessboardSquare::as_select())
             .order(chessboard_history_index.asc())
             .load(conn)
             .expect("Error loading chessboard!")
@@ -163,18 +158,10 @@ impl ChessboardSquare {
         chess_set::Square::new(rank, file)
     }
 
-    pub fn to_domain_piece(&self) -> Option<chess_set::Piece> {
-        let Some(piece_type) = &self.piece_type else {
-            return None;
-        };
-        let Some(piece_colour) = &self.piece_colour else {
-            return None;
-        };
-
-        let colour = chess_set::Colour::from_index(*piece_colour);
-        let piece_type = chess_set::PieceType::from_index(*piece_type);
-
-        Some(chess_set::Piece::new(colour, piece_type))
+    pub fn to_domain_piece(&self) -> chess_set::Piece {
+        let colour = chess_set::Colour::from_index(self.piece_colour);
+        let piece_type = chess_set::PieceType::from_index(self.piece_type);
+        chess_set::Piece::new(colour, piece_type)
     }
 }
 
@@ -249,20 +236,20 @@ impl chess_set::PieceType {
 mod tests {
 
     #[cfg(test)]
-    mod chessboard_square_domain_factory_tests {
-        use super::super::ChessboardSquare;
+    mod occupied_chessboard_square_domain_factory_tests {
+        use super::super::OccupiedChessboardSquare;
         use crate::domain::gameplay::chess_set::{Colour, File, PieceType, Rank};
 
         #[test]
-        fn chessboard_square_is_deserialized_to_a_square() {
-            let db_square = ChessboardSquare {
+        fn occupied_chessboard_square_is_deserialized_to_a_square() {
+            let db_square = OccupiedChessboardSquare {
                 id: 1,
                 game_id: 2,
                 rank: 3,
                 file: 7,
                 chessboard_history_index: 4,
-                piece_colour: None,
-                piece_type: None,
+                piece_colour: 4,
+                piece_type: 3,
             };
 
             let domain_square = db_square.to_domain_square();
@@ -272,39 +259,21 @@ mod tests {
         }
 
         #[test]
-        fn chessboard_square_is_deserialized_to_a_piece_when_occupied() {
-            let db_square = ChessboardSquare {
+        fn occupied_chessboard_square_is_deserialized_to_a_piece() {
+            let db_square = OccupiedChessboardSquare {
                 id: 1,
                 game_id: 2,
                 rank: 3,
                 file: 7,
                 chessboard_history_index: 4,
-                piece_colour: Some(1),
-                piece_type: Some(3),
+                piece_colour: 1,
+                piece_type: 3,
             };
 
             let domain_piece = db_square.to_domain_piece();
 
-            domain_piece.unwrap_or_else(|| panic!("Square should be occupied!"));
-            assert_eq!(domain_piece.unwrap().get_colour(), &Colour::Black);
-            assert_eq!(domain_piece.unwrap().get_piece_type(), &PieceType::Rook);
-        }
-
-        #[test]
-        fn chessboard_square_is_deserialized_to_null_when_unoccupied() {
-            let db_square = ChessboardSquare {
-                id: 1,
-                game_id: 2,
-                rank: 3,
-                file: 7,
-                chessboard_history_index: 4,
-                piece_colour: None,
-                piece_type: None,
-            };
-
-            let domain_piece = db_square.to_domain_piece();
-
-            assert_eq!(domain_piece, None);
+            assert_eq!(domain_piece.get_colour(), &Colour::Black);
+            assert_eq!(domain_piece.get_piece_type(), &PieceType::Rook);
         }
     }
 
@@ -315,7 +284,7 @@ mod tests {
         use crate::testing::factories;
 
         #[test]
-        fn chessboard_square_is_deserialized_to_a_square() {
+        fn occupied_chessboard_square_is_deserialized_to_a_square() {
             let db_game = Game { id: 1, status: 1 };
             let chessboard = factories::chessboard();
 
