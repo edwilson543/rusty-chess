@@ -81,7 +81,6 @@ impl Game {
     pub fn update_chessboard(conn: &mut PgConnection, updated_game: &game::Game) {
         let chessboard_history_index = updated_game.get_chessboard_history().len() - 1;
 
-        // TODO -> only store occupied squares!
         for (square, maybe_piece) in updated_game
             .current_chessboard()
             .clone()

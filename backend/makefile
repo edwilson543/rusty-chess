@@ -34,6 +34,7 @@ format:
 
 .PHONY:setup_db
 setup_db:
+	dropdb chess || true
 	createdb chess
 	diesel setup
 	make migrate
