@@ -1,6 +1,5 @@
 use super::schema;
 use diesel::prelude::*;
-use serde;
 
 use crate::domain::gameplay::{chess_set, game};
 

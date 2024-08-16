@@ -9,7 +9,6 @@ pub fn start_game(uow: Box<dyn unit_of_work::UnitOfWork>) -> game::Game {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::domain::gameplay::chess_set;
 
     #[test]
     fn can_start_game() {
