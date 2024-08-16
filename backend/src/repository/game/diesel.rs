@@ -1,4 +1,6 @@
 use diesel::pg::PgConnection;
+use diesel::result as diesel_result;
+use diesel::Connection;
 use std::collections::BTreeMap;
 
 use super::repo;
@@ -37,24 +39,41 @@ impl repo::GameRepository for DieselGameRepository {
     }
 
     fn create(&mut self) -> game::Game {
-        let db_game = models::Game::create(&mut self.connection, game::GameStatus::ToPlayWhite);
-        let game = game::Game::new(db_game.id);
+        let result = &self
+            .connection
+            .transaction::<game::Game, diesel_result::Error, _>(|connection| {
+                let db_game = models::Game::create(connection, game::GameStatus::ToPlayWhite);
+                let game = game::Game::new(db_game.id);
 
-        // Persist the initial chessboard.
-        models::OccupiedChessboardSquare::bulk_create_for_latest_chessboard(
-            &mut self.connection,
-            &game,
-        );
+                // Persist the initial chessboard.
+                models::OccupiedChessboardSquare::bulk_create_for_latest_chessboard(
+                    connection, &game,
+                );
 
-        game
+                Ok(game)
+            });
+
+        match result {
+            Ok(game) => game.clone(),
+            Err(_) => panic!("Error creating game!"),
+        }
     }
 
     fn update(&mut self, game: &game::Game) {
-        models::Game::update_status(&mut self.connection, &game);
-        models::OccupiedChessboardSquare::bulk_create_for_latest_chessboard(
-            &mut self.connection,
-            &game,
-        );
+        let result = &self
+            .connection
+            .transaction::<(), diesel_result::Error, _>(|connection| {
+                models::Game::update_status(connection, &game);
+                models::OccupiedChessboardSquare::bulk_create_for_latest_chessboard(
+                    connection, &game,
+                );
+
+                Ok(())
+            });
+        match result {
+            Ok(()) => {}
+            Err(_) => panic!("Error updating game {}", game.get_id()),
+        }
     }
 }
 

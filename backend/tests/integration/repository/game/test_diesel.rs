@@ -1,11 +1,8 @@
-use chess::repository::{DieselGameRepository, GameRepository};
-
 #[cfg(test)]
 mod tests {
-    use super::*;
     use chess::domain::gameplay::chess_set::{Colour, File, Rank, Square};
     use chess::domain::gameplay::game;
-    use chess::repository::GameRepository;
+    use chess::repository::{DieselGameRepository, GameRepository};
 
     #[test]
     fn can_create_then_get_then_update_game() {
