@@ -1,3 +1,7 @@
+.PHONY:install
+install:
+	npm install
+
 .PHONY:run
 run:
 	npm run dev

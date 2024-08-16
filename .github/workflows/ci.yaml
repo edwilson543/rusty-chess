@@ -6,6 +6,17 @@ on:
 
 jobs:
   backend:
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          # Credentials required by postgres
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports: [ '5432:5432' ]
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -17,14 +28,16 @@ jobs:
         with:
           toolchain: stable
 
-      - name: Check rust code
-        run: cargo fmt --all --check
-
-      - name: Build backend
-        run: cargo build
+      - name: Lint rust code
+        run: make lint
 
       - name: Run rust tests
-        run: cargo test
+        run: |
+          cargo install diesel_cli --no-default-features --features postgres
+          export DATABASE_URL=postgres://postgres:postgres@127.0.0.1/postgres
+          diesel migration run
+          cargo test
+
 
   frontend:
     runs-on: ubuntu-latest
@@ -39,10 +52,10 @@ jobs:
         node-version: '20.16.0'
 
     - name: Install frontend dependencies
-      run: npm install
+      run: make install
 
     - name: Test
-      run: npm run test
+      run: make test
 
     - name: Lint
-      run: npm run lint
+      run: make lint
