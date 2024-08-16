@@ -25,7 +25,6 @@ impl DieselGameRepository {
 
 impl repo::GameRepository for DieselGameRepository {
     fn get(&mut self, id: &i32) -> Option<game::Game> {
-        // TODO -> fetch actual history.
         let chessboard_squares =
             models::OccupiedChessboardSquare::select_for_game(&mut self.connection, &id);
         let chessboard_history =
@@ -51,7 +50,11 @@ impl repo::GameRepository for DieselGameRepository {
     }
 
     fn update(&mut self, game: &game::Game) {
-        let db_game = models::Game::get(&mut self.connection, game.get_id());
+        models::Game::update_status(&mut self.connection, &game);
+        models::OccupiedChessboardSquare::bulk_create_for_latest_chessboard(
+            &mut self.connection,
+            &game,
+        );
     }
 }
 
