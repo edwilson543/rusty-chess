@@ -22,7 +22,7 @@ mod tests {
     use crate::domain::gameplay::rulebook::moves::OrdinaryMove;
     use crate::testing::factories;
     use rstest::rstest;
-    use std::collections::HashMap;
+    use std::collections::BTreeMap;
 
     fn is_move_allowed(chess_move: &OrdinaryMove) -> bool {
         let mut rules = get_queen_move_rules();
@@ -46,7 +46,7 @@ mod tests {
         #[case] to_square: Square,
     ) {
         let queen = Piece::new(Colour::White, PieceType::Queen);
-        let mut starting_position = HashMap::new();
+        let mut starting_position = BTreeMap::new();
         starting_position.insert(from_square, queen);
 
         let chessboard = Chessboard::new(starting_position);
@@ -60,7 +60,7 @@ mod tests {
         let from_square = Square::new(Rank::Five, File::E);
         let to_square = Square::new(Rank::Seven, File::F);
         let queen = Piece::new(Colour::White, PieceType::Rook);
-        let mut starting_position = HashMap::new();
+        let mut starting_position = BTreeMap::new();
         starting_position.insert(from_square, queen);
 
         let chessboard = Chessboard::new(starting_position);

@@ -29,7 +29,7 @@ mod tests {
     use crate::domain::gameplay::rulebook::moves::OrdinaryMove;
     use crate::testing::factories;
     use rstest::rstest;
-    use std::collections::HashMap;
+    use std::collections::BTreeMap;
 
     fn is_move_allowed(chess_move: &OrdinaryMove) -> bool {
         let mut rules = get_bishop_move_rules();
@@ -43,7 +43,7 @@ mod tests {
     #[case::forwards_and_left(Square::new(Rank::Two, File::H), Square::new(Rank::Seven, File::C))]
     fn allows_bishop_to_move_diagonally(#[case] from_square: Square, #[case] to_square: Square) {
         let bishop = Piece::new(Colour::White, PieceType::Bishop);
-        let mut starting_position = HashMap::new();
+        let mut starting_position = BTreeMap::new();
         starting_position.insert(from_square, bishop);
 
         let chessboard = Chessboard::new(starting_position);
@@ -58,7 +58,7 @@ mod tests {
     #[case::l_shaped(Square::new(Rank::Five, File::E), Square::new(Rank::Seven, File::F))]
     fn disallowed_moves(#[case] from_square: Square, #[case] to_square: Square) {
         let bishop = Piece::new(Colour::White, PieceType::Rook);
-        let mut starting_position = HashMap::new();
+        let mut starting_position = BTreeMap::new();
         starting_position.insert(from_square, bishop);
 
         let chessboard = Chessboard::new(starting_position);

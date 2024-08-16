@@ -1,20 +1,13 @@
+use super::repo;
 use crate::domain::gameplay::game;
 use std::collections::BTreeMap;
-
-pub trait GameRepository {
-    fn get(&self, id: i32) -> Option<game::Game>;
-
-    fn create(&mut self) -> game::Game;
-
-    fn update(&mut self, game: &game::Game);
-}
 
 pub struct FakeGameRepository {
     games: BTreeMap<i32, game::Game>,
 }
 
-impl GameRepository for FakeGameRepository {
-    fn get(&self, id: i32) -> Option<game::Game> {
+impl repo::GameRepository for FakeGameRepository {
+    fn get(&mut self, id: &i32) -> Option<game::Game> {
         let Some(game) = self.games.get(&id) else {
             return None;
         };
@@ -49,10 +42,11 @@ impl FakeGameRepository {
 }
 
 #[cfg(test)]
-mod fake_tests {
+mod tests {
     #[cfg(test)]
     mod get_tests {
-        use super::super::{FakeGameRepository, GameRepository};
+        use super::super::repo::GameRepository;
+        use super::super::FakeGameRepository;
         use crate::domain::gameplay::game;
 
         #[test]
@@ -61,16 +55,16 @@ mod fake_tests {
             let game = game::Game::new(3);
             repo.games.insert(3, game.clone());
 
-            let result = repo.get(3);
+            let result = repo.get(&3);
 
             assert_eq!(result, Some(game))
         }
 
         #[test]
         fn gets_none_when_game_does_not_exist() {
-            let repo = FakeGameRepository::new();
+            let mut repo = FakeGameRepository::new();
 
-            let result = repo.get(7);
+            let result = repo.get(&7);
 
             assert_eq!(result, None)
         }
@@ -78,7 +72,8 @@ mod fake_tests {
 
     #[cfg(test)]
     mod create_tests {
-        use super::super::{FakeGameRepository, GameRepository};
+        use super::super::repo::GameRepository;
+        use super::super::FakeGameRepository;
         use crate::domain::gameplay::game;
 
         #[test]
@@ -106,7 +101,8 @@ mod fake_tests {
 
     #[cfg(test)]
     mod update_tests {
-        use super::super::{FakeGameRepository, GameRepository};
+        use super::super::repo::GameRepository;
+        use super::super::FakeGameRepository;
         use crate::domain::gameplay::chess_set::{Colour, File, Rank, Square};
         use crate::domain::gameplay::game;
 

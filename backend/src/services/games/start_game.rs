@@ -9,7 +9,6 @@ pub fn start_game(uow: Box<dyn unit_of_work::UnitOfWork>) -> game::Game {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::domain::gameplay::chess_set;
 
     #[test]
     fn can_start_game() {
@@ -17,10 +16,7 @@ mod tests {
 
         let game = start_game(Box::new(uow));
 
-        assert_eq!(
-            game.get_status(),
-            &game::GameStatus::ToPlay(chess_set::Colour::White)
-        );
+        assert_eq!(game.get_status(), &game::GameStatus::ToPlayWhite);
         assert_eq!(game.get_chessboard_history().len(), 1);
     }
 }

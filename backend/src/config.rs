@@ -2,7 +2,7 @@ use crate::services::unit_of_work;
 
 /// Get the concrete uow implementation to use.
 pub fn get_unit_of_work() -> Box<dyn unit_of_work::UnitOfWork> {
-    let uow = unit_of_work::FakeUnitOfWork::new();
+    let uow = unit_of_work::DieselUnitOfWork::new();
     Box::new(uow)
 }
 

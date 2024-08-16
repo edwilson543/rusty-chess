@@ -33,7 +33,7 @@ fn white_can_play_en_passant() {
     let to_square = Square::new(Rank::Six, File::B);
     let result = game.play_en_passant(&Colour::White, &from_square, &to_square);
 
-    assert_eq!(result, Ok(&GameStatus::ToPlay(Colour::Black)));
+    assert_eq!(result, Ok(&GameStatus::ToPlayBlack));
     assert_eq!(game.get_piece_at_square(&from_square), None);
     assert_eq!(game.get_piece_at_square(&captured_piece_square), None);
 
@@ -80,7 +80,7 @@ fn black_can_play_en_passant() {
     let to_square = Square::new(Rank::Three, File::G);
     let result = game.play_en_passant(&Colour::Black, &from_square, &to_square);
 
-    assert_eq!(result, Ok(&GameStatus::ToPlay(Colour::White)));
+    assert_eq!(result, Ok(&GameStatus::ToPlayWhite));
     assert_eq!(game.get_piece_at_square(&from_square), None);
     assert_eq!(game.get_piece_at_square(&captured_piece_square), None);
 

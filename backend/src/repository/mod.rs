@@ -1,3 +1,3 @@
 mod game;
 
-pub use game::{FakeGameRepository, GameRepository};
+pub use game::{DieselGameRepository, FakeGameRepository, GameRepository};

@@ -118,7 +118,7 @@ mod tests {
         use crate::domain::gameplay::chess_set;
         use crate::domain::gameplay::rulebook::{Move, MoveValidationError};
         use crate::testing::factories;
-        use std::collections::HashMap;
+        use std::collections::BTreeMap;
 
         #[test]
         fn cannot_move_piece_to_same_square() {
@@ -138,7 +138,7 @@ mod tests {
 
         #[test]
         fn cannot_move_piece_to_square_occupied_by_another_piece_of_the_same_colour() {
-            let mut starting_position = HashMap::new();
+            let mut starting_position = BTreeMap::new();
             let piece = chess_set::Piece::new(chess_set::Colour::White, chess_set::PieceType::Rook);
             let from_square = chess_set::Square::new(chess_set::Rank::Two, chess_set::File::A);
             starting_position.insert(from_square, piece);
