@@ -42,7 +42,7 @@ struct NewChessboardSquare {
 
 impl Game {
     // SQL.
-    pub fn get(conn: &mut PgConnection, id: i32) -> Option<Self> {
+    pub fn get(conn: &mut PgConnection, id: &i32) -> Option<Self> {
         use crate::data::schema::game::dsl;
 
         let game = dsl::game
