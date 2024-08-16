@@ -17,12 +17,6 @@ impl DieselGameRepository {
             connection: connection::establish_connection(),
         }
     }
-
-    fn using_connection(connection: PgConnection) -> Self {
-        Self {
-            connection: connection,
-        }
-    }
 }
 
 impl repo::GameRepository for DieselGameRepository {
