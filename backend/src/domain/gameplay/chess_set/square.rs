@@ -1,7 +1,6 @@
 use core::array;
 use std::cmp;
 use std::fmt;
-use std::str::Chars;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub enum Rank {
@@ -161,16 +160,6 @@ impl Square {
 
 // Trait implementations.
 
-impl From<&str> for Square {
-    /// Convert `A1` to the square in file A, and rank 1.
-    fn from(value: &str) -> Self {
-        let chars: Vec<char> = value.chars().collect();
-        let file = File::from_letter(chars[0]);
-        let rank = Rank::from_index(chars[1].to_digit(10).unwrap() as i8);
-        Square::new(rank, file)
-    }
-}
-
 impl fmt::Display for Rank {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{:?}", self)
@@ -228,19 +217,5 @@ impl PartialOrd for Square {
             Some(cmp::Ordering::Equal) => self.get_file().partial_cmp(&other.get_file()),
             result => result,
         }
-    }
-}
-
-#[cfg(test)]
-mod tests{
-    use super::*;
-    #[test]
-    fn can_get_square_from_str() {
-        let string = "C7";
-
-        let square = Square::from(string);
-
-        assert_eq!(square.get_rank(), &Rank::Seven);
-        assert_eq!(square.get_file(), &File::C);
     }
 }
