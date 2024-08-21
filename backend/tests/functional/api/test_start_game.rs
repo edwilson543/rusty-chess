@@ -1,7 +1,6 @@
 use chess::interfaces::api;
 use rocket::http;
 use rocket::local;
-use serde_json;
 
 #[test]
 fn can_start_a_new_game() {
