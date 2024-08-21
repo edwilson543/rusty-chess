@@ -1,6 +1,7 @@
+use serde;
 use std::fmt;
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum Colour {
     Black,
     White,
@@ -82,6 +83,8 @@ impl fmt::Display for Piece {
 
 #[cfg(test)]
 mod tests {
+    use crate::domain::gameplay::chess_set;
+
     #[cfg(test)]
     mod colour_tests {
         use super::super::*;
@@ -95,5 +98,18 @@ mod tests {
         fn black_swaps_to_white() {
             assert_eq!(Colour::Black.swap(), Colour::White)
         }
+    }
+
+    #[test]
+    fn serializes_colour_to_json_then_deserializes_back_to_colour() {
+        let colour = chess_set::Colour::Black;
+
+        let serialized = serde_json::to_string(&colour).unwrap();
+
+        assert_eq!(serialized, "\"Black\"");
+
+        let deserialized: chess_set::Colour = serde_json::from_str(&serialized).unwrap();
+
+        assert_eq!(deserialized, colour);
     }
 }

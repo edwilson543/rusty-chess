@@ -37,15 +37,6 @@ impl serde::Serialize for chess_set::Square {
 
 // Piece.
 
-impl serde::Serialize for chess_set::Colour {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.to_string().as_str())
-    }
-}
-
 impl serde::Serialize for chess_set::PieceType {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -133,15 +124,6 @@ mod tests {
         let piece_type_json = serde_json::to_string(&piece_type);
 
         assert_eq!(piece_type_json.unwrap(), "\"N\"");
-    }
-
-    #[test]
-    fn serializes_colour_to_json() {
-        let colour = chess_set::Colour::Black;
-
-        let colour_json = serde_json::to_string(&colour);
-
-        assert_eq!(colour_json.unwrap(), "\"B\"");
     }
 
     #[test]
