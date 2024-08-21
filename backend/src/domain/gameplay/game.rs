@@ -8,7 +8,7 @@ pub enum GameError {
     #[error("The game has already ended.")]
     GameHasAlreadyEnded,
 
-    #[error("Move is out of turn - it's currently {0}'s turn.")]
+    #[error("{0} player attempted to play out of turn.")]
     PlayIsOutOfTurn(chess_set::Colour),
 
     #[error("{0} player attempted to move opponent's piece.")]
@@ -186,7 +186,7 @@ impl Game {
             return Err(GameError::GameHasAlreadyEnded);
         };
         if !(player == &to_play_colour) {
-            return Err(GameError::PlayIsOutOfTurn(to_play_colour.clone()));
+            return Err(GameError::PlayIsOutOfTurn(to_play_colour.swap()));
         };
         Ok(())
     }
@@ -278,7 +278,7 @@ mod tests {
 
             let result = game.play_ordinary_move(&Colour::Black, &from_square, &to_square);
 
-            let expected_error = GameError::PlayIsOutOfTurn(Colour::White);
+            let expected_error = GameError::PlayIsOutOfTurn(Colour::Black);
             assert_eq!(result, Err(expected_error));
             assert_ne!(game.get_piece_at_square(&from_square), None);
             assert_eq!(game.get_piece_at_square(&to_square), None);
