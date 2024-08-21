@@ -16,7 +16,7 @@ impl Colour {
     }
 }
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum PieceType {
     Pawn, // For convenience, pawns are modelled as `pieces` within the chess set.
     Knight,
@@ -26,7 +26,7 @@ pub enum PieceType {
     King,
 }
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Piece {
     colour: Colour,
     piece_type: PieceType,
@@ -83,7 +83,6 @@ impl fmt::Display for Piece {
 
 #[cfg(test)]
 mod tests {
-    use crate::domain::gameplay::chess_set;
 
     #[cfg(test)]
     mod colour_tests {
@@ -98,18 +97,54 @@ mod tests {
         fn black_swaps_to_white() {
             assert_eq!(Colour::Black.swap(), Colour::White)
         }
+
+        #[test]
+        fn serializes_colour_to_json_then_deserializes_back_to_colour() {
+            let colour = Colour::Black;
+
+            let serialized = serde_json::to_string(&colour).unwrap();
+
+            assert_eq!(serialized, "\"Black\"");
+
+            let deserialized: Colour = serde_json::from_str(&serialized).unwrap();
+
+            assert_eq!(deserialized, colour);
+        }
     }
 
-    #[test]
-    fn serializes_colour_to_json_then_deserializes_back_to_colour() {
-        let colour = chess_set::Colour::Black;
+    #[cfg(test)]
+    mod piece_tests {
+        use super::super::*;
 
-        let serialized = serde_json::to_string(&colour).unwrap();
+        #[test]
+        fn serializes_piece_type_to_json_then_deserializes_back_to_piece_type() {
+            let piece_type = PieceType::Rook;
 
-        assert_eq!(serialized, "\"Black\"");
+            let serialized = serde_json::to_string(&piece_type).unwrap();
 
-        let deserialized: chess_set::Colour = serde_json::from_str(&serialized).unwrap();
+            assert_eq!(serialized, "\"Rook\"");
 
-        assert_eq!(deserialized, colour);
+            let deserialized: PieceType = serde_json::from_str(&serialized).unwrap();
+
+            assert_eq!(deserialized, piece_type);
+        }
+
+        #[test]
+        fn serializes_piece_to_json_then_deserializes_back_to_piece() {
+            let piece_type = PieceType::Bishop;
+            let colour = Colour::White;
+            let piece = Piece::new(colour, piece_type);
+
+            let serialized = serde_json::to_string(&piece).unwrap();
+
+            assert_eq!(
+                serialized,
+                "{\"colour\":\"White\",\"piece_type\":\"Bishop\"}"
+            );
+
+            let deserialized: Piece = serde_json::from_str(&serialized).unwrap();
+
+            assert_eq!(deserialized, piece);
+        }
     }
 }
