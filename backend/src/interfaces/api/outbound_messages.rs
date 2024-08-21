@@ -31,8 +31,8 @@ impl Message {
 }
 
 pub fn new_game_message() -> rocket_ws::Message {
-    let uow = config::get_unit_of_work();
-    let game = games::start_game(uow);
+    let game_repo = config::get_game_repo();
+    let game = games::start_game(game_repo);
     let message = Message::new(MessageName::NewGame, game);
     message.to_rocket_message()
 }
