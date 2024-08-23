@@ -35,38 +35,6 @@ impl serde::Serialize for chess_set::Square {
     }
 }
 
-// Piece.
-
-impl serde::Serialize for chess_set::Colour {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.to_string().as_str())
-    }
-}
-
-impl serde::Serialize for chess_set::PieceType {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.to_string().as_str())
-    }
-}
-
-impl serde::Serialize for chess_set::Piece {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        let mut state = serializer.serialize_struct("chess_set::Piece", 2)?;
-        state.serialize_field("colour", &self.get_colour())?;
-        state.serialize_field("piece_type", &self.get_piece_type())?;
-        state.end()
-    }
-}
-
 // Chessboard & Game.
 
 impl serde::Serialize for chess_set::Chessboard {
@@ -127,32 +95,14 @@ mod tests {
     }
 
     #[test]
-    fn serializes_piece_type_to_json() {
-        let piece_type = chess_set::PieceType::Knight;
-
-        let piece_type_json = serde_json::to_string(&piece_type);
-
-        assert_eq!(piece_type_json.unwrap(), "\"N\"");
-    }
-
-    #[test]
-    fn serializes_colour_to_json() {
-        let colour = chess_set::Colour::Black;
-
-        let colour_json = serde_json::to_string(&colour);
-
-        assert_eq!(colour_json.unwrap(), "\"B\"");
-    }
-
-    #[test]
     fn serializes_chessboard_to_json() {
         let chessboard = factories::chessboard();
 
         let chessboard_json = serde_json::to_string(&chessboard).unwrap();
 
         assert!(chessboard_json.contains("position"));
-        assert!(chessboard_json.contains(r#""A8":{"colour":"B","piece_type":"R"}"#));
-        assert!(chessboard_json.contains(r#""D2":{"colour":"W","piece_type":"P"}"#));
+        assert!(chessboard_json.contains(r#""A8":{"colour":"Black","piece_type":"Rook"}"#));
+        assert!(chessboard_json.contains(r#""D2":{"colour":"White","piece_type":"Pawn"}"#));
         assert!(chessboard_json.contains(r#""G5":null"#));
     }
 

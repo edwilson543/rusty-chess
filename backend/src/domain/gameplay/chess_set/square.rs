@@ -118,6 +118,20 @@ impl File {
             _ => panic!("Not a valid file!"),
         }
     }
+
+    pub fn from_letter(letter: char) -> Self {
+        match letter {
+            'A' => File::A,
+            'B' => File::B,
+            'C' => File::C,
+            'D' => File::D,
+            'E' => File::E,
+            'F' => File::F,
+            'G' => File::G,
+            'H' => File::H,
+            _ => panic!("Not a valid file!"),
+        }
+    }
 }
 
 impl Square {
