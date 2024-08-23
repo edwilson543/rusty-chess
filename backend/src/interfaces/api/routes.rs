@@ -16,6 +16,18 @@ pub async fn start_game() -> (http::Status, json::Json<String>) {
     (http::Status::Created, json::Json(payload))
 }
 
+#[rocket::get("/games/<id>")]
+pub async fn get_game_state(id: i32) -> (http::Status, json::Json<String>) {
+    let mut repo = config::get_game_repo();
+    match repo.get(&id) {
+        Some(game) => {
+            let payload = serde_json::to_string(&game).unwrap();
+            (http::Status::Ok, json::Json(payload))
+        }
+        None => (http::Status::NotFound, json::Json("".into())),
+    }
+}
+
 #[rocket::post("/games/<id>/play-move", data = "<play_move>")]
 pub async fn play_move(
     id: i32,
