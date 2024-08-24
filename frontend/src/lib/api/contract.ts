@@ -3,11 +3,18 @@ import { z } from "zod";
 
 // Helpers.
 
-const black = z.literal("B");
-const white = z.literal("W");
+const black = z.literal("Black");
+const white = z.literal("White");
 const colour = z.union([black, white]);
 
-const pieceType = z.enum(["P", "N", "B", "R", "Q", "K"]);
+const pieceType = z.enum([
+  "Pawn",
+  "Knight",
+  "Black",
+  "Rook",
+  "Queen",
+  "Knight",
+]);
 
 const chessboardSquare = z.object({
   colour: colour,

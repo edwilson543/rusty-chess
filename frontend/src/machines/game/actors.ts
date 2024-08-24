@@ -8,8 +8,8 @@ export const startGame = fromPromise(() => {
   const promise = APIClient.startGame() as Promise<Response>;
   return promise.then((response: Response) => {
     switch (response.status) {
-      case 200:
-        return parseGameSchemaToGame(response.body);
+      case 201:
+        return parseGameSchemaToGame(JSON.parse(response.body) as GameSchema);
       default:
         throw new Error(`Error starting game: ${response.status}`);
     }

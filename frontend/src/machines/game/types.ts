@@ -23,17 +23,17 @@ export enum File {
 }
 
 export enum Colour {
-  Black = "B",
-  White = "W",
+  Black = "Black",
+  White = "White",
 }
 
 export enum PieceType {
-  Pawn = "P",
-  Knight = "N",
-  Bishop = "B",
-  Rook = "R",
-  Queen = "Q",
-  King = "K",
+  Pawn = "Pawn",
+  Knight = "Knight",
+  Bishop = "Bishop",
+  Rook = "Rook",
+  Queen = "Queen",
+  King = "King",
 }
 
 export interface Piece {
@@ -64,12 +64,12 @@ export interface GameContextProps {
 // Events
 
 export enum GameEvent {
-  StartNewGame = "START_NEW_GAME",
+  StartGame = "xstate.done.actor.startGame",
 }
 
 interface SetActiveGameEvent {
-  type: GameEvent.StartNewGame;
-  game: Game;
+  type: GameEvent.StartGame;
+  output: Game;
 }
 
 export type GameEventProps = SetActiveGameEvent;
@@ -78,6 +78,8 @@ export type GameEventProps = SetActiveGameEvent;
 
 export enum GameState {
   Idle = "IDLE",
+  StartingGame = "STARTING_GAME",
   PlayerTurn = "PLAYER_TURN",
   OpponentTurn = "OPPONENT_TURN",
+  Unavailable = "UNAVAILABLE",
 }
