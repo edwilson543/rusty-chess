@@ -105,6 +105,7 @@ export const contract = c.router({
   startGame: {
     method: "POST",
     path: "/games/start/",
+    // TODO - allow to select either colour...
     responses: {
       201: game,
     },
@@ -133,6 +134,7 @@ export const contract = c.router({
   },
 });
 
+export type GameSchema = z.infer<typeof game>;
 export type StartGameRequest = ClientInferRequest<typeof contract.startGame>;
 export type GetGameState = ClientInferRequest<typeof contract.getGameState>;
 export type PlayMove = ClientInferRequest<typeof contract.playMove>;
