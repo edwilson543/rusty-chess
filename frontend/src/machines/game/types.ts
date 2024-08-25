@@ -25,7 +25,7 @@ export interface PlayMoveEvent {
 
 export interface SelectSquareToMoveFrom {
   type: GameEvent.SetSquareToMoveFrom;
-  square: types.Square;
+  square: types.Square | null;
 }
 
 interface SetActiveGameEvent {

@@ -25,6 +25,7 @@ export const ChessboardSquare = (props: ChessboardSquareProps) => {
   );
 
   // Properties.
+  const isPieceSelected = props.square === squareToMoveFrom;
   const canPieceBeSelected =
     isLocalPlayerTurn && props.square.piece?.colour === localPlayerColour;
 
@@ -35,7 +36,7 @@ export const ChessboardSquare = (props: ChessboardSquareProps) => {
     }
     gameMachineRef.send({
       type: GameEvent.SetSquareToMoveFrom,
-      square: props.square,
+      square: isPieceSelected ? null : props.square,
     });
   };
 
@@ -55,7 +56,7 @@ export const ChessboardSquare = (props: ChessboardSquareProps) => {
       {props.square.piece && (
         <Piece
           piece={props.square.piece}
-          isSelected={props.square === squareToMoveFrom}
+          isSelected={isPieceSelected}
           canBeSelected={canPieceBeSelected}
           onClick={onPieceClick}
         />
