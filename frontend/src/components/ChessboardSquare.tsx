@@ -25,11 +25,25 @@ export const ChessboardSquare = (props: ChessboardSquareProps) => {
   );
 
   // Properties.
+  const canSquareBeMovedTo =
+    squareToMoveFrom && !(squareToMoveFrom === props.square);
+
   const isPieceSelected = props.square === squareToMoveFrom;
   const canPieceBeSelected =
     isLocalPlayerTurn && props.square.piece?.colour === localPlayerColour;
 
   // Interactions.
+  const onSquareClick = () => {
+    if (!canSquareBeMovedTo) {
+      return null;
+    }
+    gameMachineRef.send({
+      type: GameEvent.PlayMove,
+      fromSquare: squareToMoveFrom,
+      toSquare: props.square,
+    });
+  };
+
   const onPieceClick = () => {
     if (!canPieceBeSelected) {
       return null;
@@ -40,8 +54,12 @@ export const ChessboardSquare = (props: ChessboardSquareProps) => {
     });
   };
 
+  // Styling.
+  const cursor = canSquareBeMovedTo ? "pointer" : "default";
+
   return (
     <div
+      onClick={onSquareClick}
       style={{
         display: "flex",
         flexDirection: "column",
@@ -51,6 +69,7 @@ export const ChessboardSquare = (props: ChessboardSquareProps) => {
         aspectRatio: "1 / 1",
         border: "1px solid black",
         backgroundColor: getColourForSquare(props.square),
+        cursor: cursor,
       }}
     >
       {props.square.piece && (
