@@ -1,6 +1,8 @@
-import { assertEvent, assign, setup } from "xstate";
+import { assertEvent, setup } from "xstate";
 
+import { actions } from "./actions.ts";
 import { startGame, playMove } from "./actors.ts";
+import { guards } from "./guards.ts";
 import * as machineTypes from "./types";
 import * as types from "../../lib/types.ts";
 
@@ -9,32 +11,12 @@ const GameMachine = setup({
     context: {} as machineTypes.GameContextProps,
     events: {} as machineTypes.GameEventProps,
   },
-  actions: {
-    setActiveGame: assign({
-      game: ({ event }) => {
-        assertEvent(event, [
-          machineTypes.GameEvent.GameStarted,
-          machineTypes.GameEvent.MovePlayed,
-        ]);
-        return event.output;
-      },
-    }),
-    setSquareToMoveFrom: assign({
-      squareToMoveFrom: ({ event }) => {
-        assertEvent(event, machineTypes.GameEvent.SetSquareToMoveFrom);
-        return event.square;
-      },
-    }),
-  },
+  actions: actions,
   actors: {
     startGame,
     playMove,
   },
-  guards: {
-    gameIsUnset: ({ context }) => {
-      return !context.game;
-    },
-  },
+  guards: guards,
 }).createMachine({
   id: "game",
   context: {
