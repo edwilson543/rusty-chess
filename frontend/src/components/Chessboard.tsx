@@ -33,16 +33,6 @@ export const Chessboard = (props: ChessboardProps) => {
   );
 };
 
-const fileSortOrder = { A: 1, B: 2, C: 3, D: 4, E: 5, F: 6, G: 7, H: 8 };
-
-const sortPosition = (position: types.Square[]): types.Square[] => {
-  const scoreSquare = (square: types.Square): number => {
-    return square.rank * 8 + fileSortOrder[square.file];
-  };
-
-  return position.sort((a, b) => scoreSquare(a) - scoreSquare(b));
-};
-
 interface ChessboardRankProps {
   rank: types.Square[];
 }
@@ -60,4 +50,14 @@ const ChessboardRank = (props: ChessboardRankProps) => {
       })}
     </div>
   );
+};
+
+const fileSortOrder = { A: 1, B: 2, C: 3, D: 4, E: 5, F: 6, G: 7, H: 8 };
+
+const sortPosition = (position: types.Square[]): types.Square[] => {
+  const scoreSquare = (square: types.Square): number => {
+    return square.rank * 8 + fileSortOrder[square.file];
+  };
+
+  return position.sort((a, b) => scoreSquare(a) - scoreSquare(b));
 };
