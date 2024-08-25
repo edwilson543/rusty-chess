@@ -1,6 +1,6 @@
 import { assertEvent, assign, setup } from "xstate";
 
-import { startGame } from "./actors.ts";
+import { startGame, playMove } from "./actors.ts";
 import * as types from "./types";
 
 const GameMachine = setup({
@@ -18,6 +18,7 @@ const GameMachine = setup({
   },
   actors: {
     startGame,
+    playMove,
   },
   guards: {
     gameIsUnset: ({ context }) => {

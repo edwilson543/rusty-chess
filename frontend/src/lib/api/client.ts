@@ -1,12 +1,20 @@
 import { initClient } from "@ts-rest/core";
 
 import { contract, GameSchema } from "./contract.ts";
-import { parseGameSchemaToGame } from "./deserializers.ts";
+import * as serializers from "./serializers.ts";
 import * as types from "../types.ts";
 import { Game } from "../types.ts";
 
 export interface APIClient {
   startGame(): Promise<types.Game>;
+
+  playMove({
+    gameId,
+    move,
+  }: {
+    gameId: number;
+    move: types.Move;
+  }): Promise<types.Game>;
 }
 
 export const getApiClient = (): APIClient => {
@@ -24,9 +32,38 @@ class RestAPIClient implements APIClient {
     return promise.then((response: Response) => {
       switch (response.status) {
         case 201:
-          return parseGameSchemaToGame(JSON.parse(response.body) as GameSchema);
+          return serializers.parseGameSchemaToGame(
+            JSON.parse(response.body) as GameSchema,
+          );
         default:
           throw new Error(`Error starting game: ${response.status}`);
+      }
+    });
+  }
+
+  playMove({
+    gameId,
+    move,
+  }: {
+    gameId: number;
+    move: types.Move;
+  }): Promise<Game> {
+    const promise = client.playMove({
+      params: { gameId: gameId },
+      body: {
+        player: move.player,
+        from_square: serializers.squareToString(move.from_square),
+        to_square: serializers.squareToString(move.to_square),
+      },
+    }) as Promise<Response>;
+    return promise.then((response: Response) => {
+      switch (response.status) {
+        case 200:
+          return serializers.parseGameSchemaToGame(
+            JSON.parse(response.body) as GameSchema,
+          );
+        default:
+          throw new Error(`Error playing move: ${response.status}`);
       }
     });
   }

@@ -104,6 +104,12 @@ const game = z.object({
   chessboard: chessboard,
 });
 
+const move = z.object({
+  player: colour,
+  from_square: z.string(),
+  to_square: z.string(),
+});
+
 // Contract.
 
 const c = initContract();
@@ -117,26 +123,27 @@ export const contract = c.router({
       201: game,
     },
   },
-  getGameState: {
-    method: "GET",
-    path: "/games/:gameId/",
-    pathParams: z.object({
-      gameId: z.number(),
-    }),
-    responses: {
-      200: game,
-      404: z.object({}),
-    },
-  },
   playMove: {
     method: "POST",
     path: "/games/:gameId/play-move/",
     pathParams: z.object({
       gameId: z.number(),
     }),
+    body: move,
     responses: {
       200: game,
       400: z.object({ error: z.string() }),
+    },
+    getGameState: {
+      method: "GET",
+      path: "/games/:gameId/",
+      pathParams: z.object({
+        gameId: z.number(),
+      }),
+      responses: {
+        200: game,
+        404: z.object({}),
+      },
     },
   },
 });

@@ -23,9 +23,15 @@ export const parseGameSchemaToGame = (game: GameSchema): types.Game => {
   return {
     id: game.id,
     chessboard: { position: chessboardPosition },
-    player: types.Colour.White,
+    local_player: types.Colour.White,
   };
 };
+
+export const squareToString = (square: types.Square): string => {
+  return `${square.file}${square.rank}`;
+};
+
+// Helpers.
 
 const positionKeyToRank = (key: string): types.Rank => {
   const rank = parseInt(key[1]) as unknown as types.Rank;
