@@ -42,7 +42,7 @@ const GameMachine = setup({
         id: "startGame",
         src: "startGame",
         onDone: {
-          actions: "setActiveGame",
+          actions: [machineTypes.Action.SetActiveGame],
           target: machineTypes.GameState.LocalPlayerTurn,
         },
         onError: {
@@ -53,7 +53,7 @@ const GameMachine = setup({
     [machineTypes.GameState.LocalPlayerTurn]: {
       on: {
         [machineTypes.GameEvent.SetSquareToMoveFrom]: {
-          actions: "setSquareToMoveFrom",
+          actions: machineTypes.Action.SetSquareToMoveFrom,
         },
         [machineTypes.GameEvent.PlayMove]: {
           target: machineTypes.GameState.SubmittingMove,
@@ -76,7 +76,7 @@ const GameMachine = setup({
           };
         },
         onDone: {
-          actions: "setActiveGame",
+          actions: machineTypes.Action.SetActiveGame,
           target: machineTypes.GameState.OpponentPlayerTurn,
         },
         onError: {

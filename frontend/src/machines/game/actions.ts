@@ -7,7 +7,7 @@ export const actions: ActionFunctionMap<
   machineTypes.GameEventProps,
   ProvidedActor
 > = {
-  setActiveGame: assign({
+  [machineTypes.Action.SetActiveGame]: assign({
     game: ({ event }) => {
       assertEvent(event, [
         machineTypes.GameEvent.GameStarted,
@@ -16,7 +16,7 @@ export const actions: ActionFunctionMap<
       return event.output;
     },
   }),
-  setSquareToMoveFrom: assign({
+  [machineTypes.Action.SetSquareToMoveFrom]: assign({
     squareToMoveFrom: ({ event }) => {
       assertEvent(event, machineTypes.GameEvent.SetSquareToMoveFrom);
       return event.square;

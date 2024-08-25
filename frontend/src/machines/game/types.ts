@@ -51,6 +51,13 @@ export enum GameState {
   FetchingOpponentMove = "fetching-opponent-move",
 }
 
+// Actions.
+
+export enum Action {
+  SetActiveGame = "set-active-game",
+  SetSquareToMoveFrom = "set-square-to-move-from",
+}
+
 // Guards.
 
 export enum Guard {
