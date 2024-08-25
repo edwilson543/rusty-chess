@@ -23,7 +23,6 @@ export const parseGameSchemaToGame = (game: GameSchema): types.Game => {
   return {
     id: game.id,
     chessboard: { position: chessboardPosition },
-    localPlayer: types.Colour.White,
   };
 };
 

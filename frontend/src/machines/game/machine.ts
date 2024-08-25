@@ -1,26 +1,27 @@
 import { assertEvent, assign, setup } from "xstate";
 
 import { startGame, playMove } from "./actors.ts";
-import * as types from "./types";
+import * as machineTypes from "./types";
+import * as types from "../../lib/types.ts";
 
 const GameMachine = setup({
   types: {
-    context: {} as types.GameContextProps,
-    events: {} as types.GameEventProps,
+    context: {} as machineTypes.GameContextProps,
+    events: {} as machineTypes.GameEventProps,
   },
   actions: {
     setActiveGame: assign({
       game: ({ event }) => {
         assertEvent(event, [
-          types.GameEvent.GameStarted,
-          types.GameEvent.MovePlayed,
+          machineTypes.GameEvent.GameStarted,
+          machineTypes.GameEvent.MovePlayed,
         ]);
         return event.output;
       },
     }),
     selectSquareToMoveFrom: assign({
       squareToMoveFrom: ({ event }) => {
-        assertEvent(event, types.GameEvent.SelectSquareToMoveFrom);
+        assertEvent(event, machineTypes.GameEvent.SelectSquareToMoveFrom);
         return event.square;
       },
     }),
@@ -36,66 +37,71 @@ const GameMachine = setup({
   },
 }).createMachine({
   id: "game",
-  context: { game: null, squareToMoveFrom: null },
-  initial: types.GameState.Idle,
+  context: {
+    game: null,
+    // TODO -> allow playing as either colour.
+    localPlayerColour: types.Colour.White,
+    squareToMoveFrom: null,
+  },
+  initial: machineTypes.GameState.Idle,
   predictableActionArguments: true,
   states: {
-    [types.GameState.Idle]: {
+    [machineTypes.GameState.Idle]: {
       always: [
-        { target: types.GameState.StartingGame, guard: "gameIsUnset" },
-        { target: types.GameState.LocalPlayerTurn },
+        { target: machineTypes.GameState.StartingGame, guard: "gameIsUnset" },
+        { target: machineTypes.GameState.LocalPlayerTurn },
       ],
     },
-    [types.GameState.StartingGame]: {
+    [machineTypes.GameState.StartingGame]: {
       invoke: {
         id: "startGame",
         src: "startGame",
         onDone: {
           actions: "setActiveGame",
-          target: types.GameState.LocalPlayerTurn,
+          target: machineTypes.GameState.LocalPlayerTurn,
         },
         onError: {
-          target: types.GameState.Unavailable,
+          target: machineTypes.GameState.Unavailable,
         },
       },
     },
-    [types.GameState.LocalPlayerTurn]: {
+    [machineTypes.GameState.LocalPlayerTurn]: {
       on: {
-        [types.GameEvent.SelectSquareToMoveFrom]: {
+        [machineTypes.GameEvent.SelectSquareToMoveFrom]: {
           actions: "selectSquareToMoveFrom",
         },
-        [types.GameEvent.PlayMove]: {
-          target: types.GameState.SubmittingMove,
+        [machineTypes.GameEvent.PlayMove]: {
+          target: machineTypes.GameState.SubmittingMove,
         },
       },
     },
-    [types.GameState.SubmittingMove]: {
+    [machineTypes.GameState.SubmittingMove]: {
       invoke: {
         id: "playMove",
         src: "playMove",
         input: ({ context, event }) => {
-          assertEvent(event, types.GameEvent.PlayMove);
+          assertEvent(event, machineTypes.GameEvent.PlayMove);
           return {
             gameId: context.game?.id,
             move: {
               fromSquare: event.fromSquare,
               toSquare: event.toSquare,
-              player: context.game?.localPlayer,
+              player: context.localPlayerColour,
             },
           };
         },
         onDone: {
           actions: "setActiveGame",
-          target: types.GameState.OpponentPlayerTurn,
+          target: machineTypes.GameState.OpponentPlayerTurn,
         },
         onError: {
-          target: types.GameState.LocalPlayerTurn,
+          target: machineTypes.GameState.LocalPlayerTurn,
         },
       },
     },
-    [types.GameState.OpponentPlayerTurn]: {},
+    [machineTypes.GameState.OpponentPlayerTurn]: {},
 
-    [types.GameState.Unavailable]: { type: "final" },
+    [machineTypes.GameState.Unavailable]: { type: "final" },
   },
 });
 

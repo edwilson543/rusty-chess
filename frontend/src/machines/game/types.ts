@@ -3,6 +3,7 @@ import * as types from "../../lib/types.ts";
 
 export interface GameContextProps {
   game: types.Game | null;
+  localPlayerColour: types.Colour;
   squareToMoveFrom: types.Square | null;
 }
 

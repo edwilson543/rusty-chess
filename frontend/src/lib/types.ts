@@ -52,7 +52,6 @@ export interface Chessboard {
 export interface Game {
   id: number;
   chessboard: Chessboard;
-  localPlayer: Colour;
 }
 
 export interface Move {
