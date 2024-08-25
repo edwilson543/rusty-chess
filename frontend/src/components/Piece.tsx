@@ -12,6 +12,7 @@ import * as types from "../lib/types.ts";
 
 interface PieceProps {
   piece: types.Piece;
+  isSelected: boolean;
 }
 
 export const Piece = (props: PieceProps) => {
@@ -40,6 +41,7 @@ export const Piece = (props: PieceProps) => {
         icon={iconMapping[props.piece.pieceType]}
         size={"2xl"}
         style={{ color: colour }}
+        beatFade={props.isSelected}
       />
     </div>
   );

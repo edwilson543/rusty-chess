@@ -1,4 +1,7 @@
+import { useSelector } from "@xstate/react";
+
 import { Piece } from "./Piece.tsx";
+import { GameMachineContext } from "../context.ts";
 import * as types from "../lib/types.ts";
 
 interface ChessboardSquareProps {
@@ -6,6 +9,12 @@ interface ChessboardSquareProps {
 }
 
 export const ChessboardSquare = (props: ChessboardSquareProps) => {
+  const gameMachineRef = GameMachineContext.useActorRef();
+  const squareToMoveFrom = useSelector(
+    gameMachineRef,
+    (state) => state.context.squareToMoveFrom,
+  );
+
   return (
     <div
       style={{
@@ -19,7 +28,12 @@ export const ChessboardSquare = (props: ChessboardSquareProps) => {
         backgroundColor: getColourForSquare(props.square),
       }}
     >
-      {props.square.piece && <Piece piece={props.square.piece} />}
+      {props.square.piece && (
+        <Piece
+          piece={props.square.piece}
+          isSelected={props.square === squareToMoveFrom}
+        />
+      )}
     </div>
   );
 };
