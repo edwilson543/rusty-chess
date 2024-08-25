@@ -52,7 +52,7 @@ export interface Chessboard {
 export interface Game {
   id: number;
   chessboard: Chessboard;
-  local_player: Colour;
+  localPlayer: Colour;
 }
 
 export interface Move {

@@ -71,7 +71,7 @@ const GameMachine = setup({
             move: {
               fromSquare: event.fromSquare,
               toSquare: event.toSquare,
-              player: context.game?.local_player,
+              player: context.game?.localPlayer,
             },
           };
         },
