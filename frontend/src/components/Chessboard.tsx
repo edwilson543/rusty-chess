@@ -1,5 +1,5 @@
-import * as types from "../lib/types.ts";
 import { Piece } from "./Piece.tsx";
+import * as types from "../lib/types.ts";
 
 interface ChessboardProps {
   chessboard: types.Chessboard;

@@ -50,8 +50,28 @@ const GameMachine = setup({
         },
       },
     },
-    [types.GameState.LocalPlayerTurn]: {},
+    [types.GameState.LocalPlayerTurn]: {
+      on: {
+        [types.GameEvent.PlayMove]: {
+          target: types.GameState.SubmittingMove,
+        },
+      },
+    },
+    [types.GameState.SubmittingMove]: {
+      invoke: {
+        id: "playMove",
+        src: "playMove",
+        onDone: {
+          actions: "setActiveGame",
+          target: types.GameState.OpponentPlayerTurn,
+        },
+        onError: {
+          target: types.GameState.LocalPlayerTurn,
+        },
+      },
+    },
     [types.GameState.OpponentPlayerTurn]: {},
+
     [types.GameState.Unavailable]: { type: "final" },
   },
 });

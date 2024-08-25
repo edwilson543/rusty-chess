@@ -1,32 +1,38 @@
 // Context
-import { Game } from "../../lib/types.ts";
+import * as types from "../../lib/types.ts";
 
 export interface GameContextProps {
-  game: Game | null;
+  game: types.Game | null;
 }
 
 // Events
 
 export enum GameEvent {
   StartGame = "xstate.done.actor.startGame",
+  PlayMove = "play-move",
 }
 
 interface SetActiveGameEvent {
   type: GameEvent.StartGame;
-  output: Game;
+  output: types.Game;
 }
 
-export type GameEventProps = SetActiveGameEvent;
+export interface PlayMoveEvent {
+  type: GameEvent.PlayMove;
+  move: types.Move;
+}
+
+export type GameEventProps = SetActiveGameEvent | PlayMoveEvent;
 
 // States
 
 export enum GameState {
-  Idle = "IDLE",
-  LocalPlayerTurn = "LOCAL_PLAYER_TURN",
-  OpponentPlayerTurn = "OPPONENT_TURN",
-  Unavailable = "UNAVAILABLE",
+  Idle = "idle",
+  LocalPlayerTurn = "local-play-turn",
+  OpponentPlayerTurn = "opponent-turn",
+  Unavailable = "unavailable",
   // Loading states.
-  StartingGame = "STARTING_GAME",
-  SubmittingMove = "SUBMITTING_MOVE",
-  FetchingOpponentMove = "FETCHING_OPPONENT_MOVE",
+  StartingGame = "starting-game",
+  SubmittingMove = "submitting-move",
+  FetchingOpponentMove = "fetching-opponent-move",
 }

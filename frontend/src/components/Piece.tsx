@@ -1,4 +1,3 @@
-import * as types from "../lib/types.ts";
 import {
   faChessBishop,
   faChessKing,
@@ -8,6 +7,8 @@ import {
   faChessRook,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
+import * as types from "../lib/types.ts";
 
 interface PieceProps {
   piece: types.Piece;
