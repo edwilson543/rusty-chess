@@ -1,4 +1,4 @@
-import { Piece } from "./Piece.tsx";
+import { ChessboardSquare } from "./ChessboardSquare.tsx";
 import * as types from "../lib/types.ts";
 
 interface ChessboardProps {
@@ -58,32 +58,6 @@ const ChessboardRank = (props: ChessboardRankProps) => {
           />
         );
       })}
-    </div>
-  );
-};
-
-interface ChessboardSquareProps {
-  square: types.Square;
-}
-
-const ChessboardSquare = (props: ChessboardSquareProps) => {
-  const alternate = fileSortOrder[props.square.file] % 2 === 1 ? 0 : 1;
-  const colour = props.square.rank % 2 === alternate ? "#aeeef2" : "#f2d4d0";
-
-  return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        flex: 1,
-        alignItems: "center",
-        justifyContent: "center",
-        aspectRatio: "1 / 1",
-        border: "1px solid black",
-        backgroundColor: colour,
-      }}
-    >
-      {props.square.piece && <Piece piece={props.square.piece} />}
     </div>
   );
 };
