@@ -1,7 +1,6 @@
 import { useSelector } from "@xstate/react";
 
 import { Chessboard } from "./Chessboard";
-import { FixedMoveButton } from "./FixedMoveButton.tsx";
 import { GameMachineContext } from "../context.ts";
 
 export const Game = () => {
@@ -10,7 +9,6 @@ export const Game = () => {
 
   return (
     <>
-      <FixedMoveButton />
       <div style={{ width: "1200px", height: "1200px" }}>
         {game && <Chessboard chessboard={game.chessboard} />}
       </div>
