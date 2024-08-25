@@ -19,9 +19,9 @@ const GameMachine = setup({
         return event.output;
       },
     }),
-    selectSquareToMoveFrom: assign({
+    setSquareToMoveFrom: assign({
       squareToMoveFrom: ({ event }) => {
-        assertEvent(event, machineTypes.GameEvent.SelectSquareToMoveFrom);
+        assertEvent(event, machineTypes.GameEvent.SetSquareToMoveFrom);
         return event.square;
       },
     }),
@@ -67,8 +67,8 @@ const GameMachine = setup({
     },
     [machineTypes.GameState.LocalPlayerTurn]: {
       on: {
-        [machineTypes.GameEvent.SelectSquareToMoveFrom]: {
-          actions: "selectSquareToMoveFrom",
+        [machineTypes.GameEvent.SetSquareToMoveFrom]: {
+          actions: "setSquareToMoveFrom",
         },
         [machineTypes.GameEvent.PlayMove]: {
           target: machineTypes.GameState.SubmittingMove,

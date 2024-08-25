@@ -3,17 +3,41 @@ import { useSelector } from "@xstate/react";
 import { Piece } from "./Piece.tsx";
 import { GameMachineContext } from "../context.ts";
 import * as types from "../lib/types.ts";
+import { GameState, GameEvent } from "../machines/game/types.ts";
 
 interface ChessboardSquareProps {
   square: types.Square;
 }
 
 export const ChessboardSquare = (props: ChessboardSquareProps) => {
+  // State.
   const gameMachineRef = GameMachineContext.useActorRef();
   const squareToMoveFrom = useSelector(
     gameMachineRef,
     (state) => state.context.squareToMoveFrom,
   );
+  const localPlayerColour = useSelector(
+    gameMachineRef,
+    (state) => state.context.localPlayerColour,
+  );
+  const isLocalPlayerTurn = useSelector(gameMachineRef, (state) =>
+    state.matches(GameState.LocalPlayerTurn),
+  );
+
+  // Properties.
+  const canPieceBeSelected =
+    isLocalPlayerTurn && props.square.piece?.colour === localPlayerColour;
+
+  // Interactions.
+  const onPieceClick = () => {
+    if (!canPieceBeSelected) {
+      return null;
+    }
+    gameMachineRef.send({
+      type: GameEvent.SetSquareToMoveFrom,
+      square: props.square,
+    });
+  };
 
   return (
     <div
@@ -32,6 +56,8 @@ export const ChessboardSquare = (props: ChessboardSquareProps) => {
         <Piece
           piece={props.square.piece}
           isSelected={props.square === squareToMoveFrom}
+          canBeSelected={canPieceBeSelected}
+          onClick={onPieceClick}
         />
       )}
     </div>

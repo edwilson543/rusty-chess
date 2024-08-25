@@ -11,7 +11,7 @@ export interface GameContextProps {
 
 export enum GameEvent {
   PlayMove = "play-move",
-  SelectSquareToMoveFrom = "select-square-to-move-from",
+  SetSquareToMoveFrom = "set-square-to-move-from",
   // Events that set the active game.
   GameStarted = "xstate.done.actor.startGame",
   MovePlayed = "xstate.done.actor.playMove",
@@ -24,7 +24,7 @@ export interface PlayMoveEvent {
 }
 
 export interface SelectSquareToMoveFrom {
-  type: GameEvent.SelectSquareToMoveFrom;
+  type: GameEvent.SetSquareToMoveFrom;
   square: types.Square;
 }
 
