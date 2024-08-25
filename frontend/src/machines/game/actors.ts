@@ -1,8 +1,8 @@
 import { fromPromise } from "xstate";
 
-import * as types from "./types.ts";
 import { APIClient } from "../../lib/api/client.ts";
 import { GameSchema } from "../../lib/api/contract.ts";
+import * as types from "../../lib/types.ts";
 
 export const startGame = fromPromise(() => {
   const promise = APIClient.startGame() as Promise<Response>;

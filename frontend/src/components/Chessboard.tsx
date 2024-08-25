@@ -8,16 +8,16 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-import { GameTypes } from "../machines/game";
+import * as types from "../lib/types.ts";
 
 interface ChessboardProps {
-  chessboard: GameTypes.Chessboard;
+  chessboard: types.Chessboard;
 }
 
 const RANK_WIDTH = 8;
 
 export const Chessboard = (props: ChessboardProps) => {
-  const ranks = Object.values(GameTypes.Rank)
+  const ranks = Object.values(types.Rank)
     .filter((item) => typeof item === "number")
     .reverse();
 
@@ -44,8 +44,8 @@ export const Chessboard = (props: ChessboardProps) => {
 
 const fileSortOrder = { A: 1, B: 2, C: 3, D: 4, E: 5, F: 6, G: 7, H: 8 };
 
-const sortPosition = (position: GameTypes.Square[]): GameTypes.Square[] => {
-  const scoreSquare = (square: GameTypes.Square): number => {
+const sortPosition = (position: types.Square[]): types.Square[] => {
+  const scoreSquare = (square: types.Square): number => {
     return square.rank * 8 + fileSortOrder[square.file];
   };
 
@@ -53,13 +53,13 @@ const sortPosition = (position: GameTypes.Square[]): GameTypes.Square[] => {
 };
 
 interface ChessboardRankProps {
-  rank: GameTypes.Square[];
+  rank: types.Square[];
 }
 
 const ChessboardRank = (props: ChessboardRankProps) => {
   return (
     <div style={{ display: "flex", flexDirection: "row", width: "50%" }}>
-      {props.rank.map((square: GameTypes.Square) => {
+      {props.rank.map((square: types.Square) => {
         return (
           <ChessboardSquare
             key={`${square.file}${square.rank}`}
@@ -72,7 +72,7 @@ const ChessboardRank = (props: ChessboardRankProps) => {
 };
 
 interface ChessboardSquareProps {
-  square: GameTypes.Square;
+  square: types.Square;
 }
 
 const ChessboardSquare = (props: ChessboardSquareProps) => {
@@ -98,20 +98,19 @@ const ChessboardSquare = (props: ChessboardSquareProps) => {
 };
 
 interface PieceProps {
-  piece: GameTypes.Piece;
+  piece: types.Piece;
 }
 
 const Piece = (props: PieceProps) => {
-  const colour =
-    props.piece.colour === GameTypes.Colour.White ? "white" : "black";
+  const colour = props.piece.colour === types.Colour.White ? "white" : "black";
 
   const iconMapping = {
-    [GameTypes.PieceType.Pawn]: faChessPawn,
-    [GameTypes.PieceType.Knight]: faChessKnight,
-    [GameTypes.PieceType.Bishop]: faChessBishop,
-    [GameTypes.PieceType.Rook]: faChessRook,
-    [GameTypes.PieceType.Queen]: faChessQueen,
-    [GameTypes.PieceType.King]: faChessKing,
+    [types.PieceType.Pawn]: faChessPawn,
+    [types.PieceType.Knight]: faChessKnight,
+    [types.PieceType.Bishop]: faChessBishop,
+    [types.PieceType.Rook]: faChessRook,
+    [types.PieceType.Queen]: faChessQueen,
+    [types.PieceType.King]: faChessKing,
   };
 
   return (
