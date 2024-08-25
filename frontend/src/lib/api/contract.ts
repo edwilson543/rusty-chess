@@ -1,12 +1,20 @@
+import { initContract, ClientInferRequest } from "@ts-rest/core";
 import { z } from "zod";
 
 // Helpers.
 
-const black = z.literal("B");
-const white = z.literal("W");
+const black = z.literal("Black");
+const white = z.literal("White");
 const colour = z.union([black, white]);
 
-const pieceType = z.enum(["P", "N", "B", "R", "Q", "K"]);
+const pieceType = z.enum([
+  "Pawn",
+  "Knight",
+  "Black",
+  "Rook",
+  "Queen",
+  "Knight",
+]);
 
 const chessboardSquare = z.object({
   colour: colour,
@@ -90,15 +98,57 @@ const gameStatus = z.enum([
   "Drawn",
 ]);
 
-// Messages.
-
-export const newGameMessage = z.object({
-  name: z.literal("NewGame"),
-  payload: z.object({
-    id: z.number(),
-    status: gameStatus,
-    chessboard: chessboard,
-  }),
+const game = z.object({
+  id: z.number(),
+  status: gameStatus,
+  chessboard: chessboard,
 });
 
-export type NewGameMessage = z.infer<typeof newGameMessage>;
+const move = z.object({
+  player: colour,
+  from_square: z.string(),
+  to_square: z.string(),
+});
+
+// Contract.
+
+const c = initContract();
+
+export const contract = c.router({
+  startGame: {
+    method: "POST",
+    path: "/games/start/",
+    // TODO - allow to select either colour...
+    responses: {
+      201: game,
+    },
+  },
+  playMove: {
+    method: "POST",
+    path: "/games/:gameId/play-move/",
+    pathParams: z.object({
+      gameId: z.number(),
+    }),
+    body: move,
+    responses: {
+      200: game,
+      400: z.object({ error: z.string() }),
+    },
+    getGameState: {
+      method: "GET",
+      path: "/games/:gameId/",
+      pathParams: z.object({
+        gameId: z.number(),
+      }),
+      responses: {
+        200: game,
+        404: z.object({}),
+      },
+    },
+  },
+});
+
+export type GameSchema = z.infer<typeof game>;
+export type StartGameRequest = ClientInferRequest<typeof contract.startGame>;
+export type GetGameState = ClientInferRequest<typeof contract.getGameState>;
+export type PlayMove = ClientInferRequest<typeof contract.playMove>;

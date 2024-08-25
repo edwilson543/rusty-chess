@@ -1,83 +1,65 @@
 // Context
-
-export enum Rank {
-  One = 1,
-  Two = 2,
-  Three = 3,
-  Four = 4,
-  Five = 5,
-  Six = 6,
-  Seven = 7,
-  Eight = 8,
-}
-
-export enum File {
-  A = "A",
-  B = "B",
-  C = "C",
-  D = "D",
-  E = "E",
-  F = "F",
-  G = "G",
-  H = "H",
-}
-
-export enum Colour {
-  Black = "B",
-  White = "W",
-}
-
-export enum PieceType {
-  Pawn = "P",
-  Knight = "N",
-  Bishop = "B",
-  Rook = "R",
-  Queen = "Q",
-  King = "K",
-}
-
-export interface Piece {
-  colour: Colour;
-  pieceType: PieceType;
-}
-
-export interface Square {
-  rank: Rank;
-  file: File;
-  piece: Piece | null;
-}
-
-export interface Chessboard {
-  position: Square[];
-}
-
-export interface Game {
-  id: number;
-  chessboard: Chessboard;
-  player: Colour;
-}
+import * as types from "../../lib/types.ts";
 
 export interface GameContextProps {
-  game: Game | null;
+  game: types.Game | null;
+  localPlayerColour: types.Colour;
+  squareToMoveFrom: types.Square | null;
 }
 
-// Events
+// Events.
 
 export enum GameEvent {
-  StartNewGame = "START_NEW_GAME",
+  PlayMove = "play-move",
+  SetSquareToMoveFrom = "set-square-to-move-from",
+  // Events that set the active game.
+  GameStarted = "xstate.done.actor.startGame",
+  MovePlayed = "xstate.done.actor.playMove",
+}
+
+export interface PlayMoveEvent {
+  type: GameEvent.PlayMove;
+  fromSquare: types.Square;
+  toSquare: types.Square;
+}
+
+export interface SelectSquareToMoveFrom {
+  type: GameEvent.SetSquareToMoveFrom;
+  square: types.Square | null;
 }
 
 interface SetActiveGameEvent {
-  type: GameEvent.StartNewGame;
-  game: Game;
+  type: GameEvent.GameStarted | GameEvent.MovePlayed;
+  output: types.Game;
 }
 
-export type GameEventProps = SetActiveGameEvent;
+export type GameEventProps =
+  | PlayMoveEvent
+  | SelectSquareToMoveFrom
+  | SetActiveGameEvent;
 
-// States
+// States.
 
 export enum GameState {
-  Idle = "IDLE",
-  PlayerTurn = "PLAYER_TURN",
-  OpponentTurn = "OPPONENT_TURN",
+  Idle = "idle",
+  LocalPlayerTurn = "local-play-turn",
+  OpponentPlayerTurn = "opponent-turn",
+  Unavailable = "unavailable",
+  // Loading states.
+  StartingGame = "starting-game",
+  SubmittingMove = "submitting-move",
+  FetchingOpponentMove = "fetching-opponent-move",
+}
+
+// Actions.
+
+export enum Action {
+  SetActiveGame = "set-active-game",
+  SetSquareToMoveFrom = "set-square-to-move-from",
+}
+
+// Guards.
+
+export enum Guard {
+  GameIsUnset = "game-is-unset",
 }
