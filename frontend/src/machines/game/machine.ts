@@ -18,6 +18,12 @@ const GameMachine = setup({
         return event.output;
       },
     }),
+    selectSquareToMoveFrom: assign({
+      squareToMoveFrom: ({ event }) => {
+        assertEvent(event, types.GameEvent.SelectSquareToMoveFrom);
+        return event.square;
+      },
+    }),
   },
   actors: {
     startGame,
@@ -30,7 +36,7 @@ const GameMachine = setup({
   },
 }).createMachine({
   id: "game",
-  context: { game: null },
+  context: { game: null, squareToMoveFrom: null },
   initial: types.GameState.Idle,
   predictableActionArguments: true,
   states: {
@@ -55,6 +61,9 @@ const GameMachine = setup({
     },
     [types.GameState.LocalPlayerTurn]: {
       on: {
+        [types.GameEvent.SelectSquareToMoveFrom]: {
+          actions: "selectSquareToMoveFrom",
+        },
         [types.GameEvent.PlayMove]: {
           target: types.GameState.SubmittingMove,
         },

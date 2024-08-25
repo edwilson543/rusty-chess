@@ -3,20 +3,17 @@ import * as types from "../../lib/types.ts";
 
 export interface GameContextProps {
   game: types.Game | null;
+  squareToMoveFrom: types.Square | null;
 }
 
 // Events
 
 export enum GameEvent {
   PlayMove = "play-move",
+  SelectSquareToMoveFrom = "select-square-to-move-from",
   // Events that set the active game.
   GameStarted = "xstate.done.actor.startGame",
   MovePlayed = "xstate.done.actor.playMove",
-}
-
-interface SetActiveGameEvent {
-  type: GameEvent.GameStarted | GameEvent.MovePlayed;
-  output: types.Game;
 }
 
 export interface PlayMoveEvent {
@@ -25,7 +22,20 @@ export interface PlayMoveEvent {
   toSquare: types.Square;
 }
 
-export type GameEventProps = SetActiveGameEvent | PlayMoveEvent;
+export interface SelectSquareToMoveFrom {
+  type: GameEvent.SelectSquareToMoveFrom;
+  square: types.Square;
+}
+
+interface SetActiveGameEvent {
+  type: GameEvent.GameStarted | GameEvent.MovePlayed;
+  output: types.Game;
+}
+
+export type GameEventProps =
+  | PlayMoveEvent
+  | SelectSquareToMoveFrom
+  | SetActiveGameEvent;
 
 // States
 
