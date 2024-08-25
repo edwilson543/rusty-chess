@@ -33,7 +33,7 @@ const GameMachine = setup({
     [types.GameState.Idle]: {
       always: [
         { target: types.GameState.StartingGame, guard: "gameIsUnset" },
-        { target: types.GameState.PlayerTurn },
+        { target: types.GameState.LocalPlayerTurn },
       ],
     },
     [types.GameState.StartingGame]: {
@@ -42,14 +42,15 @@ const GameMachine = setup({
         src: "startGame",
         onDone: {
           actions: "setActiveGame",
-          target: types.GameState.PlayerTurn,
+          target: types.GameState.LocalPlayerTurn,
         },
         onError: {
           target: types.GameState.Unavailable,
         },
       },
     },
-    [types.GameState.PlayerTurn]: {},
+    [types.GameState.LocalPlayerTurn]: {},
+    [types.GameState.OpponentPlayerTurn]: {},
     [types.GameState.Unavailable]: { type: "final" },
   },
 });

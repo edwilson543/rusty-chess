@@ -22,8 +22,11 @@ export type GameEventProps = SetActiveGameEvent;
 
 export enum GameState {
   Idle = "IDLE",
-  StartingGame = "STARTING_GAME",
-  PlayerTurn = "PLAYER_TURN",
-  OpponentTurn = "OPPONENT_TURN",
+  LocalPlayerTurn = "LOCAL_PLAYER_TURN",
+  OpponentPlayerTurn = "OPPONENT_TURN",
   Unavailable = "UNAVAILABLE",
+  // Loading states.
+  StartingGame = "STARTING_GAME",
+  SubmittingMove = "SUBMITTING_MOVE",
+  FetchingOpponentMove = "FETCHING_OPPONENT_MOVE",
 }
