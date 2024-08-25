@@ -30,7 +30,10 @@ const GameMachine = setup({
   states: {
     [machineTypes.GameState.Idle]: {
       always: [
-        { target: machineTypes.GameState.StartingGame, guard: "gameIsUnset" },
+        {
+          target: machineTypes.GameState.StartingGame,
+          guard: machineTypes.Guard.GameIsUnset,
+        },
         { target: machineTypes.GameState.LocalPlayerTurn },
       ],
     },

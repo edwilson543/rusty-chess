@@ -1,7 +1,9 @@
-import { GameContextProps } from "./types.ts";
+import * as machineTypes from "./types";
 
 export const guards = {
-  gameIsUnset: (context: GameContextProps) => {
+  [machineTypes.Guard.GameIsUnset]: (
+    context: machineTypes.GameContextProps,
+  ) => {
     return !context.game;
   },
 };

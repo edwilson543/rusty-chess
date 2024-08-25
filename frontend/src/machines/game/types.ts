@@ -7,7 +7,7 @@ export interface GameContextProps {
   squareToMoveFrom: types.Square | null;
 }
 
-// Events
+// Events.
 
 export enum GameEvent {
   PlayMove = "play-move",
@@ -38,7 +38,7 @@ export type GameEventProps =
   | SelectSquareToMoveFrom
   | SetActiveGameEvent;
 
-// States
+// States.
 
 export enum GameState {
   Idle = "idle",
@@ -49,4 +49,10 @@ export enum GameState {
   StartingGame = "starting-game",
   SubmittingMove = "submitting-move",
   FetchingOpponentMove = "fetching-opponent-move",
+}
+
+// Guards.
+
+export enum Guard {
+  GameIsUnset = "game-is-unset",
 }
