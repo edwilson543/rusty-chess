@@ -52,8 +52,8 @@ class RestAPIClient implements APIClient {
       params: { gameId: gameId },
       body: {
         player: move.player,
-        from_square: serializers.squareToString(move.from_square),
-        to_square: serializers.squareToString(move.to_square),
+        from_square: serializers.squareToString(move.fromSquare),
+        to_square: serializers.squareToString(move.toSquare),
       },
     }) as Promise<Response>;
     return promise.then((response: Response) => {

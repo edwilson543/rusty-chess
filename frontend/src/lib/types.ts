@@ -57,6 +57,6 @@ export interface Game {
 
 export interface Move {
   player: Colour;
-  from_square: Square;
-  to_square: Square;
+  fromSquare: Square;
+  toSquare: Square;
 }

@@ -8,18 +8,21 @@ export interface GameContextProps {
 // Events
 
 export enum GameEvent {
-  StartGame = "xstate.done.actor.startGame",
   PlayMove = "play-move",
+  // Events that set the active game.
+  GameStarted = "xstate.done.actor.startGame",
+  MovePlayed = "xstate.done.actor.playMove",
 }
 
 interface SetActiveGameEvent {
-  type: GameEvent.StartGame;
+  type: GameEvent.GameStarted | GameEvent.MovePlayed;
   output: types.Game;
 }
 
 export interface PlayMoveEvent {
   type: GameEvent.PlayMove;
-  move: types.Move;
+  fromSquare: types.Square;
+  toSquare: types.Square;
 }
 
 export type GameEventProps = SetActiveGameEvent | PlayMoveEvent;

@@ -11,7 +11,10 @@ const GameMachine = setup({
   actions: {
     setActiveGame: assign({
       game: ({ event }) => {
-        assertEvent(event, [types.GameEvent.StartGame]);
+        assertEvent(event, [
+          types.GameEvent.GameStarted,
+          types.GameEvent.MovePlayed,
+        ]);
         return event.output;
       },
     }),
@@ -61,6 +64,17 @@ const GameMachine = setup({
       invoke: {
         id: "playMove",
         src: "playMove",
+        input: ({ context, event }) => {
+          assertEvent(event, types.GameEvent.PlayMove);
+          return {
+            gameId: context.game?.id,
+            move: {
+              fromSquare: event.fromSquare,
+              toSquare: event.toSquare,
+              player: context.game?.local_player,
+            },
+          };
+        },
         onDone: {
           actions: "setActiveGame",
           target: types.GameState.OpponentPlayerTurn,

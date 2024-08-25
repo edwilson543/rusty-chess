@@ -10,15 +10,18 @@ export const FixedMoveButton = () => {
     const fromSquare: types.Square = {
       rank: types.Rank.Two,
       file: types.File.C,
+      piece: null, // TODO -> make unnecessary.
     };
     const toSquare: types.Square = {
       rank: types.Rank.Three,
       file: types.File.C,
+      piece: null, // TODO -> make unnecessary.
     };
 
     gameMachineRef.send({
       type: GameEvent.PlayMove,
-      move: { from_square: fromSquare, to_square: toSquare, piece: null },
+      fromSquare: fromSquare,
+      toSquare: toSquare,
     });
   };
 
