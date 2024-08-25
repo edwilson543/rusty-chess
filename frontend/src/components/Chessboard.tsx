@@ -1,14 +1,5 @@
-import {
-  faChessRook,
-  faChessKing,
-  faChessPawn,
-  faChessQueen,
-  faChessBishop,
-  faChessKnight,
-} from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-
 import * as types from "../lib/types.ts";
+import { Piece } from "./Piece.tsx";
 
 interface ChessboardProps {
   chessboard: types.Chessboard;
@@ -93,41 +84,6 @@ const ChessboardSquare = (props: ChessboardSquareProps) => {
       }}
     >
       {props.square.piece && <Piece piece={props.square.piece} />}
-    </div>
-  );
-};
-
-interface PieceProps {
-  piece: types.Piece;
-}
-
-const Piece = (props: PieceProps) => {
-  const colour = props.piece.colour === types.Colour.White ? "white" : "black";
-
-  const iconMapping = {
-    [types.PieceType.Pawn]: faChessPawn,
-    [types.PieceType.Knight]: faChessKnight,
-    [types.PieceType.Bishop]: faChessBishop,
-    [types.PieceType.Rook]: faChessRook,
-    [types.PieceType.Queen]: faChessQueen,
-    [types.PieceType.King]: faChessKing,
-  };
-
-  return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        flex: 1,
-      }}
-    >
-      <FontAwesomeIcon
-        icon={iconMapping[props.piece.pieceType]}
-        size={"2xl"}
-        style={{ color: colour }}
-      />
     </div>
   );
 };
