@@ -152,6 +152,7 @@ version = "0.1.0"
 dependencies = [
  "diesel",
  "dotenvy",
+ "rand",
  "rocket",
  "rocket_cors",
  "rocket_ws",
