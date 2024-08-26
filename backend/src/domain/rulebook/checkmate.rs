@@ -1,13 +1,14 @@
-use super::moves;
-use super::{check, Move};
+use super::check;
 use crate::domain::chess_set;
+
+use super::helpers;
 
 pub fn is_player_checkmated(player: chess_set::Colour, chessboard: &chess_set::Chessboard) -> bool {
     if !check::is_player_in_check(&player, chessboard.clone()) {
         return false;
     }
 
-    let legal_moves = get_legal_moves(player, chessboard);
+    let legal_moves = helpers::get_legal_moves(player, chessboard);
     for legal_move in legal_moves.into_iter() {
         let Ok(still_in_check) =
             check::would_player_be_left_in_check(&player, &legal_move, chessboard)
@@ -19,32 +20,6 @@ pub fn is_player_checkmated(player: chess_set::Colour, chessboard: &chess_set::C
         }
     }
     true
-}
-
-fn get_legal_moves(
-    player: chess_set::Colour,
-    chessboard: &chess_set::Chessboard,
-) -> Vec<Box<dyn Move>> {
-    let mut legal_moves = vec![];
-    for (from_square, maybe_piece) in chessboard.position.clone().into_iter() {
-        let Some(moved_piece) = maybe_piece else {
-            continue;
-        };
-        if !(moved_piece.get_colour() == &player) {
-            continue;
-        };
-
-        for (to_square, _) in chessboard.position.clone().into_iter() {
-            let ordinary_move =
-                moves::OrdinaryMove::new(chessboard, &moved_piece, &from_square, &to_square);
-
-            if let Ok(()) = ordinary_move.validate(&vec![chessboard.clone()]) {
-                legal_moves.push(Box::new(ordinary_move) as Box<dyn Move>)
-            }
-        }
-    }
-
-    legal_moves
 }
 
 #[cfg(test)]
