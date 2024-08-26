@@ -1,4 +1,4 @@
-use crate::domain::gameplay::chess_set;
+use crate::domain::chess_set;
 use std::fmt;
 
 /// Enumeration of all errors that can be raised when validating chess moves.

@@ -1,6 +1,6 @@
 use super::{bishop, king, knight, pawn, queen, rook};
-use crate::domain::gameplay::chess_set;
-use crate::domain::gameplay::rulebook::moves::ordinary_move::rule;
+use crate::domain::chess_set;
+use crate::domain::rulebook::moves::ordinary_move::rule;
 use std::vec;
 
 pub fn get_rules_for_piece(

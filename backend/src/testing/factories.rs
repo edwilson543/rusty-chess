@@ -1,5 +1,5 @@
-use crate::domain::gameplay::chess_set;
-use crate::domain::gameplay::rulebook;
+use crate::domain::chess_set;
+use crate::domain::rulebook;
 
 pub fn some_square() -> chess_set::Square {
     chess_set::Square::new(chess_set::Rank::One, chess_set::File::A)

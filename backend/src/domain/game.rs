@@ -1,6 +1,6 @@
-use crate::domain::gameplay::chess_set;
-use crate::domain::gameplay::rulebook;
-use crate::domain::gameplay::rulebook::Move;
+use crate::domain::chess_set;
+use crate::domain::rulebook;
+use crate::domain::rulebook::Move;
 use serde;
 
 #[derive(thiserror::Error, Debug, PartialEq)]
@@ -237,7 +237,7 @@ mod tests {
     #[cfg(test)]
     mod play_ordinary_move_tests {
         use super::super::*;
-        use crate::domain::gameplay::chess_set::{Colour, File, PieceType, Rank};
+        use crate::domain::chess_set::{Colour, File, PieceType, Rank};
 
         #[test]
         fn can_make_1e4_pawn_opening() {

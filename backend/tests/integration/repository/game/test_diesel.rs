@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests {
-    use chess::domain::gameplay::chess_set::{Colour, File, Rank, Square};
-    use chess::domain::gameplay::game;
+    use chess::domain::chess_set::{Colour, File, Rank, Square};
+    use chess::domain::game;
     use chess::repository::{DieselGameRepository, GameRepository};
 
     #[test]

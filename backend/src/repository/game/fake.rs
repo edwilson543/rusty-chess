@@ -1,5 +1,5 @@
 use super::repo;
-use crate::domain::gameplay::game;
+use crate::domain::game;
 use std::collections::BTreeMap;
 
 pub struct FakeGameRepository {
@@ -47,7 +47,7 @@ mod tests {
     mod get_tests {
         use super::super::repo::GameRepository;
         use super::super::FakeGameRepository;
-        use crate::domain::gameplay::game;
+        use crate::domain::game;
 
         #[test]
         fn gets_game_when_exists() {
@@ -74,7 +74,7 @@ mod tests {
     mod create_tests {
         use super::super::repo::GameRepository;
         use super::super::FakeGameRepository;
-        use crate::domain::gameplay::game;
+        use crate::domain::game;
 
         #[test]
         fn creates_first_game_with_id_one() {
@@ -103,8 +103,8 @@ mod tests {
     mod update_tests {
         use super::super::repo::GameRepository;
         use super::super::FakeGameRepository;
-        use crate::domain::gameplay::chess_set::{Colour, File, Rank, Square};
-        use crate::domain::gameplay::game;
+        use crate::domain::chess_set::{Colour, File, Rank, Square};
+        use crate::domain::game;
 
         #[test]
         fn updates_game_to_new_instance() {

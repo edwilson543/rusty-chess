@@ -1,6 +1,6 @@
-use crate::domain::gameplay::rulebook::moves::ordinary_move::multi_square_move::MultiSquareMove;
-use crate::domain::gameplay::rulebook::moves::ordinary_move::rule::OrdinaryMoveRule;
-use crate::domain::gameplay::rulebook::moves::translation;
+use crate::domain::rulebook::moves::ordinary_move::multi_square_move::MultiSquareMove;
+use crate::domain::rulebook::moves::ordinary_move::rule::OrdinaryMoveRule;
+use crate::domain::rulebook::moves::translation;
 use std::vec;
 
 pub fn get_rook_move_rules() -> vec::IntoIter<Box<dyn OrdinaryMoveRule>> {
@@ -23,10 +23,8 @@ pub fn get_rook_move_rules() -> vec::IntoIter<Box<dyn OrdinaryMoveRule>> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::domain::gameplay::chess_set::{
-        Chessboard, Colour, File, Piece, PieceType, Rank, Square,
-    };
-    use crate::domain::gameplay::rulebook::moves::OrdinaryMove;
+    use crate::domain::chess_set::{Chessboard, Colour, File, Piece, PieceType, Rank, Square};
+    use crate::domain::rulebook::moves::OrdinaryMove;
     use crate::testing::factories;
     use rstest::rstest;
     use std::collections::BTreeMap;

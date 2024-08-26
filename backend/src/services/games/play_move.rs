@@ -1,5 +1,5 @@
-use crate::domain::gameplay::chess_set;
-use crate::domain::gameplay::game;
+use crate::domain::chess_set;
+use crate::domain::game;
 use crate::repository;
 
 use thiserror;
@@ -38,7 +38,7 @@ pub fn play_move(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::domain::gameplay::chess_set::{Colour, File, Rank, Square};
+    use crate::domain::chess_set::{Colour, File, Rank, Square};
     use crate::repository::GameRepository;
 
     #[test]

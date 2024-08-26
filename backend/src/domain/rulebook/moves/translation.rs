@@ -1,4 +1,4 @@
-use crate::domain::gameplay::chess_set;
+use crate::domain::chess_set;
 use std::cmp;
 use std::fmt;
 use std::ops;

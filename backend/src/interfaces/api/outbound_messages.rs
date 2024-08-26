@@ -1,7 +1,7 @@
 use crate::config;
 use crate::services::games;
 
-use crate::domain::gameplay::game;
+use crate::domain::game;
 use serde;
 use serde_json;
 

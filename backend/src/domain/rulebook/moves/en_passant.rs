@@ -2,7 +2,7 @@ use super::translation;
 
 use super::chess_move;
 use super::translation::ChessVector;
-use crate::domain::gameplay::chess_set;
+use crate::domain::chess_set;
 
 pub struct EnPassant {
     pawn: chess_set::Piece,
@@ -132,10 +132,8 @@ impl EnPassant {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::domain::gameplay::chess_set::{
-        Chessboard, Colour, File, Piece, PieceType, Rank, Square,
-    };
-    use crate::domain::gameplay::rulebook::{Move, MoveValidationError};
+    use crate::domain::chess_set::{Chessboard, Colour, File, Piece, PieceType, Rank, Square};
+    use crate::domain::rulebook::{Move, MoveValidationError};
     use crate::testing::factories;
     use rstest::rstest;
     use std::collections::BTreeMap;

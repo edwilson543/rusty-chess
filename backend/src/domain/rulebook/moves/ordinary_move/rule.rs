@@ -1,4 +1,4 @@
-use crate::domain::gameplay::rulebook::OrdinaryMove;
+use crate::domain::rulebook::OrdinaryMove;
 
 /// Mechanism for defining whether a certain translation is allowed.
 pub trait OrdinaryMoveRule {

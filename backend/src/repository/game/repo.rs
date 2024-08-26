@@ -1,4 +1,4 @@
-use crate::domain::gameplay::game;
+use crate::domain::game;
 
 pub trait GameRepository {
     fn get(&mut self, id: &i32) -> Option<game::Game>;

@@ -3,8 +3,6 @@ use chess::interfaces::api;
 use rocket::http;
 use rocket::local;
 
-use serde_json;
-
 #[test]
 fn can_fetch_state_of_game_that_exists() {
     {

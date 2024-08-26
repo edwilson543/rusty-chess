@@ -1,7 +1,7 @@
 use super::ordinary_move::OrdinaryMove;
 use super::rule::OrdinaryMoveRule;
-use crate::domain::gameplay::chess_set;
-use crate::domain::gameplay::rulebook::moves::translation;
+use crate::domain::chess_set;
+use crate::domain::rulebook::moves::translation;
 
 pub struct MultiSquareMove {
     vector: translation::ChessVector,
@@ -44,11 +44,9 @@ impl MultiSquareMove {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::domain::gameplay::chess_set::{
-        Chessboard, Colour, File, Piece, PieceType, Rank, Square,
-    };
-    use crate::domain::gameplay::rulebook::moves::ordinary_move::OrdinaryMove;
-    use crate::domain::gameplay::rulebook::moves::translation;
+    use crate::domain::chess_set::{Chessboard, Colour, File, Piece, PieceType, Rank, Square};
+    use crate::domain::rulebook::moves::ordinary_move::OrdinaryMove;
+    use crate::domain::rulebook::moves::translation;
     use crate::testing::factories;
     use std::collections::BTreeMap;
 

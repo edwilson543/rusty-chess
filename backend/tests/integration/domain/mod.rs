@@ -1,1 +1,1 @@
-mod gameplay;
+mod rulebook;

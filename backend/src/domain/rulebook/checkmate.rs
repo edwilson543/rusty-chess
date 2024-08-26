@@ -1,6 +1,6 @@
 use super::moves;
 use super::{check, Move};
-use crate::domain::gameplay::chess_set;
+use crate::domain::chess_set;
 
 pub fn is_player_checkmated(player: chess_set::Colour, chessboard: &chess_set::Chessboard) -> bool {
     if !check::is_player_in_check(&player, chessboard.clone()) {
@@ -50,9 +50,7 @@ fn get_legal_moves(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::domain::gameplay::chess_set::{
-        Chessboard, Colour, File, Piece, PieceType, Rank, Square,
-    };
+    use crate::domain::chess_set::{Chessboard, Colour, File, Piece, PieceType, Rank, Square};
     use std::collections::BTreeMap;
 
     // Checkmate scenarios.

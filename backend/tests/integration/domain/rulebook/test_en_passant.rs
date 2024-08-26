@@ -1,5 +1,5 @@
-use chess::domain::gameplay::chess_set::{Colour, File, PieceType, Rank, Square};
-use chess::domain::gameplay::game::{Game, GameStatus};
+use chess::domain::chess_set::{Colour, File, PieceType, Rank, Square};
+use chess::domain::game::{Game, GameStatus};
 
 #[test]
 fn white_can_play_en_passant() {

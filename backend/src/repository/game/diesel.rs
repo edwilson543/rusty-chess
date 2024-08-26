@@ -5,7 +5,7 @@ use std::collections::BTreeMap;
 
 use super::repo;
 use crate::data::{connection, models};
-use crate::domain::gameplay::{chess_set, game};
+use crate::domain::{chess_set, game};
 
 pub struct DieselGameRepository {
     connection: PgConnection,

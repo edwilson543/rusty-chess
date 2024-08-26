@@ -1,6 +1,6 @@
 use super::{pieces, rule};
-use crate::domain::gameplay::chess_set;
-use crate::domain::gameplay::rulebook::moves::{chess_move, translation};
+use crate::domain::chess_set;
+use crate::domain::rulebook::moves::{chess_move, translation};
 
 /// A move of a single piece from one square to another.
 #[derive(Clone)]
@@ -95,7 +95,7 @@ impl OrdinaryMove {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::domain::gameplay::rulebook::Move;
+    use crate::domain::rulebook::Move;
     use crate::testing::factories;
 
     #[test]
@@ -115,8 +115,8 @@ mod tests {
     #[cfg(test)]
     mod test_can_square_be_moved_to {
         use super::super::*;
-        use crate::domain::gameplay::chess_set;
-        use crate::domain::gameplay::rulebook::{Move, MoveValidationError};
+        use crate::domain::chess_set;
+        use crate::domain::rulebook::{Move, MoveValidationError};
         use crate::testing::factories;
         use std::collections::BTreeMap;
 

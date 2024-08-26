@@ -1,7 +1,7 @@
-use crate::domain::gameplay::chess_set;
-use crate::domain::gameplay::rulebook::moves::ordinary_move::ordinary_move::OrdinaryMove;
-use crate::domain::gameplay::rulebook::moves::ordinary_move::rule::OrdinaryMoveRule;
-use crate::domain::gameplay::rulebook::moves::translation::ChessVector;
+use crate::domain::chess_set;
+use crate::domain::rulebook::moves::ordinary_move::ordinary_move::OrdinaryMove;
+use crate::domain::rulebook::moves::ordinary_move::rule::OrdinaryMoveRule;
+use crate::domain::rulebook::moves::translation::ChessVector;
 use std::vec;
 
 pub fn get_pawn_move_rules() -> vec::IntoIter<Box<dyn OrdinaryMoveRule>> {
@@ -85,10 +85,8 @@ fn is_square_occupied_by_opponent_piece(chess_move: &OrdinaryMove) -> bool {
 #[cfg(test)]
 mod tests {
     use super::get_pawn_move_rules;
-    use crate::domain::gameplay::chess_set::{
-        Chessboard, Colour, File, Piece, PieceType, Rank, Square,
-    };
-    use crate::domain::gameplay::rulebook::moves::OrdinaryMove;
+    use crate::domain::chess_set::{Chessboard, Colour, File, Piece, PieceType, Rank, Square};
+    use crate::domain::rulebook::moves::OrdinaryMove;
     use crate::testing::factories;
     use rstest::rstest;
     use std::collections::BTreeMap;

@@ -1,5 +1,5 @@
-use chess::domain::gameplay::chess_set::{Colour, File, Rank, Square};
-use chess::domain::gameplay::game::{Game, GameError};
+use chess::domain::chess_set::{Colour, File, Rank, Square};
+use chess::domain::game::{Game, GameError};
 
 #[test]
 fn black_cannot_move_pawn_pinned_by_white_queen() {

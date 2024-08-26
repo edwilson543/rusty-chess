@@ -1,6 +1,6 @@
 use super::moves;
 use super::moves::Move;
-use crate::domain::gameplay::chess_set;
+use crate::domain::chess_set;
 
 /// Test whether a move would leave a player in check.
 ///
@@ -47,10 +47,10 @@ pub fn is_player_in_check(player: &chess_set::Colour, chessboard: chess_set::Che
 mod tests {
     use super::would_player_be_left_in_check;
     use super::Move;
-    use crate::domain::gameplay::chess_set::{
+    use crate::domain::chess_set::{
         Chessboard, ChessboardActionError, Colour, File, Piece, PieceType, Rank, Square,
     };
-    use crate::domain::gameplay::rulebook;
+    use crate::domain::rulebook;
     use crate::testing::factories;
     use rstest::rstest;
     use std::collections::BTreeMap;

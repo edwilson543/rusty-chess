@@ -1,4 +1,4 @@
-use crate::domain::gameplay::chess_set;
+use crate::domain::chess_set;
 use std::collections::BTreeMap;
 
 pub fn get_official_starting_position() -> BTreeMap<chess_set::Square, chess_set::Piece> {

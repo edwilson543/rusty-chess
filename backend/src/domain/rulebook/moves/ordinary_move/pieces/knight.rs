@@ -1,6 +1,6 @@
-use crate::domain::gameplay::rulebook::moves::ordinary_move::ordinary_move::OrdinaryMove;
-use crate::domain::gameplay::rulebook::moves::ordinary_move::rule::OrdinaryMoveRule;
-use crate::domain::gameplay::rulebook::moves::translation;
+use crate::domain::rulebook::moves::ordinary_move::ordinary_move::OrdinaryMove;
+use crate::domain::rulebook::moves::ordinary_move::rule::OrdinaryMoveRule;
+use crate::domain::rulebook::moves::translation;
 use std::vec;
 
 pub fn get_knight_move_rules() -> vec::IntoIter<Box<dyn OrdinaryMoveRule>> {
@@ -36,8 +36,8 @@ impl OrdinaryMoveRule for LShapedJump {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::domain::gameplay::chess_set::{Colour, File, Piece, PieceType, Rank, Square};
-    use crate::domain::gameplay::rulebook::moves::OrdinaryMove;
+    use crate::domain::chess_set::{Colour, File, Piece, PieceType, Rank, Square};
+    use crate::domain::rulebook::moves::OrdinaryMove;
     use crate::testing::factories;
     use rstest::rstest;
 
