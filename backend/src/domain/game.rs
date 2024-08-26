@@ -209,6 +209,14 @@ impl Game {
 }
 
 impl GameStatus {
+    pub fn to_play_colour(&self) -> Option<chess_set::Colour> {
+        match self {
+            GameStatus::ToPlayWhite => Some(chess_set::Colour::White),
+            GameStatus::ToPlayBlack => Some(chess_set::Colour::Black),
+            _ => None,
+        }
+    }
+
     fn from_winning_colour(colour: chess_set::Colour) -> Self {
         match colour {
             chess_set::Colour::White => GameStatus::WonByWhite,
@@ -220,14 +228,6 @@ impl GameStatus {
         match colour {
             chess_set::Colour::White => GameStatus::ToPlayWhite,
             chess_set::Colour::Black => GameStatus::ToPlayBlack,
-        }
-    }
-
-    fn to_play_colour(&self) -> Option<chess_set::Colour> {
-        match self {
-            GameStatus::ToPlayWhite => Some(chess_set::Colour::White),
-            GameStatus::ToPlayBlack => Some(chess_set::Colour::Black),
-            _ => None,
         }
     }
 }
