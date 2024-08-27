@@ -103,28 +103,7 @@ impl Game {
         self.play_move(player, Box::new(en_passant))
     }
 
-    // Queries.
-    pub fn get_id(&self) -> &i32 {
-        &self.id
-    }
-
-    pub fn get_status(&self) -> &GameStatus {
-        &self.status
-    }
-
-    pub fn get_chessboard_history(&self) -> &Vec<chess_set::Chessboard> {
-        &self.chessboard_history
-    }
-
-    pub fn current_chessboard(&self) -> &chess_set::Chessboard {
-        self.chessboard_history.last().unwrap()
-    }
-}
-
-// Private interface.
-impl Game {
-    // Mutators.
-    fn play_move(
+    pub fn play_move(
         &mut self,
         player: &chess_set::Colour,
         chess_move: Box<dyn Move>,
@@ -161,6 +140,27 @@ impl Game {
         Ok(&self.status)
     }
 
+    // Queries.
+    pub fn get_id(&self) -> &i32 {
+        &self.id
+    }
+
+    pub fn get_status(&self) -> &GameStatus {
+        &self.status
+    }
+
+    pub fn get_chessboard_history(&self) -> &Vec<chess_set::Chessboard> {
+        &self.chessboard_history
+    }
+
+    pub fn current_chessboard(&self) -> &chess_set::Chessboard {
+        self.chessboard_history.last().unwrap()
+    }
+}
+
+// Private interface.
+impl Game {
+    // Mutators.
     fn progress_game_status(&mut self) {
         let Some(colour) = self.status.to_play_colour() else {
             panic!("Game should have ended sooner!");
