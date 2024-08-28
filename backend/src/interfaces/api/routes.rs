@@ -54,3 +54,23 @@ pub async fn play_move(
         }
     }
 }
+
+#[rocket::post("/games/<id>/generate-and-play-next-move")]
+pub async fn generate_and_play_next_move(id: i32) -> (http::Status, json::Json<String>) {
+    let repo = config::get_game_repo();
+    let engine = config::get_chess_engine();
+
+    match games::generate_and_play_next_move(repo, engine, id) {
+        Ok(game) => {
+            let payload = serde_json::to_string(&game).unwrap();
+            (http::Status::Ok, json::Json(payload))
+        }
+        Err(err) => {
+            let payload = json::json!({"error": format!("{}", err)});
+            (
+                http::Status::BadRequest,
+                json::Json(json::to_string(&payload).unwrap()),
+            )
+        }
+    }
+}

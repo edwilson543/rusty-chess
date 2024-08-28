@@ -13,7 +13,7 @@ pub enum GenerateNextMoveError {
     SuggestMoveError(engine::SuggestNextMoveError),
 }
 
-fn generate_and_play_next_move(
+pub fn generate_and_play_next_move(
     mut game_repo: Box<dyn repository::GameRepository>,
     chess_engine: Box<dyn engine::ChessEngine>,
     game_id: i32,
