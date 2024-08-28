@@ -1,3 +1,4 @@
+mod generate_and_play_next_move;
 mod play_move;
 mod start_game;
 
