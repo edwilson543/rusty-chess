@@ -20,7 +20,6 @@ pub fn rocket_build() -> rocket::Rocket<rocket::Build> {
                 routes::start_game,
                 routes::get_game_state,
                 routes::play_move,
-                routes::play
             ],
         )
         .attach(cors.to_cors().unwrap())
