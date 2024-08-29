@@ -1,4 +1,4 @@
-import { initContract, ClientInferRequest } from "@ts-rest/core";
+import { initContract } from "@ts-rest/core";
 import { z } from "zod";
 
 // Helpers.
@@ -134,21 +134,29 @@ export const contract = c.router({
       200: game,
       400: z.object({ error: z.string() }),
     },
-    getGameState: {
-      method: "GET",
-      path: "/games/:gameId/",
-      pathParams: z.object({
-        gameId: z.number(),
-      }),
-      responses: {
-        200: game,
-        404: z.object({}),
-      },
+  },
+  generateAndPlayNextMove: {
+    method: "POST",
+    path: "/games/:gameId/generate-and-play-next-move/",
+    pathParams: z.object({
+      gameId: z.number(),
+    }),
+    responses: {
+      200: game,
+      400: z.object({ error: z.string() }),
+    },
+  },
+  getGameState: {
+    method: "GET",
+    path: "/games/:gameId/",
+    pathParams: z.object({
+      gameId: z.number(),
+    }),
+    responses: {
+      200: game,
+      404: z.object({}),
     },
   },
 });
 
 export type GameSchema = z.infer<typeof game>;
-export type StartGameRequest = ClientInferRequest<typeof contract.startGame>;
-export type GetGameState = ClientInferRequest<typeof contract.getGameState>;
-export type PlayMove = ClientInferRequest<typeof contract.playMove>;

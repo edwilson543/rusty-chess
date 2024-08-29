@@ -15,6 +15,8 @@ export interface APIClient {
     gameId: number;
     move: types.Move;
   }): Promise<types.Game>;
+
+  generateAndPlayNextMove({ gameId }: { gameId: number }): Promise<types.Game>;
 }
 
 export const getApiClient = (): APIClient => {
@@ -55,6 +57,22 @@ class RestAPIClient implements APIClient {
         from_square: serializers.squareToString(move.fromSquare),
         to_square: serializers.squareToString(move.toSquare),
       },
+    }) as Promise<Response>;
+    return promise.then((response: Response) => {
+      switch (response.status) {
+        case 200:
+          return serializers.parseGameSchemaToGame(
+            JSON.parse(response.body) as GameSchema,
+          );
+        default:
+          throw new Error(`Error playing move: ${response.status}`);
+      }
+    });
+  }
+
+  generateAndPlayNextMove({ gameId }: { gameId: number }): Promise<Game> {
+    const promise = client.generateAndPlayNextMove({
+      params: { gameId: gameId },
     }) as Promise<Response>;
     return promise.then((response: Response) => {
       switch (response.status) {
