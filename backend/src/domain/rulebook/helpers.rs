@@ -19,6 +19,7 @@ pub fn get_legal_moves(
             let ordinary_move =
                 moves::OrdinaryMove::new(chessboard, &moved_piece, &from_square, &to_square);
 
+            // TODO -> use actual chessboard history here.
             if let Ok(()) = ordinary_move.validate(&vec![chessboard.clone()]) {
                 legal_moves.push(Box::new(ordinary_move) as Box<dyn Move>)
             }
