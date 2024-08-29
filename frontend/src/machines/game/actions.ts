@@ -12,6 +12,7 @@ export const actions: ActionFunctionMap<
       assertEvent(event, [
         machineTypes.GameEvent.GameStarted,
         machineTypes.GameEvent.MovePlayed,
+        machineTypes.GameEvent.MoveGeneratedAndPlayed,
       ]);
       return event.output;
     },

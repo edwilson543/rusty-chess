@@ -14,3 +14,10 @@ export const playMove = fromPromise(
     return apiClient.playMove({ gameId: input.gameId, move: input.move });
   },
 );
+
+export const generateAndPlayNextMove = fromPromise(
+  ({ input }: { input: { gameId: number } }) => {
+    const apiClient = getApiClient();
+    return apiClient.generateAndPlayNextMove({ gameId: input.gameId });
+  },
+);

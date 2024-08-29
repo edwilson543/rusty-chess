@@ -15,6 +15,7 @@ export enum GameEvent {
   // Events that set the active game.
   GameStarted = "xstate.done.actor.startGame",
   MovePlayed = "xstate.done.actor.playMove",
+  MoveGeneratedAndPlayed = "xstate.done.actor.generateAndPlayNextMove",
 }
 
 export interface PlayMoveEvent {
@@ -29,7 +30,10 @@ export interface SelectSquareToMoveFrom {
 }
 
 interface SetActiveGameEvent {
-  type: GameEvent.GameStarted | GameEvent.MovePlayed;
+  type:
+    | GameEvent.GameStarted
+    | GameEvent.MovePlayed
+    | GameEvent.MoveGeneratedAndPlayed;
   output: types.Game;
 }
 

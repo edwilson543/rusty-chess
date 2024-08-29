@@ -1,7 +1,7 @@
 import { assertEvent, setup } from "xstate";
 
 import { actions } from "./actions.ts";
-import { startGame, playMove } from "./actors.ts";
+import { startGame, playMove, generateAndPlayNextMove } from "./actors.ts";
 import { guards } from "./guards.ts";
 import * as machineTypes from "./types";
 import * as types from "../../lib/types.ts";
@@ -15,6 +15,7 @@ const GameMachine = setup({
   actors: {
     startGame,
     playMove,
+    generateAndPlayNextMove,
   },
   guards: guards,
 }).createMachine({
@@ -84,7 +85,22 @@ const GameMachine = setup({
         },
       },
     },
-    [machineTypes.GameState.OpponentPlayerTurn]: {},
+    [machineTypes.GameState.OpponentPlayerTurn]: {
+      invoke: {
+        id: "generateAndPlayNextMove",
+        src: "generateAndPlayNextMove",
+        input: ({ context }) => {
+          return { gameId: context.game?.id };
+        },
+        onDone: {
+          actions: machineTypes.Action.SetActiveGame,
+          target: machineTypes.GameState.LocalPlayerTurn,
+        },
+        onError: {
+          target: machineTypes.GameState.Unavailable,
+        },
+      },
+    },
 
     [machineTypes.GameState.Unavailable]: { type: "final" },
   },
