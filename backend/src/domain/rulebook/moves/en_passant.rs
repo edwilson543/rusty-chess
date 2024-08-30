@@ -67,8 +67,13 @@ impl EnPassant {
         &self,
         chessboard_history: &Vec<chess_set::Chessboard>,
     ) -> bool {
+        let history_length = chessboard_history.len();
+        if history_length < 2 {
+            return false;
+        }
+
+        let previous_state = &chessboard_history[history_length - 2];
         let from_square = self.get_square_captured_pawn_should_have_moved_from();
-        let previous_state = &chessboard_history[chessboard_history.len() - 2];
         let opponent_pawn_moved_from_expected_square =
             self.is_piece_at_square_opponent_pawn(previous_state, &from_square);
 

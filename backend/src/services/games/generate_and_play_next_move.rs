@@ -22,7 +22,7 @@ pub fn generate_and_play_next_move(
         return Err(GenerateNextMoveError::GameDoesNotExist(game_id));
     };
 
-    let Some(to_play_colour) = game.get_status().to_play_colour() else {
+    let Some(_) = game.get_status().to_play_colour() else {
         return Err(GenerateNextMoveError::GameHasAlreadyEnded);
     };
 
@@ -31,7 +31,7 @@ pub fn generate_and_play_next_move(
         Err(err) => return Err(GenerateNextMoveError::SuggestMoveError(err)),
     };
 
-    game.play_move(&to_play_colour, move_to_play)
+    game.play_validated_move(move_to_play)
         .unwrap_or_else(|_| panic!("Engine generated an invalid move!"));
 
     game_repo.update(&game);
@@ -71,7 +71,7 @@ mod tests {
         // Play an opening move for white so that it's black's turn.
         let from_square = Square::new(Rank::Two, File::E);
         let to_square = Square::new(Rank::Four, File::E);
-        game.play_ordinary_move(&Colour::White, &from_square, &to_square)
+        game.play_unvalidated_move(&Colour::White, &from_square, &to_square)
             .unwrap();
         game_repo.update(&game);
 
