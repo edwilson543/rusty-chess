@@ -15,7 +15,8 @@ impl engine::ChessEngine for Random {
             return Err(engine::SuggestNextMoveError::GameHasAlreadyEnded);
         };
 
-        let mut legal_moves = rulebook::get_legal_moves(to_play_colour, game.current_chessboard());
+        let mut legal_moves =
+            rulebook::get_legal_moves(to_play_colour, game.get_chessboard_history());
 
         let mut rng = thread_rng();
         let selected_move_index = rng.gen_range(0..legal_moves.len());

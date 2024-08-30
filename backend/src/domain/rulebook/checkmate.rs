@@ -3,12 +3,17 @@ use crate::domain::chess_set;
 
 use super::helpers;
 
-pub fn is_player_checkmated(player: chess_set::Colour, chessboard: &chess_set::Chessboard) -> bool {
+pub fn is_player_checkmated(
+    player: chess_set::Colour,
+    chessboard_history: &Vec<chess_set::Chessboard>,
+) -> bool {
+    let chessboard = chessboard_history.last().unwrap();
+
     if !check::is_player_in_check(&player, chessboard.clone()) {
         return false;
     }
 
-    let legal_moves = helpers::get_legal_moves(player, chessboard);
+    let legal_moves = helpers::get_legal_moves(player, chessboard_history);
     legal_moves.len() == 0
 }
 
@@ -38,7 +43,7 @@ mod tests {
 
         let chessboard = Chessboard::new(starting_position);
 
-        assert!(is_player_checkmated(Colour::Black, &chessboard));
+        assert!(is_player_checkmated(Colour::Black, &vec![chessboard]));
     }
 
     #[test]
@@ -66,7 +71,7 @@ mod tests {
 
         let chessboard = Chessboard::new(starting_position);
 
-        assert!(is_player_checkmated(Colour::Black, &chessboard));
+        assert!(is_player_checkmated(Colour::Black, &vec![chessboard]));
     }
 
     #[test]
@@ -88,7 +93,7 @@ mod tests {
 
         let chessboard = Chessboard::new(starting_position);
 
-        assert!(is_player_checkmated(Colour::Black, &chessboard));
+        assert!(is_player_checkmated(Colour::Black, &vec![chessboard]));
     }
 
     #[test]
@@ -113,7 +118,7 @@ mod tests {
 
         let chessboard = Chessboard::new(starting_position);
 
-        assert!(is_player_checkmated(Colour::Black, &chessboard));
+        assert!(is_player_checkmated(Colour::Black, &vec![chessboard]));
     }
 
     // Not checkmate scenarios.
@@ -128,7 +133,7 @@ mod tests {
 
         let chessboard = Chessboard::new(starting_position);
 
-        assert!(!is_player_checkmated(Colour::Black, &chessboard));
+        assert!(!is_player_checkmated(Colour::Black, &vec![chessboard]));
     }
 
     #[test]
@@ -145,7 +150,7 @@ mod tests {
 
         let chessboard = Chessboard::new(starting_position);
 
-        assert!(!is_player_checkmated(Colour::Black, &chessboard));
+        assert!(!is_player_checkmated(Colour::Black, &vec![chessboard]));
     }
 
     #[test]
@@ -162,7 +167,7 @@ mod tests {
 
         let chessboard = Chessboard::new(starting_position);
 
-        assert!(!is_player_checkmated(Colour::Black, &chessboard));
+        assert!(!is_player_checkmated(Colour::Black, &vec![chessboard]));
     }
 
     #[test]
@@ -188,7 +193,7 @@ mod tests {
 
         let chessboard = Chessboard::new(starting_position);
 
-        assert!(!is_player_checkmated(Colour::Black, &chessboard));
+        assert!(!is_player_checkmated(Colour::Black, &vec![chessboard]));
     }
 
     #[test]
@@ -214,6 +219,6 @@ mod tests {
 
         let chessboard = Chessboard::new(starting_position);
 
-        assert!(!is_player_checkmated(Colour::Black, &chessboard));
+        assert!(!is_player_checkmated(Colour::Black, &vec![chessboard]));
     }
 }

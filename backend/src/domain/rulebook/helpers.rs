@@ -3,9 +3,11 @@ use crate::domain::rulebook::{check, moves, Move};
 
 pub fn get_legal_moves(
     player: chess_set::Colour,
-    chessboard: &chess_set::Chessboard,
+    chessboard_history: &Vec<chess_set::Chessboard>,
 ) -> Vec<Box<dyn Move>> {
-    // TODO -> include special moves - will require passing in history.
+    // TODO -> include special moves.
+    let chessboard = chessboard_history.last().unwrap();
+
     let mut legal_moves = vec![];
     for (from_square, maybe_piece) in chessboard.position.clone().into_iter() {
         let Some(moved_piece) = maybe_piece else {
@@ -20,8 +22,7 @@ pub fn get_legal_moves(
                 moves::OrdinaryMove::new(chessboard, &moved_piece, &from_square, &to_square);
             let boxed_move = Box::new(ordinary_move) as Box<dyn Move>;
 
-            // TODO -> use actual chessboard history here.
-            if let Ok(()) = &boxed_move.validate(&vec![chessboard.clone()]) {
+            if let Ok(()) = &boxed_move.validate(chessboard_history) {
                 let Ok(left_in_check) =
                     check::would_player_be_left_in_check(&player, &boxed_move, &chessboard)
                 else {
@@ -47,7 +48,7 @@ mod tests {
     fn there_are_twenty_legal_opening_moves() {
         let chessboard = factories::chessboard();
 
-        let legal_moves = get_legal_moves(Colour::White, &chessboard);
+        let legal_moves = get_legal_moves(Colour::White, &vec![chessboard]);
 
         assert_eq!(legal_moves.len(), 20);
     }
