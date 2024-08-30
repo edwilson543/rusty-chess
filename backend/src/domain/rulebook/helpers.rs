@@ -1,5 +1,5 @@
 use crate::domain::chess_set;
-use crate::domain::rulebook::{moves, Move};
+use crate::domain::rulebook::{check, moves, Move};
 
 pub fn get_legal_moves(
     player: chess_set::Colour,
@@ -18,10 +18,18 @@ pub fn get_legal_moves(
         for (to_square, _) in chessboard.position.clone().into_iter() {
             let ordinary_move =
                 moves::OrdinaryMove::new(chessboard, &moved_piece, &from_square, &to_square);
+            let boxed_move = Box::new(ordinary_move) as Box<dyn Move>;
 
             // TODO -> use actual chessboard history here.
-            if let Ok(()) = ordinary_move.validate(&vec![chessboard.clone()]) {
-                legal_moves.push(Box::new(ordinary_move) as Box<dyn Move>)
+            if let Ok(()) = &boxed_move.validate(&vec![chessboard.clone()]) {
+                let Ok(left_in_check) =
+                    check::would_player_be_left_in_check(&player, &boxed_move, &chessboard)
+                else {
+                    continue;
+                };
+                if !left_in_check {
+                    legal_moves.push(boxed_move)
+                }
             }
         }
     }

@@ -9,17 +9,7 @@ pub fn is_player_checkmated(player: chess_set::Colour, chessboard: &chess_set::C
     }
 
     let legal_moves = helpers::get_legal_moves(player, chessboard);
-    for legal_move in legal_moves.into_iter() {
-        let Ok(still_in_check) =
-            check::would_player_be_left_in_check(&player, &legal_move, chessboard)
-        else {
-            continue;
-        };
-        if !still_in_check {
-            return false;
-        }
-    }
-    true
+    legal_moves.len() == 0
 }
 
 #[cfg(test)]
