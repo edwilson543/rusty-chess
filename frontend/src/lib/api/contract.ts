@@ -90,7 +90,7 @@ const chessboard = z.object({
   }),
 });
 
-const gameStatus = z.enum([
+export const gameStatus = z.enum([
   "ToPlayWhite",
   "ToPlayBlack",
   "WonByWhite",
