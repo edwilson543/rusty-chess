@@ -10,6 +10,7 @@ export interface GameContextProps {
 // Events.
 
 export enum GameEvent {
+  StartNewGame = "start-new-game",
   PlayMove = "play-move",
   SetSquareToMoveFrom = "set-square-to-move-from",
   // Events that set the active game.

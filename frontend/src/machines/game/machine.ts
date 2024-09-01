@@ -31,6 +31,11 @@ const GameMachine = setup({
   },
   initial: machineTypes.GameState.Idle,
   predictableActionArguments: true,
+  on: {
+    [machineTypes.GameEvent.StartNewGame]: {
+      target: `.${machineTypes.GameState.StartingGame}`,
+    },
+  },
   states: {
     [machineTypes.GameState.Idle]: {
       always: [
@@ -118,7 +123,7 @@ const GameMachine = setup({
       },
     },
     [machineTypes.GameState.GameComplete]: {},
-    [machineTypes.GameState.Unavailable]: { type: "final" },
+    [machineTypes.GameState.Unavailable]: {},
   },
 });
 
