@@ -9,10 +9,11 @@ run_frontend:
 	cd frontend && make run
 
 
-.PHONY:build
-build:
+.PHONY:install
+install:
+	cd backend && make setup_db
 	cd backend && make build
-	cd frontend && make build
+	cd frontend && make install
 
 
 .PHONY:local_ci
