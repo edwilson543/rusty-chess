@@ -25,7 +25,6 @@ const GameMachine = setup({
   id: "game",
   context: {
     game: null,
-    // TODO -> allow playing as either colour.
     localPlayerColour: types.Colour.White,
     squareToMoveFrom: null,
   },
