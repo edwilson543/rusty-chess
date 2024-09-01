@@ -6,7 +6,7 @@ import { inspect } from "./lib/inspector.ts";
 function App() {
   return (
     <>
-      <h1>Chess</h1>
+      {/*<h1>Chess</h1>*/}
       <GameMachineContext.Provider options={{ inspect }}>
         <Game />
       </GameMachineContext.Provider>
