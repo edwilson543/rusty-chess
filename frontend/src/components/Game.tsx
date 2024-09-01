@@ -1,4 +1,4 @@
-import { faArrowsRotate } from "@fortawesome/free-solid-svg-icons";
+import { faArrowsRotate, faShuffle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useSelector } from "@xstate/react";
 
@@ -29,12 +29,13 @@ const GameDetails = (props: GameDetailsProps) => {
 
   return (
     <>
-      <div style={{ width: "1200px", height: "800px" }}>
+      <div>
         <div
           style={{
             display: "flex",
             flexDirection: "row",
-            justifyContent: "center",
+            justifyContent: "space-between",
+            alignItems: "center",
             padding: "5px",
           }}
         >
@@ -48,12 +49,16 @@ const GameDetails = (props: GameDetailsProps) => {
               <b>Outcome:</b> {props.game.outcome}
             </span>
           )}
-          <div style={{ marginLeft: "20px" }}>
-            <b>New game </b>
+          <div>
+            <FontAwesomeIcon
+              // onClick={props.startNewGame}
+              icon={faArrowsRotate}
+              style={{ marginLeft: "20px", cursor: "pointer" }}
+            />
             <FontAwesomeIcon
               onClick={props.startNewGame}
-              icon={faArrowsRotate}
-              cursor={"pointer"}
+              icon={faShuffle}
+              style={{ marginLeft: "20px", cursor: "pointer" }}
             />
           </div>
         </div>

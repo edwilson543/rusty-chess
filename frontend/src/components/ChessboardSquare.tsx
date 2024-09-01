@@ -63,10 +63,10 @@ export const ChessboardSquare = (props: ChessboardSquareProps) => {
       style={{
         display: "flex",
         flexDirection: "column",
-        flex: 1,
         alignItems: "center",
         justifyContent: "center",
-        aspectRatio: "1 / 1",
+        width: "80px",
+        height: "80px",
         border: "1px solid black",
         backgroundColor: getColourForSquare(props.square),
         cursor: cursor,

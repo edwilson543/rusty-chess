@@ -39,7 +39,7 @@ interface ChessboardRankProps {
 
 const ChessboardRank = (props: ChessboardRankProps) => {
   return (
-    <div style={{ display: "flex", flexDirection: "row", width: "50%" }}>
+    <div style={{ display: "flex", flexDirection: "row"}}>
       {props.rank.map((square: types.Square) => {
         return (
           <ChessboardSquare
