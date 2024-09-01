@@ -1,15 +1,11 @@
-.PHONY:install
-install:
-	npm install
-
 .PHONY:run
 run:
 	npm run dev
 
 
-.PHONY:build
-build:
-	npm run build
+.PHONY:install
+install:
+	npm install
 
 
 .PHONY:local_ci

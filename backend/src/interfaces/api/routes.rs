@@ -1,12 +1,11 @@
 use rocket;
 use rocket::http;
 use rocket::serde::json;
-use rocket_ws;
 
 use crate::config;
 use crate::services::games;
 
-use super::{deserializers, outbound_messages};
+use super::deserializers;
 
 #[rocket::post("/games/start")]
 pub async fn start_game() -> (http::Status, json::Json<String>) {
@@ -56,12 +55,22 @@ pub async fn play_move(
     }
 }
 
-#[rocket::get("/play")]
-pub async fn play(ws: rocket_ws::WebSocket) -> rocket_ws::Stream!['static] {
-    rocket_ws::Stream! { ws =>
-        yield outbound_messages::new_game_message();
-        for await message in ws {
-            yield message?;
+#[rocket::post("/games/<id>/generate-and-play-next-move")]
+pub async fn generate_and_play_next_move(id: i32) -> (http::Status, json::Json<String>) {
+    let repo = config::get_game_repo();
+    let engine = config::get_chess_engine();
+
+    match games::generate_and_play_next_move(repo, engine, id) {
+        Ok(game) => {
+            let payload = serde_json::to_string(&game).unwrap();
+            (http::Status::Ok, json::Json(payload))
+        }
+        Err(err) => {
+            let payload = json::json!({"error": format!("{}", err)});
+            (
+                http::Status::BadRequest,
+                json::Json(json::to_string(&payload).unwrap()),
+            )
         }
     }
 }

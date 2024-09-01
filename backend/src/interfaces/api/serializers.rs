@@ -1,4 +1,4 @@
-use crate::domain::gameplay::{chess_set, game};
+use crate::domain::{chess_set, game};
 use serde;
 use serde::ser::SerializeStruct;
 

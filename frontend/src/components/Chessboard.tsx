@@ -3,14 +3,19 @@ import * as types from "../lib/types.ts";
 
 interface ChessboardProps {
   chessboard: types.Chessboard;
+  localPlayerColour: types.Colour;
 }
 
 const RANK_WIDTH = 8;
 
 export const Chessboard = (props: ChessboardProps) => {
-  const ranks = Object.values(types.Rank)
-    .filter((item) => typeof item === "number")
-    .reverse();
+  const ranks = Object.values(types.Rank).filter(
+    (item) => typeof item === "number",
+  );
+
+  if (props.localPlayerColour === types.Colour.White) {
+    ranks.reverse();
+  }
 
   const position = sortPosition(props.chessboard.position);
   return (
@@ -39,7 +44,7 @@ interface ChessboardRankProps {
 
 const ChessboardRank = (props: ChessboardRankProps) => {
   return (
-    <div style={{ display: "flex", flexDirection: "row", width: "50%" }}>
+    <div style={{ display: "flex", flexDirection: "row" }}>
       {props.rank.map((square: types.Square) => {
         return (
           <ChessboardSquare

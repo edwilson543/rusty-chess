@@ -1,5 +1,5 @@
-use crate::domain::gameplay::chess_set;
-use crate::domain::gameplay::game;
+use crate::domain::chess_set;
+use crate::domain::game;
 use crate::repository;
 
 use thiserror;
@@ -24,9 +24,7 @@ pub fn play_move(
         return Err(PlayMoveError::GameDoesNotExist(game_id.clone()));
     };
 
-    // TODO -> allow playing en passant here.
-
-    match game.play_ordinary_move(&player, &from_square, &to_square) {
+    match game.play_unvalidated_move(&player, &from_square, &to_square) {
         Err(err) => return Err(PlayMoveError::InvalidMove(err)),
         Ok(_) => {}
     }
@@ -38,7 +36,7 @@ pub fn play_move(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::domain::gameplay::chess_set::{Colour, File, Rank, Square};
+    use crate::domain::chess_set::{Colour, File, Rank, Square};
     use crate::repository::GameRepository;
 
     #[test]
@@ -94,7 +92,7 @@ mod tests {
             &Square::new(Rank::Four, File::D),
         );
 
-        let game_error = game::GameError::CannotMoveOpponentPiece(Colour::Black);
+        let game_error = game::GameError::PlayIsOutOfTurn(Colour::Black);
         assert_eq!(result, Err(PlayMoveError::InvalidMove(game_error)))
     }
 }

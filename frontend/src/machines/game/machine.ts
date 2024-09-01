@@ -1,7 +1,7 @@
 import { assertEvent, setup } from "xstate";
 
 import { actions } from "./actions.ts";
-import { startGame, playMove } from "./actors.ts";
+import { startGame, playMove, generateAndPlayNextMove } from "./actors.ts";
 import { guards } from "./guards.ts";
 import * as machineTypes from "./types";
 import * as types from "../../lib/types.ts";
@@ -15,18 +15,26 @@ const GameMachine = setup({
   actors: {
     startGame,
     playMove,
+    generateAndPlayNextMove,
+  },
+  delays: {
+    opponentThinkingTimeMs: 500,
   },
   guards: guards,
 }).createMachine({
   id: "game",
   context: {
     game: null,
-    // TODO -> allow playing as either colour.
     localPlayerColour: types.Colour.White,
     squareToMoveFrom: null,
   },
   initial: machineTypes.GameState.Idle,
   predictableActionArguments: true,
+  on: {
+    [machineTypes.GameEvent.StartNewGame]: {
+      target: `.${machineTypes.GameState.StartingGame}`,
+    },
+  },
   states: {
     [machineTypes.GameState.Idle]: {
       always: [
@@ -42,7 +50,10 @@ const GameMachine = setup({
         id: "startGame",
         src: "startGame",
         onDone: {
-          actions: [machineTypes.Action.SetActiveGame],
+          actions: [
+            machineTypes.Action.SetActiveGame,
+            machineTypes.Action.SetLocalPlayerToWhite,
+          ],
           target: machineTypes.GameState.LocalPlayerTurn,
         },
         onError: {
@@ -51,12 +62,20 @@ const GameMachine = setup({
       },
     },
     [machineTypes.GameState.LocalPlayerTurn]: {
+      always: {
+        target: machineTypes.GameState.GameComplete,
+        guard: machineTypes.Guard.GameIsComplete,
+      },
       on: {
         [machineTypes.GameEvent.SetSquareToMoveFrom]: {
           actions: machineTypes.Action.SetSquareToMoveFrom,
         },
         [machineTypes.GameEvent.PlayMove]: {
           target: machineTypes.GameState.SubmittingMove,
+        },
+        [machineTypes.GameEvent.SwapColours]: {
+          actions: machineTypes.Action.SwapColours,
+          target: machineTypes.GameState.OpponentPlayerTurn,
         },
       },
     },
@@ -84,9 +103,33 @@ const GameMachine = setup({
         },
       },
     },
-    [machineTypes.GameState.OpponentPlayerTurn]: {},
-
-    [machineTypes.GameState.Unavailable]: { type: "final" },
+    [machineTypes.GameState.OpponentPlayerTurn]: {
+      always: {
+        target: machineTypes.GameState.GameComplete,
+        guard: machineTypes.Guard.GameIsComplete,
+      },
+      after: {
+        opponentThinkingTimeMs: machineTypes.GameState.SubmittingOpponentMove,
+      },
+    },
+    [machineTypes.GameState.SubmittingOpponentMove]: {
+      invoke: {
+        id: "generateAndPlayNextMove",
+        src: "generateAndPlayNextMove",
+        input: ({ context }) => {
+          return { gameId: context.game?.id };
+        },
+        onDone: {
+          actions: machineTypes.Action.SetActiveGame,
+          target: machineTypes.GameState.LocalPlayerTurn,
+        },
+        onError: {
+          target: machineTypes.GameState.Unavailable,
+        },
+      },
+    },
+    [machineTypes.GameState.GameComplete]: {},
+    [machineTypes.GameState.Unavailable]: {},
   },
 });
 

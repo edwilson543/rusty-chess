@@ -1,16 +1,19 @@
-.PHONY:runbe
-runbe:
+run: run_backend run_frontend
+
+.PHONY:run_backend
+run_backend:
 	cd backend && make run
 
-.PHONY:runfe
-runfe:
+.PHONY:run_frontend
+run_frontend:
 	cd frontend && make run
 
 
-.PHONY:build
-build:
+.PHONY:install
+install:
+	cd backend && make setup_db
 	cd backend && make build
-	cd frontend && make build
+	cd frontend && make install
 
 
 .PHONY:local_ci

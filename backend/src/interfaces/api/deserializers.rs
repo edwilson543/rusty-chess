@@ -1,4 +1,4 @@
-use crate::domain::gameplay::chess_set;
+use crate::domain::chess_set;
 use serde;
 
 #[derive(serde::Deserialize)]
@@ -38,7 +38,7 @@ fn deserialize_to_square(value: &str) -> chess_set::Square {
 mod tests {
 
     use super::*;
-    use crate::domain::gameplay::chess_set::{Colour, File, Rank, Square};
+    use crate::domain::chess_set::{Colour, File, Rank, Square};
 
     #[test]
     fn can_get_domain_objects_from_move() {

@@ -1,4 +1,4 @@
-use crate::domain::gameplay::game;
+use crate::domain::game;
 use crate::repository;
 
 pub fn start_game(mut game_repo: Box<dyn repository::GameRepository>) -> game::Game {

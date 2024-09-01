@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests {
-    use chess::domain::gameplay::chess_set::{Colour, File, Rank, Square};
-    use chess::domain::gameplay::game;
+    use chess::domain::chess_set::{Colour, File, Rank, Square};
+    use chess::domain::game;
     use chess::repository::{DieselGameRepository, GameRepository};
 
     #[test]
@@ -19,7 +19,7 @@ mod tests {
         let from_square = Square::new(Rank::Two, File::E);
         let to_square = Square::new(Rank::Four, File::E);
         got_game
-            .play_ordinary_move(&Colour::White, &from_square, &to_square)
+            .play_unvalidated_move(&Colour::White, &from_square, &to_square)
             .unwrap();
 
         repo.update(&got_game);

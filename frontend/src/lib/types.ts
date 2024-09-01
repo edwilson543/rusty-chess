@@ -49,9 +49,17 @@ export interface Chessboard {
   position: Square[];
 }
 
+export enum GameOutcome {
+  WonByWhite = "Won by white",
+  WonByBlack = "Won by black",
+  Drawn = "Drawn",
+}
+
 export interface Game {
   id: number;
   chessboard: Chessboard;
+  toPlayColour: Colour | null;
+  outcome: GameOutcome | null;
 }
 
 export interface Move {

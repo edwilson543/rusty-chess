@@ -23,6 +23,8 @@ export const parseGameSchemaToGame = (game: GameSchema): types.Game => {
   return {
     id: game.id,
     chessboard: { position: chessboardPosition },
+    toPlayColour: extractToPlayColour(game),
+    outcome: extractGameOutcome(game),
   };
 };
 
@@ -67,4 +69,28 @@ const positionValueToPiece = ({
     colour: colour as unknown as types.Colour,
     pieceType: piece_type as unknown as types.PieceType,
   };
+};
+
+const extractToPlayColour = (game: GameSchema): types.Colour | null => {
+  switch (game.status) {
+    case "ToPlayWhite":
+      return types.Colour.White;
+    case "ToPlayBlack":
+      return types.Colour.Black;
+    default:
+      return null;
+  }
+};
+
+const extractGameOutcome = (game: GameSchema): types.GameOutcome | null => {
+  switch (game.status) {
+    case "WonByWhite":
+      return types.GameOutcome.WonByWhite;
+    case "WonByBlack":
+      return types.GameOutcome.WonByBlack;
+    case "Drawn":
+      return types.GameOutcome.Drawn;
+    default:
+      return null;
+  }
 };

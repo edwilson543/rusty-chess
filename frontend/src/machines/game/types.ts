@@ -10,11 +10,14 @@ export interface GameContextProps {
 // Events.
 
 export enum GameEvent {
+  StartNewGame = "start-new-game",
   PlayMove = "play-move",
   SetSquareToMoveFrom = "set-square-to-move-from",
+  SwapColours = "swap-colours",
   // Events that set the active game.
   GameStarted = "xstate.done.actor.startGame",
   MovePlayed = "xstate.done.actor.playMove",
+  MoveGeneratedAndPlayed = "xstate.done.actor.generateAndPlayNextMove",
 }
 
 export interface PlayMoveEvent {
@@ -29,7 +32,10 @@ export interface SelectSquareToMoveFrom {
 }
 
 interface SetActiveGameEvent {
-  type: GameEvent.GameStarted | GameEvent.MovePlayed;
+  type:
+    | GameEvent.GameStarted
+    | GameEvent.MovePlayed
+    | GameEvent.MoveGeneratedAndPlayed;
   output: types.Game;
 }
 
@@ -44,22 +50,26 @@ export enum GameState {
   Idle = "idle",
   LocalPlayerTurn = "local-play-turn",
   OpponentPlayerTurn = "opponent-turn",
+  GameComplete = "game-complete",
   Unavailable = "unavailable",
   // Loading states.
   StartingGame = "starting-game",
   SubmittingMove = "submitting-move",
-  FetchingOpponentMove = "fetching-opponent-move",
+  SubmittingOpponentMove = "submitting-opponent-move",
 }
 
 // Actions.
 
 export enum Action {
   SetActiveGame = "set-active-game",
+  SetLocalPlayerToWhite = "set-local-player-to-white",
   SetSquareToMoveFrom = "set-square-to-move-from",
+  SwapColours = "swap-colours",
 }
 
 // Guards.
 
 export enum Guard {
   GameIsUnset = "game-is-unset",
+  GameIsComplete = "game-is-complete",
 }

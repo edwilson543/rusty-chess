@@ -1,7 +1,7 @@
 use super::schema;
 use diesel::prelude::*;
 
-use crate::domain::gameplay::{chess_set, game};
+use crate::domain::{chess_set, game};
 
 #[derive(Queryable, Selectable)]
 #[diesel(table_name = schema::game)]
@@ -221,7 +221,7 @@ mod tests {
     #[cfg(test)]
     mod occupied_chessboard_square_domain_factory_tests {
         use super::super::OccupiedChessboardSquare;
-        use crate::domain::gameplay::chess_set::{Colour, File, PieceType, Rank};
+        use crate::domain::chess_set::{Colour, File, PieceType, Rank};
 
         #[test]
         fn occupied_chessboard_square_is_deserialized_to_a_square() {
@@ -263,7 +263,7 @@ mod tests {
     #[cfg(test)]
     mod game_domain_factory_tests {
         use super::super::Game;
-        use crate::domain::gameplay::game;
+        use crate::domain::game;
         use crate::testing::factories;
 
         #[test]
