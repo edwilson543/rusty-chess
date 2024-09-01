@@ -17,6 +17,9 @@ const GameMachine = setup({
     playMove,
     generateAndPlayNextMove,
   },
+  delays: {
+    opponentThinkingTimeMs: 500,
+  },
   guards: guards,
 }).createMachine({
   id: "game",
@@ -86,6 +89,11 @@ const GameMachine = setup({
       },
     },
     [machineTypes.GameState.OpponentPlayerTurn]: {
+      after: {
+        opponentThinkingTimeMs: machineTypes.GameState.SubmittingOpponentMove,
+      },
+    },
+    [machineTypes.GameState.SubmittingOpponentMove]: {
       invoke: {
         id: "generateAndPlayNextMove",
         src: "generateAndPlayNextMove",
@@ -101,7 +109,6 @@ const GameMachine = setup({
         },
       },
     },
-
     [machineTypes.GameState.Unavailable]: { type: "final" },
   },
 });

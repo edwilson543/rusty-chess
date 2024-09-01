@@ -52,7 +52,7 @@ export enum GameState {
   // Loading states.
   StartingGame = "starting-game",
   SubmittingMove = "submitting-move",
-  FetchingOpponentMove = "fetching-opponent-move",
+  SubmittingOpponentMove = "submitting-opponent-move",
 }
 
 // Actions.
