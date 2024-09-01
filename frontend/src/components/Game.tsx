@@ -26,6 +26,11 @@ const GameDetails = (props: GameDetailsProps) => {
             <b>To play:</b> {props.game.toPlayColour}
           </div>
         )}
+          {props.game.outcome && (
+              <div style={{ padding: "5px" }}>
+                  <b>Outcome:</b> {props.game.outcome}
+              </div>
+          )}
         {game && <Chessboard chessboard={game.chessboard} />}
       </div>
     </>

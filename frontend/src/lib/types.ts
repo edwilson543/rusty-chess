@@ -50,8 +50,8 @@ export interface Chessboard {
 }
 
 export enum GameOutcome {
-  WonByWhite = "WonByWhite",
-  WonByBlack = "WonByBlack",
+  WonByWhite = "Won by white",
+  WonByBlack = "Won by black",
   Drawn = "Drawn",
 }
 
