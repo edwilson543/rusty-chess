@@ -48,6 +48,7 @@ export enum GameState {
   Idle = "idle",
   LocalPlayerTurn = "local-play-turn",
   OpponentPlayerTurn = "opponent-turn",
+  GameComplete = "game-complete",
   Unavailable = "unavailable",
   // Loading states.
   StartingGame = "starting-game",
@@ -66,4 +67,5 @@ export enum Action {
 
 export enum Guard {
   GameIsUnset = "game-is-unset",
+  GameIsComplete = "game-is-complete",
 }

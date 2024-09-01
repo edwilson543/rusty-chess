@@ -1,4 +1,4 @@
-import { gameStatus, GameSchema } from "./contract.ts";
+import { GameSchema } from "./contract.ts";
 import * as types from "../types.ts";
 
 export const parseGameSchemaToGame = (game: GameSchema): types.Game => {

@@ -6,4 +6,9 @@ export const guards = {
   ) => {
     return !context.game;
   },
+  [machineTypes.Guard.GameIsComplete]: (
+    context: machineTypes.GameContextProps,
+  ) => {
+    return !!context.game?.outcome;
+  },
 };

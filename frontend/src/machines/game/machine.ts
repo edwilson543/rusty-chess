@@ -55,6 +55,10 @@ const GameMachine = setup({
       },
     },
     [machineTypes.GameState.LocalPlayerTurn]: {
+      always: {
+        target: machineTypes.GameState.GameComplete,
+        guard: machineTypes.Guard.GameIsComplete,
+      },
       on: {
         [machineTypes.GameEvent.SetSquareToMoveFrom]: {
           actions: machineTypes.Action.SetSquareToMoveFrom,
@@ -89,6 +93,10 @@ const GameMachine = setup({
       },
     },
     [machineTypes.GameState.OpponentPlayerTurn]: {
+      always: {
+        target: machineTypes.GameState.GameComplete,
+        guard: machineTypes.Guard.GameIsComplete,
+      },
       after: {
         opponentThinkingTimeMs: machineTypes.GameState.SubmittingOpponentMove,
       },
@@ -109,6 +117,7 @@ const GameMachine = setup({
         },
       },
     },
+    [machineTypes.GameState.GameComplete]: {},
     [machineTypes.GameState.Unavailable]: { type: "final" },
   },
 });
