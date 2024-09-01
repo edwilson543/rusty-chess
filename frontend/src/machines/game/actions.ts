@@ -34,4 +34,9 @@ export const actions: ActionFunctionMap<
       return swapper[context.localPlayerColour];
     },
   }),
+  [machineTypes.Action.SetLocalPlayerToWhite]: assign({
+    localPlayerColour: () => {
+      return types.Colour.White;
+    },
+  }),
 };

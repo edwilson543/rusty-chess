@@ -50,7 +50,10 @@ const GameMachine = setup({
         id: "startGame",
         src: "startGame",
         onDone: {
-          actions: [machineTypes.Action.SetActiveGame],
+          actions: [
+            machineTypes.Action.SetActiveGame,
+            machineTypes.Action.SetLocalPlayerToWhite,
+          ],
           target: machineTypes.GameState.LocalPlayerTurn,
         },
         onError: {

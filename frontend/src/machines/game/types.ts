@@ -62,6 +62,7 @@ export enum GameState {
 
 export enum Action {
   SetActiveGame = "set-active-game",
+  SetLocalPlayerToWhite = "set-local-player-to-white",
   SetSquareToMoveFrom = "set-square-to-move-from",
   SwapColours = "swap-colours",
 }
