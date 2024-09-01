@@ -71,6 +71,10 @@ const GameMachine = setup({
         [machineTypes.GameEvent.PlayMove]: {
           target: machineTypes.GameState.SubmittingMove,
         },
+        [machineTypes.GameEvent.SwapColours]: {
+          actions: machineTypes.Action.SwapColours,
+          target: machineTypes.GameState.OpponentPlayerTurn,
+        },
       },
     },
     [machineTypes.GameState.SubmittingMove]: {

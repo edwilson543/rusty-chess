@@ -1,6 +1,7 @@
 import { ActionFunctionMap, ProvidedActor, assertEvent, assign } from "xstate";
 
 import * as machineTypes from "./types.ts";
+import * as types from "../../lib/types.ts";
 
 export const actions: ActionFunctionMap<
   machineTypes.GameContextProps,
@@ -21,6 +22,16 @@ export const actions: ActionFunctionMap<
     squareToMoveFrom: ({ event }) => {
       assertEvent(event, machineTypes.GameEvent.SetSquareToMoveFrom);
       return event.square;
+    },
+  }),
+  [machineTypes.Action.SwapColours]: assign({
+    localPlayerColour: ({ context, event }) => {
+      assertEvent(event, machineTypes.GameEvent.SwapColours);
+      const swapper = {
+        [types.Colour.White]: types.Colour.Black,
+        [types.Colour.Black]: types.Colour.White,
+      };
+      return swapper[context.localPlayerColour];
     },
   }),
 };

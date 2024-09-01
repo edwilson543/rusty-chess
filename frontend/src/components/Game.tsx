@@ -4,28 +4,27 @@ import { useSelector } from "@xstate/react";
 
 import { Chessboard } from "./Chessboard";
 import { GameMachineContext } from "../context.ts";
-import * as types from "../lib/types.ts";
 import { GameEvent } from "../machines/game/types.ts";
 
 export const Game = () => {
   const gameMachineRef = GameMachineContext.useActorRef();
   const game = useSelector(gameMachineRef, (state) => state.context.game);
+  const localPlayerColour = useSelector(
+    gameMachineRef,
+    (state) => state.context.localPlayerColour,
+  );
 
   const startNewGame = () => {
     gameMachineRef.send({ type: GameEvent.StartNewGame });
   };
 
-  return game && <GameDetails game={game} startNewGame={startNewGame} />;
-};
+  const swapColours = () => {
+    gameMachineRef.send({ type: GameEvent.SwapColours });
+  };
 
-interface GameDetailsProps {
-  game: types.Game;
-  startNewGame: () => void;
-}
-
-const GameDetails = (props: GameDetailsProps) => {
-  const gameMachineRef = GameMachineContext.useActorRef();
-  const game = useSelector(gameMachineRef, (state) => state.context.game);
+  if (game === null) {
+    return <></>;
+  }
 
   return (
     <>
@@ -39,30 +38,41 @@ const GameDetails = (props: GameDetailsProps) => {
             padding: "5px",
           }}
         >
-          {props.game.toPlayColour && (
+          {game.toPlayColour && (
             <span>
-              <b>To play:</b> {props.game.toPlayColour}
+              <b>To play: </b>
+              <i>{game.toPlayColour}</i>
             </span>
           )}
-          {props.game.outcome && (
+          {game.outcome && (
             <span>
-              <b>Outcome:</b> {props.game.outcome}
+              <b>Outcome:</b> {game.outcome}
             </span>
           )}
-          <div>
+          <span>
+            <b>You are: </b>
+            <i>{localPlayerColour}</i>
             <FontAwesomeIcon
-              // onClick={props.startNewGame}
+              onClick={swapColours}
               icon={faArrowsRotate}
-              style={{ marginLeft: "20px", cursor: "pointer" }}
+              style={{ marginLeft: "5px", cursor: "pointer" }}
             />
+          </span>
+          <span>
+            <b>New game</b>
             <FontAwesomeIcon
-              onClick={props.startNewGame}
+              onClick={startNewGame}
               icon={faShuffle}
-              style={{ marginLeft: "20px", cursor: "pointer" }}
+              style={{ marginLeft: "5px", cursor: "pointer" }}
             />
-          </div>
+          </span>
         </div>
-        {game && <Chessboard chessboard={game.chessboard} />}
+        {game && (
+          <Chessboard
+            chessboard={game.chessboard}
+            localPlayerColour={localPlayerColour}
+          />
+        )}
       </div>
     </>
   );

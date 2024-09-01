@@ -13,6 +13,7 @@ export enum GameEvent {
   StartNewGame = "start-new-game",
   PlayMove = "play-move",
   SetSquareToMoveFrom = "set-square-to-move-from",
+  SwapColours = "swap-colours",
   // Events that set the active game.
   GameStarted = "xstate.done.actor.startGame",
   MovePlayed = "xstate.done.actor.playMove",
@@ -62,6 +63,7 @@ export enum GameState {
 export enum Action {
   SetActiveGame = "set-active-game",
   SetSquareToMoveFrom = "set-square-to-move-from",
+  SwapColours = "swap-colours",
 }
 
 // Guards.
