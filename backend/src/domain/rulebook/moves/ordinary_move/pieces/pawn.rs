@@ -1,4 +1,5 @@
 use crate::domain::chess_set;
+use crate::domain::rulebook::moves;
 use crate::domain::rulebook::moves::ordinary_move::ordinary_move::OrdinaryMove;
 use crate::domain::rulebook::moves::ordinary_move::rule::OrdinaryMoveRule;
 use crate::domain::rulebook::moves::translation::ChessVector;
@@ -44,7 +45,14 @@ impl OrdinaryMoveRule for TwoSquaresForwardMove {
             .chessboard
             .is_square_occupied(&chess_move.to_square);
 
-        is_forwards && is_two_squares && is_first_move_for_pawn && !is_square_occupied
+        let middle_square = forwards.apply_to_square(&chess_move.from_square);
+        let is_obstructed = chess_move.chessboard.is_square_occupied(&middle_square);
+
+        is_forwards
+            && is_two_squares
+            && is_first_move_for_pawn
+            && !is_square_occupied
+            && !is_obstructed
     }
 }
 
@@ -252,6 +260,27 @@ mod tests {
 
         let other_piece = Piece::new(other_piece_colour, PieceType::Knight);
         starting_position.insert(to_square, other_piece);
+
+        let chessboard = Chessboard::new(starting_position);
+        let chess_move = OrdinaryMove::new(&chessboard, &white_pawn, &from_square, &to_square);
+
+        assert!(!is_move_allowed(&chess_move));
+    }
+
+    #[rstest]
+    #[case::white(Colour::White)]
+    #[case::white(Colour::Black)]
+    fn disallows_double_square_forward_advancement_over_other_piece(#[case] blocking_piece_colour: Colour) {
+        let mut starting_position = BTreeMap::new();
+
+        let white_pawn = Piece::new(Colour::White, PieceType::Pawn);
+        let from_square = Square::new(Rank::Two, File::B);
+        starting_position.insert(from_square, white_pawn);
+        let to_square = Square::new(Rank::Four, File::B);
+
+        let middle_square = Square::new(Rank::Three, File::B);
+        let blocking_piece = Piece::new(blocking_piece_colour, PieceType::Pawn);
+        starting_position.insert(middle_square, blocking_piece);
 
         let chessboard = Chessboard::new(starting_position);
         let chess_move = OrdinaryMove::new(&chessboard, &white_pawn, &from_square, &to_square);
