@@ -89,10 +89,6 @@ impl Move {
 
         return false;
     }
-
-    pub fn vector(&self) -> translation::ChessVector {
-        self.translation.vector
-    }
 }
 
 // Trait implementations.
