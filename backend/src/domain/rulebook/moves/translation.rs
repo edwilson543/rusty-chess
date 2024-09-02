@@ -59,6 +59,13 @@ impl ChessVector {
         Self { x: x, y: 0 }
     }
 
+    pub fn apply_to_square(&self, from_square: &chess_set::Square) -> chess_set::Square {
+        let to_square_rank_index = from_square.get_rank().index() + self.y;
+        let to_square_file_index = from_square.get_file().index() + self.x;
+
+        chess_set::Square::from_indexes(to_square_rank_index, to_square_file_index)
+    }
+
     // Queries.
     /// "Straight line" := within a 'plus' or diagonal.
     /// i.e. vectors where {x, y} <= {-1, 0, 1}

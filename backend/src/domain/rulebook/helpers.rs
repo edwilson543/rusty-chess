@@ -5,7 +5,6 @@ pub fn get_legal_moves(
     player: chess_set::Colour,
     chessboard_history: &Vec<chess_set::Chessboard>,
 ) -> Vec<Box<dyn Move>> {
-    // TODO -> include special moves.
     let chessboard = chessboard_history.last().unwrap();
 
     let mut legal_moves = vec![];
@@ -33,9 +32,38 @@ pub fn get_legal_moves(
                 }
             }
         }
+
+        // Add any valid special moves.
+        maybe_append_en_passant(
+            &moved_piece,
+            &from_square,
+            chessboard_history,
+            &mut legal_moves,
+        )
     }
 
     legal_moves
+}
+
+fn maybe_append_en_passant(
+    piece: &chess_set::Piece,
+    from_square: &chess_set::Square,
+    chessboard_history: &Vec<chess_set::Chessboard>,
+    legal_moves: &mut Vec<Box<dyn Move>>,
+) {
+    if !(piece.get_piece_type() == &chess_set::PieceType::Pawn) {
+        return;
+    }
+
+    let forwards_one = moves::ChessVector::forwards(piece.get_colour());
+    let to_square = forwards_one.apply_to_square(&from_square);
+
+    let en_passant = moves::EnPassant::new(piece, from_square, &to_square);
+
+    match en_passant.validate(chessboard_history) {
+        Ok(()) => legal_moves.push(Box::new(en_passant) as Box<dyn Move>),
+        Err(_) => {}
+    }
 }
 
 #[cfg(test)]

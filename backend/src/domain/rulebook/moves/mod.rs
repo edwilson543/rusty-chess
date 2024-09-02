@@ -7,3 +7,4 @@ mod translation;
 pub use chess_move::{Move, MoveValidationError};
 pub use en_passant::EnPassant;
 pub use ordinary_move::OrdinaryMove;
+pub use translation::ChessVector;
