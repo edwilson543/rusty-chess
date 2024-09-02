@@ -18,6 +18,7 @@ pub enum MoveValidationError {
 }
 
 pub struct Move {
+    pub piece: chess_set::Piece,
     pub from_square: chess_set::Square,
     pub to_square: chess_set::Square,
     pub translation: translation::Translation,
@@ -28,19 +29,41 @@ pub struct MoveOutcome {
 }
 
 pub trait MoveRule {
-    fn get_move_outcome_if_valid(
+    /// Test whether a certain move is valid, according to this rule.
+    fn allows_move(
         &self,
-        chess_move: Move,
+        chess_move: &Move,
         chessboard_history: &Vec<chess_set::Chessboard>,
-    ) -> Option<MoveOutcome>;
+    ) -> bool;
+
+    /// Return the outcome of playing a valid move, according to this rule.
+    ///
+    /// Note that special rules must override this method. For example:
+    /// * "en passant" involves capturing the piece at a square different to `to_square`
+    /// * "castling" involves moving two pieces
+    fn get_move_outcome(
+        &self,
+        chess_move: &Move,
+    ) -> BTreeMap<chess_set::Square, Option<chess_set::Piece>> {
+        let mut outcome = BTreeMap::new();
+        outcome.insert(chess_move.from_square, None);
+        outcome.insert(chess_move.to_square, Some(chess_move.piece));
+
+        outcome
+    }
 }
 
 impl Move {
     // Factories.
-    pub fn new(from_square: chess_set::Square, to_square: chess_set::Square) -> Self {
+    pub fn new(
+        piece: chess_set::Piece,
+        from_square: chess_set::Square,
+        to_square: chess_set::Square,
+    ) -> Self {
         let translation = translation::Translation::from_move(&from_square, &to_square);
 
         Self {
+            piece: piece,
             from_square: from_square,
             to_square: to_square,
             translation: translation,
@@ -67,7 +90,7 @@ impl Move {
         return false;
     }
 
-    fn vector(&self) -> translation::ChessVector {
+    pub fn vector(&self) -> translation::ChessVector {
         self.translation.vector
     }
 }
