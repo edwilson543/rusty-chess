@@ -1,7 +1,7 @@
 use super::check;
 use crate::domain::chess_set;
 
-use super::helpers;
+use super::get_legal_moves;
 
 pub fn is_player_checkmated(
     player: chess_set::Colour,
@@ -13,7 +13,7 @@ pub fn is_player_checkmated(
         return false;
     }
 
-    let legal_moves = helpers::get_legal_moves(player, chessboard_history);
+    let legal_moves = get_legal_moves::get_legal_moves(player, chessboard_history);
     legal_moves.len() == 0
 }
 

@@ -1,6 +1,11 @@
 use crate::domain::chess_set;
 use crate::domain::rulebook::{check, moves, Move};
 
+/// Get the legal moves that can be played on the latest chessboard in a chessboard history.
+///
+/// This is used for:
+/// * Working out whether a player is checkmated
+/// * Generating moves
 pub fn get_legal_moves(
     player: chess_set::Colour,
     chessboard_history: &Vec<chess_set::Chessboard>,
