@@ -270,7 +270,9 @@ mod tests {
     #[rstest]
     #[case::white(Colour::White)]
     #[case::white(Colour::Black)]
-    fn disallows_double_square_forward_advancement_over_other_piece(#[case] blocking_piece_colour: Colour) {
+    fn disallows_double_square_forward_advancement_over_other_piece(
+        #[case] blocking_piece_colour: Colour,
+    ) {
         let mut starting_position = BTreeMap::new();
 
         let white_pawn = Piece::new(Colour::White, PieceType::Pawn);
