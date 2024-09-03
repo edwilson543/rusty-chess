@@ -24,10 +24,6 @@ pub struct Move {
     pub translation: translation::Translation,
 }
 
-pub struct MoveOutcome {
-    pub outcome: BTreeMap<chess_set::Square, Option<chess_set::Piece>>,
-}
-
 pub trait MoveRule {
     /// Test whether a certain move is valid, according to this rule.
     fn allows_move(

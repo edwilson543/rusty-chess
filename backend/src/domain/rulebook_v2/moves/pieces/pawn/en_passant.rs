@@ -1,5 +1,5 @@
 use crate::domain::chess_set;
-use crate::domain::rulebook::moves_v2::{chess_move, translation};
+use crate::domain::rulebook_v2::moves::{chess_move, translation};
 use std::collections::BTreeMap;
 
 pub struct AllowEnPassant;

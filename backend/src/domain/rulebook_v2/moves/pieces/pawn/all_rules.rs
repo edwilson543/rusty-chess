@@ -2,7 +2,7 @@ use super::diagonal_capture;
 use super::double_square_forward;
 use super::en_passant;
 use super::single_square_forward;
-use crate::domain::rulebook::moves_v2::chess_move;
+use crate::domain::rulebook_v2::moves::chess_move;
 use std::vec;
 
 pub fn get_pawn_move_rules() -> vec::IntoIter<Box<dyn chess_move::MoveRule>> {
@@ -19,7 +19,7 @@ pub fn get_pawn_move_rules() -> vec::IntoIter<Box<dyn chess_move::MoveRule>> {
 mod tests {
     use super::get_pawn_move_rules;
     use crate::domain::chess_set::{Chessboard, Colour, File, Piece, PieceType, Rank, Square};
-    use crate::domain::rulebook::moves_v2::chess_move;
+    use crate::domain::rulebook_v2::moves::chess_move;
     use crate::testing::factories;
     use rstest::rstest;
     use std::collections::BTreeMap;
@@ -219,9 +219,9 @@ mod tests {
 #[cfg(test)]
 mod en_passant_tests {
     use crate::domain::chess_set::{Chessboard, Colour, File, Piece, PieceType, Rank, Square};
-    use crate::domain::rulebook::moves_v2::chess_move;
-    use crate::domain::rulebook::moves_v2::chess_move::MoveRule;
-    use crate::domain::rulebook::moves_v2::pieces::pawn::get_pawn_move_rules;
+    use crate::domain::rulebook_v2::moves::chess_move;
+    use crate::domain::rulebook_v2::moves::chess_move::MoveRule;
+    use crate::domain::rulebook_v2::moves::pieces::pawn::get_pawn_move_rules;
     use crate::testing::factories;
     use rstest::rstest;
     use std::collections::BTreeMap;

@@ -1,5 +1,5 @@
 use crate::domain::chess_set;
-use crate::domain::rulebook::moves_v2::{chess_move, translation};
+use crate::domain::rulebook_v2::moves::{chess_move, translation};
 use std::vec;
 
 pub fn get_king_move_rules() -> vec::IntoIter<Box<dyn chess_move::MoveRule>> {
@@ -40,7 +40,7 @@ fn king_allowed_vectors() -> Vec<translation::ChessVector> {
 mod tests {
     use super::*;
     use crate::domain::chess_set::{Chessboard, Colour, File, Piece, PieceType, Rank, Square};
-    use crate::domain::rulebook::moves_v2::chess_move;
+    use crate::domain::rulebook_v2::moves::chess_move;
     use crate::testing::factories;
     use rstest::rstest;
 
