@@ -1,4 +1,4 @@
-mod all;
+mod all_rules;
 mod bishop;
 mod king;
 mod knight;

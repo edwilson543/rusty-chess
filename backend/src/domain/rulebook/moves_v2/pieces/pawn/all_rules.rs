@@ -234,7 +234,7 @@ mod en_passant_tests {
         rules.any(|rule| rule.allows_move(&chess_move, chessboard_history))
     }
 
-    fn get_allowing_move(
+    fn get_allowing_rule(
         chess_move: &chess_move::Move,
         chessboard_history: &Vec<Chessboard>,
     ) -> Option<Box<dyn chess_move::MoveRule>> {
@@ -276,7 +276,7 @@ mod en_passant_tests {
 
         assert!(is_move_allowed(&en_passant, &chessboard_history));
 
-        let allowing_move = get_allowing_move(&en_passant, &chessboard_history);
+        let allowing_move = get_allowing_rule(&en_passant, &chessboard_history);
 
         let move_outcome = allowing_move.unwrap().get_move_outcome(&en_passant);
         assert_eq!(move_outcome.get(&white_pawn_from_square).unwrap(), &None);
@@ -315,7 +315,7 @@ mod en_passant_tests {
 
         assert!(is_move_allowed(&en_passant, &chessboard_history));
 
-        let allowing_move = get_allowing_move(&en_passant, &chessboard_history);
+        let allowing_move = get_allowing_rule(&en_passant, &chessboard_history);
 
         let move_outcome = allowing_move.unwrap().get_move_outcome(&en_passant);
         assert_eq!(move_outcome.get(&black_pawn_from_square).unwrap(), &None);

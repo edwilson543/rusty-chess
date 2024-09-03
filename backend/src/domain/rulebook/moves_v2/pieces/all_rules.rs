@@ -3,7 +3,7 @@ use crate::domain::chess_set;
 use crate::domain::rulebook::moves_v2::chess_move;
 use std::vec;
 
-pub fn get_rules_for_piece(
+pub fn get_move_rules_for_piece(
     piece_type: &chess_set::PieceType,
 ) -> vec::IntoIter<Box<dyn chess_move::MoveRule>> {
     match piece_type {
