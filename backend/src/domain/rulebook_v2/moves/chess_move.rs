@@ -1,4 +1,4 @@
-use super::translation;
+use super::{pieces, translation};
 use crate::domain::chess_set;
 use std::collections::BTreeMap;
 use std::fmt;
@@ -66,7 +66,39 @@ impl Move {
         }
     }
 
+    // pub fn apply_move_if_allowed(
+    //     chess_move: &chess_move::Move,
+    //     chessboard_history: &Vec<chess_set::Chessboard>,
+    // ) -> Result<chess_set::Chessboard, MoveIsNotAllowed> {
+    //     let rule = match get_rule_that_allows_move(chess_move, chessboard_history) {
+    //         Some(rule) => rule,
+    //         None => return Err(MoveIsNotAllowed),
+    //     };
+    //
+    //     let mut chessboard = chessboard_history.last().unwrap().clone();
+    //     let move_outcome = rule.get_move_outcome(chess_move);
+    //     chessboard.update_position(move_outcome);
+    //     Ok(chessboard)
+    // }
+
     // Queries.
+    pub fn validate(
+        &self,
+        chessboard_history: &Vec<chess_set::Chessboard>,
+    ) -> Result<Box<dyn MoveRule>, MoveValidationError> {
+        let chessboard = chessboard_history.last().unwrap();
+
+        if self.from_square == self.to_square {
+            return Err(MoveValidationError::CannotMovePieceToSameSquare);
+        };
+
+        if let Err(error) = self.validate_occupant_of_target_square(chessboard) {
+            return Err(error);
+        };
+
+        self.get_rule_that_allows_move(chessboard_history)
+    }
+
     pub fn is_obstructed(&self, chessboard: &chess_set::Chessboard) -> bool {
         if !self.translation.vector.is_straight_line() {
             return true;
@@ -85,6 +117,38 @@ impl Move {
 
         return false;
     }
+
+    fn get_rule_that_allows_move(
+        &self,
+        chessboard_history: &Vec<chess_set::Chessboard>,
+    ) -> Result<Box<dyn MoveRule>, MoveValidationError> {
+        let rules = pieces::get_move_rules_for_piece(self.piece.get_piece_type());
+        for rule in rules {
+            if rule.allows_move(self, chessboard_history) {
+                return Ok(rule);
+            }
+        }
+        Err(MoveIsNotLegalForPiece)
+    }
+
+    fn validate_occupant_of_target_square(
+        &self,
+        chessboard: &chess_set::Chessboard,
+    ) -> Result<(), MoveValidationError> {
+        let Some(opponent_piece) = chessboard.get_piece(&self.to_square) else {
+            return Ok(());
+        };
+
+        if opponent_piece.get_colour() == self.piece.get_colour() {
+            return Err(MoveValidationError::CannotCaptureOwnPiece);
+        };
+
+        if opponent_piece.get_piece_type() == &chess_set::PieceType::King {
+            return Err(MoveValidationError::CannotCaptureOpponentKing);
+        };
+
+        Ok(())
+    }
 }
 
 // Trait implementations.
@@ -92,5 +156,92 @@ impl Move {
 impl fmt::Display for MoveValidationError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{:?}", self)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[cfg(test)]
+    mod test_validate {
+        use super::super::*;
+        use crate::domain::chess_set;
+        use crate::testing::factories;
+        use std::collections::BTreeMap;
+        #[test]
+        fn can_move_piece_to_empty_square() {
+            let chessboard = factories::chessboard();
+            let from_square = chess_set::Square::new(chess_set::Rank::Two, chess_set::File::A);
+            let to_square = chess_set::Square::new(chess_set::Rank::Three, chess_set::File::A);
+            let piece = chessboard.get_piece(&from_square).unwrap();
+
+            let chess_move = Move::new(piece, from_square, to_square);
+
+            let result = chess_move.validate(&vec![chessboard]);
+
+            assert!(result.is_ok());
+        }
+
+        #[test]
+        fn cannot_move_piece_to_same_square() {
+            let chessboard = factories::chessboard();
+            let square = chess_set::Square::new(chess_set::Rank::Two, chess_set::File::A);
+            let piece = chessboard.get_piece(&square).unwrap();
+            let chess_move = Move::new(piece, square.clone(), square);
+
+            let result = chess_move.validate(&vec![chessboard]);
+
+            let expected_error = MoveValidationError::CannotMovePieceToSameSquare;
+            match result {
+                Err(error) => assert_eq!(error, expected_error),
+                Ok(_) => assert!(false),
+            }
+        }
+
+        #[test]
+        fn cannot_move_piece_to_square_occupied_by_another_piece_of_the_same_colour() {
+            let mut starting_position = BTreeMap::new();
+            let piece = chess_set::Piece::new(chess_set::Colour::White, chess_set::PieceType::Rook);
+            let from_square = chess_set::Square::new(chess_set::Rank::Two, chess_set::File::A);
+            starting_position.insert(from_square, piece);
+
+            let to_square = chess_set::Square::new(chess_set::Rank::Three, chess_set::File::A);
+            let other_piece =
+                chess_set::Piece::new(chess_set::Colour::White, chess_set::PieceType::Bishop);
+            starting_position.insert(to_square, other_piece);
+
+            let chessboard = chess_set::Chessboard::new(starting_position);
+
+            let chess_move = Move::new(piece, from_square, to_square);
+            let result = chess_move.validate(&vec![chessboard]);
+
+            let expected_error = MoveValidationError::CannotCaptureOwnPiece;
+            match result {
+                Err(error) => assert_eq!(error, expected_error),
+                Ok(_) => assert!(false),
+            }
+        }
+
+        #[test]
+        fn cannot_capture_opponent_king() {
+            let mut chessboard = factories::chessboard();
+            let from_square = chess_set::Square::new(chess_set::Rank::Two, chess_set::File::A);
+            let white_pawn = chessboard.get_piece(&from_square).unwrap();
+
+            let to_square = chess_set::Square::new(chess_set::Rank::Three, chess_set::File::B);
+            let black_king =
+                chess_set::Piece::new(chess_set::Colour::Black, chess_set::PieceType::King);
+            let _ = chessboard.add_piece(black_king, &to_square);
+
+            let chess_move = Move::new(white_pawn, from_square, to_square);
+            let result = chess_move.validate(&vec![chessboard]);
+
+            let expected_error = MoveValidationError::CannotCaptureOpponentKing;
+            match result {
+                Err(error) => assert_eq!(error, expected_error),
+                Ok(_) => assert!(false),
+            }
+        }
     }
 }

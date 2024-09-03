@@ -85,7 +85,7 @@ impl Chessboard {
     // Mutators
     pub fn update_position(&mut self, updates: BTreeMap<square::Square, Option<piece::Piece>>) {
         for (square, maybe_piece) in updates.into_iter() {
-            self.position.insert(square, maybe_piece)
+            self.position.insert(square, maybe_piece);
         }
     }
 
