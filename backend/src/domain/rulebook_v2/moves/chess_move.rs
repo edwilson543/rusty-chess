@@ -66,20 +66,20 @@ impl Move {
         }
     }
 
-    // pub fn apply_move_if_allowed(
-    //     chess_move: &chess_move::Move,
-    //     chessboard_history: &Vec<chess_set::Chessboard>,
-    // ) -> Result<chess_set::Chessboard, MoveIsNotAllowed> {
-    //     let rule = match get_rule_that_allows_move(chess_move, chessboard_history) {
-    //         Some(rule) => rule,
-    //         None => return Err(MoveIsNotAllowed),
-    //     };
-    //
-    //     let mut chessboard = chessboard_history.last().unwrap().clone();
-    //     let move_outcome = rule.get_move_outcome(chess_move);
-    //     chessboard.update_position(move_outcome);
-    //     Ok(chessboard)
-    // }
+    pub fn apply_if_valid(
+        &self,
+        chessboard_history: &Vec<chess_set::Chessboard>,
+    ) -> Result<chess_set::Chessboard, MoveValidationError> {
+        let allowing_rule = match self.validate(chessboard_history) {
+            Ok(rule) => rule,
+            Err(error) => return Err(error),
+        };
+
+        let mut chessboard = chessboard_history.last().unwrap().clone();
+        let move_outcome = allowing_rule.get_move_outcome(self);
+        chessboard.update_position(move_outcome);
+        Ok(chessboard)
+    }
 
     // Queries.
     pub fn validate(
@@ -169,6 +169,7 @@ mod tests {
         use crate::domain::chess_set;
         use crate::testing::factories;
         use std::collections::BTreeMap;
+
         #[test]
         fn can_move_piece_to_empty_square() {
             let chessboard = factories::chessboard();
@@ -242,6 +243,42 @@ mod tests {
                 Err(error) => assert_eq!(error, expected_error),
                 Ok(_) => assert!(false),
             }
+        }
+    }
+
+    #[cfg(test)]
+    mod test_apply_move_if_valid {
+        use super::super::*;
+        use crate::domain::chess_set;
+        use crate::testing::factories;
+
+        #[test]
+        fn can_move_piece_to_empty_square() {
+            let chessboard = factories::chessboard();
+            let from_square = chess_set::Square::new(chess_set::Rank::Two, chess_set::File::A);
+            let to_square = chess_set::Square::new(chess_set::Rank::Three, chess_set::File::A);
+            let piece = chessboard.get_piece(&from_square).unwrap();
+
+            let chess_move = Move::new(piece, from_square.clone(), to_square.clone());
+
+            let result = chess_move.apply_if_valid(&vec![chessboard]);
+
+            let updated_chessboard = result.unwrap();
+            assert_eq!(updated_chessboard.position.get(&from_square).unwrap(), &None);
+            assert_eq!(updated_chessboard.position.get(&to_square).unwrap(), &Some(piece));
+        }
+
+        #[test]
+        fn cannot_move_piece_to_same_square() {
+            let chessboard = factories::chessboard();
+            let square = chess_set::Square::new(chess_set::Rank::Two, chess_set::File::A);
+            let piece = chessboard.get_piece(&square).unwrap();
+            let chess_move = Move::new(piece, square.clone(), square);
+
+            let result = chess_move.apply_if_valid(&vec![chessboard]);
+
+            let expected_error = MoveValidationError::CannotMovePieceToSameSquare;
+            assert_eq!(result, Err(expected_error))
         }
     }
 }
