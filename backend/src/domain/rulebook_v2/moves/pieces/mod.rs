@@ -6,4 +6,4 @@ mod pawn;
 mod queen;
 mod rook;
 
-pub use all_rules::get_move_rules_for_piece;
+pub use all_rules::{apply_move_if_allowed, is_move_allowed, MoveIsNotAllowed};
