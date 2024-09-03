@@ -1,6 +1,4 @@
 use crate::domain::chess_set;
-use crate::domain::chess_set::{Piece, Square};
-use crate::domain::rulebook::moves_v2::chess_move::Move;
 use crate::domain::rulebook::moves_v2::{chess_move, translation};
 use std::collections::BTreeMap;
 
@@ -16,8 +14,19 @@ impl chess_move::MoveRule for AllowEnPassant {
             && is_translation_valid(&chess_move)
     }
 
-    fn get_move_outcome(&self, chess_move: &Move) -> BTreeMap<Square, Option<Piece>> {
-        todo!()
+    fn get_move_outcome(
+        &self,
+        chess_move: &chess_move::Move,
+    ) -> BTreeMap<chess_set::Square, Option<chess_set::Piece>> {
+        let mut outcome = BTreeMap::new();
+
+        outcome.insert(chess_move.from_square, None);
+        outcome.insert(chess_move.to_square, Some(chess_move.piece));
+
+        let captured_piece_square = get_square_captured_pawn_should_have_moved_to(chess_move);
+        outcome.insert(captured_piece_square, None);
+
+        outcome
     }
 }
 

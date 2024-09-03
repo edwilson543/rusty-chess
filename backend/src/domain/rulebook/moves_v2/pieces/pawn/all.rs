@@ -223,7 +223,6 @@ mod en_passant_tests {
     use crate::domain::rulebook::moves_v2::chess_move::MoveRule;
     use crate::domain::rulebook::moves_v2::pieces::pawn::get_pawn_move_rules;
     use crate::testing::factories;
-    use rocket::yansi::enable;
     use rstest::rstest;
     use std::collections::BTreeMap;
 
@@ -235,6 +234,20 @@ mod en_passant_tests {
         rules.any(|rule| rule.allows_move(&chess_move, chessboard_history))
     }
 
+    fn get_allowing_move(
+        chess_move: &chess_move::Move,
+        chessboard_history: &Vec<Chessboard>,
+    ) -> Option<Box<dyn chess_move::MoveRule>> {
+        let rules = get_pawn_move_rules();
+
+        for rule in get_pawn_move_rules() {
+            if rule.allows_move(chess_move, chessboard_history) {
+                return Some(rule);
+            }
+        }
+        None
+    }
+
     #[rstest]
     #[case(File::C)]
     #[case(File::E)]
@@ -242,21 +255,36 @@ mod en_passant_tests {
         let previous_state = factories::chessboard();
 
         // Move the black pawn that will be captured.
-        let from_square = Square::new(Rank::Seven, File::D);
-        let to_square = Square::new(Rank::Five, File::D);
+        let captured_pawn_from_square = Square::new(Rank::Seven, File::D);
+        let captured_pawn_to_square = Square::new(Rank::Five, File::D);
         let mut current_state = previous_state.clone();
-        current_state.move_piece(&from_square, &to_square).unwrap();
+        current_state
+            .move_piece(&captured_pawn_from_square, &captured_pawn_to_square)
+            .unwrap();
 
         // Artificially put a white pawn in a valid position to play an en passant.
-        let square = Square::new(Rank::Five, File::C);
+        let white_pawn_from_square = Square::new(Rank::Five, File::C);
         let white_pawn = Piece::new(Colour::White, PieceType::Pawn);
-        current_state.add_piece(white_pawn, &square).unwrap();
+        current_state
+            .add_piece(white_pawn, &white_pawn_from_square)
+            .unwrap();
 
-        let target_square = Square::new(Rank::Six, File::D);
-        let en_passant = chess_move::Move::new(white_pawn, square, target_square);
+        let white_pawn_to_square = Square::new(Rank::Six, File::D);
+        let en_passant =
+            chess_move::Move::new(white_pawn, white_pawn_from_square, white_pawn_to_square);
         let chessboard_history = vec![previous_state, current_state];
 
         assert!(is_move_allowed(&en_passant, &chessboard_history));
+
+        let allowing_move = get_allowing_move(&en_passant, &chessboard_history);
+
+        let move_outcome = allowing_move.unwrap().get_move_outcome(&en_passant);
+        assert_eq!(move_outcome.get(&white_pawn_from_square).unwrap(), &None);
+        assert_eq!(
+            move_outcome.get(&white_pawn_to_square).unwrap(),
+            &Some(white_pawn)
+        );
+        assert_eq!(move_outcome.get(&captured_pawn_to_square).unwrap(), &None);
     }
 
     #[rstest]
@@ -266,21 +294,36 @@ mod en_passant_tests {
         let previous_state = factories::chessboard();
 
         // Move the white pawn that will be captured.
-        let from_square = Square::new(Rank::Two, File::G);
-        let to_square = Square::new(Rank::Four, File::G);
+        let white_pawn_from_square = Square::new(Rank::Two, File::G);
+        let white_pawn_to_square = Square::new(Rank::Four, File::G);
         let mut current_state = previous_state.clone();
-        current_state.move_piece(&from_square, &to_square).unwrap();
+        current_state
+            .move_piece(&white_pawn_from_square, &white_pawn_to_square)
+            .unwrap();
 
         // Artificially put a black pawn in a valid position to play an en passant.
-        let square = Square::new(Rank::Four, black_starting_file);
+        let black_pawn_from_square = Square::new(Rank::Four, black_starting_file);
         let black_pawn = Piece::new(Colour::Black, PieceType::Pawn);
-        current_state.add_piece(black_pawn, &square).unwrap();
+        current_state
+            .add_piece(black_pawn, &black_pawn_from_square)
+            .unwrap();
 
-        let target_square = Square::new(Rank::Three, File::G);
-        let en_passant = chess_move::Move::new(black_pawn, square, target_square);
+        let black_pawn_to_square = Square::new(Rank::Three, File::G);
+        let en_passant =
+            chess_move::Move::new(black_pawn, black_pawn_from_square, black_pawn_to_square);
         let chessboard_history = vec![previous_state, current_state];
 
         assert!(is_move_allowed(&en_passant, &chessboard_history));
+
+        let allowing_move = get_allowing_move(&en_passant, &chessboard_history);
+
+        let move_outcome = allowing_move.unwrap().get_move_outcome(&en_passant);
+        assert_eq!(move_outcome.get(&black_pawn_from_square).unwrap(), &None);
+        assert_eq!(
+            move_outcome.get(&black_pawn_to_square).unwrap(),
+            &Some(black_pawn)
+        );
+        assert_eq!(move_outcome.get(&white_pawn_to_square).unwrap(), &None);
     }
 
     #[rstest]
