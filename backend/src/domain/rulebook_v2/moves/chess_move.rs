@@ -1,5 +1,6 @@
 use super::{pieces, translation};
 use crate::domain::chess_set;
+use crate::domain::rulebook_v2::moves::chess_move::MoveValidationError::MoveIsNotLegalForPiece;
 use std::collections::BTreeMap;
 use std::fmt;
 use thiserror;
@@ -11,10 +12,10 @@ use thiserror;
 #[derive(thiserror::Error, Debug, PartialEq)]
 pub enum MoveValidationError {
     // Ordinary moves.
-    CannotMovePieceToSameSquare,
+    PieceIsNotAtFromSquare,
+    MoveIsNotLegalForPiece,
     CannotCaptureOwnPiece,
     CannotCaptureOpponentKing,
-    MoveIsNotLegalForPiece,
 }
 
 pub struct Move {
@@ -88,15 +89,20 @@ impl Move {
     ) -> Result<Box<dyn MoveRule>, MoveValidationError> {
         let chessboard = chessboard_history.last().unwrap();
 
-        if self.from_square == self.to_square {
-            return Err(MoveValidationError::CannotMovePieceToSameSquare);
+        let rule = match self.get_rule_that_allows_move(chessboard_history) {
+            Ok(rule) => rule,
+            Err(error) => return Err(error),
         };
 
-        if let Err(error) = self.validate_occupant_of_target_square(chessboard) {
+        if !(chessboard.get_piece(&self.from_square) == Some(self.piece)) {
+            return Err(MoveValidationError::PieceIsNotAtFromSquare);
+        }
+
+        if let Err(error) = self.validate_occupant_of_to_square(chessboard) {
             return Err(error);
         };
 
-        self.get_rule_that_allows_move(chessboard_history)
+        Ok(rule)
     }
 
     pub fn is_obstructed(&self, chessboard: &chess_set::Chessboard) -> bool {
@@ -131,7 +137,7 @@ impl Move {
         Err(MoveIsNotLegalForPiece)
     }
 
-    fn validate_occupant_of_target_square(
+    fn validate_occupant_of_to_square(
         &self,
         chessboard: &chess_set::Chessboard,
     ) -> Result<(), MoveValidationError> {
@@ -193,7 +199,7 @@ mod tests {
 
             let result = chess_move.validate(&vec![chessboard]);
 
-            let expected_error = MoveValidationError::CannotMovePieceToSameSquare;
+            let expected_error = MoveValidationError::MoveIsNotLegalForPiece;
             match result {
                 Err(error) => assert_eq!(error, expected_error),
                 Ok(_) => assert!(false),
@@ -264,8 +270,14 @@ mod tests {
             let result = chess_move.apply_if_valid(&vec![chessboard]);
 
             let updated_chessboard = result.unwrap();
-            assert_eq!(updated_chessboard.position.get(&from_square).unwrap(), &None);
-            assert_eq!(updated_chessboard.position.get(&to_square).unwrap(), &Some(piece));
+            assert_eq!(
+                updated_chessboard.position.get(&from_square).unwrap(),
+                &None
+            );
+            assert_eq!(
+                updated_chessboard.position.get(&to_square).unwrap(),
+                &Some(piece)
+            );
         }
 
         #[test]
@@ -277,7 +289,7 @@ mod tests {
 
             let result = chess_move.apply_if_valid(&vec![chessboard]);
 
-            let expected_error = MoveValidationError::CannotMovePieceToSameSquare;
+            let expected_error = MoveValidationError::MoveIsNotLegalForPiece;
             assert_eq!(result, Err(expected_error))
         }
     }
