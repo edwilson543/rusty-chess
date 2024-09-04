@@ -2,9 +2,9 @@ use crate::domain::chess_set;
 use crate::domain::rulebook::moves::{chess_move, translation};
 use std::collections::BTreeMap;
 
-pub struct AllowEnPassant;
+pub struct AllowEnPassantCapture;
 
-impl chess_move::MoveRule for AllowEnPassant {
+impl chess_move::MoveRule for AllowEnPassantCapture {
     fn allows_move(
         &self,
         chess_move: &chess_move::Move,

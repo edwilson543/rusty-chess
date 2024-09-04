@@ -52,10 +52,10 @@ Then visit http://localhost:5173/
     - The `Move` struct models a move by one player
     - Implementations of the `MoveRule` trait dictate whether a `Move` is valid for a given piece, at a given stage in 
     the game. For example, there are four implementations of `MoveRule` for pawns:
-      - `AllowSingelSquareForward`
+      - `AllowSingleSquareForward`
       - `AllowDoubleSquareForward`
       - `AllowDiagonalCapture`
-      - `AllowEnPassant`
+      - `AllowEnPassantCapture`
     - All other rules are modelled by functions. For example, the initial starting position, check and checkmate
   - **`game/`**
     - The `game` subdomain pulls together the `chess_set` and `rulebook` into a playable model of chess
