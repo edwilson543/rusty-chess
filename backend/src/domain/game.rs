@@ -1,6 +1,4 @@
 use crate::domain::chess_set;
-use crate::domain::rulebook;
-use crate::domain::rulebook::Move;
 use crate::domain::rulebook_v2;
 use serde;
 
@@ -14,9 +12,6 @@ pub enum GameError {
 
     #[error("{0} player attempted to move opponent's piece.")]
     CannotMoveOpponentPiece(chess_set::Colour),
-
-    #[error("{0}")]
-    MoveValidationError(rulebook::MoveValidationError),
 
     #[error("{0}")]
     MoveValidationErrorV2(rulebook_v2::MoveValidationError),
@@ -48,7 +43,7 @@ pub struct Game {
 // Public interface.
 impl Game {
     pub fn new(id: i32) -> Self {
-        let starting_position = rulebook::get_official_starting_position();
+        let starting_position = rulebook_v2::get_official_starting_position();
         let chessboard = chess_set::Chessboard::new(starting_position);
 
         Self {
@@ -97,24 +92,16 @@ impl Game {
             Err(error) => return Err(GameError::MoveValidationErrorV2(error)),
         };
 
-        let updated_chessboard = match chess_move.apply_if_valid(&self.chessboard_history) {
-            Ok(chessboard) => chessboard,
-            Err(error) => return Err(GameError::MoveValidationErrorV2(error)),
-        };
-
-        self.chessboard_history.push(updated_chessboard);
-        self.progress_game_status();
-        Ok(&self.status)
+        self.play_validated_move(chess_move)
     }
 
     pub fn play_validated_move(
         &mut self,
-        chess_move: Box<dyn Move>,
+        chess_move: rulebook_v2::Move,
     ) -> Result<&GameStatus, GameError> {
-        let mut updated_chessboard = self.current_chessboard().clone();
-        match chess_move.apply(&mut updated_chessboard) {
-            Err(error) => return Err(GameError::ChessboardActionError(error)),
-            Ok(()) => {}
+        let updated_chessboard = match chess_move.apply_if_valid(&self.chessboard_history) {
+            Ok(chessboard) => chessboard,
+            Err(error) => return Err(GameError::MoveValidationErrorV2(error)),
         };
 
         self.chessboard_history.push(updated_chessboard);
@@ -151,7 +138,7 @@ impl Game {
         let to_play_colour = colour.swap();
 
         // Check for a win or draw. // TODO -> check for draw.
-        if rulebook::is_player_checkmated(to_play_colour, self.get_chessboard_history()) {
+        if rulebook_v2::is_player_checkmated(to_play_colour, self.get_chessboard_history()) {
             self.status = GameStatus::from_winning_colour(colour);
         } else {
             self.status = GameStatus::from_to_play_colour(to_play_colour)
@@ -159,28 +146,6 @@ impl Game {
     }
 
     // Queries.
-    fn validate_move(
-        &self,
-        player: &chess_set::Colour,
-        chess_move: &Box<dyn Move>,
-    ) -> Result<(), GameError> {
-        if let Err(err) = chess_move.validate(&self.chessboard_history) {
-            return Err(GameError::MoveValidationError(err));
-        }
-
-        return match rulebook::would_player_be_left_in_check(
-            player,
-            &chess_move,
-            self.current_chessboard(),
-        ) {
-            Ok(check) => match check {
-                true => Err(GameError::MoveWouldLeavePlayerInCheck),
-                false => Ok(()),
-            },
-            Err(error) => Err(GameError::ChessboardActionError(error)),
-        };
-    }
-
     pub fn get_piece_at_square(&self, square: &chess_set::Square) -> Option<chess_set::Piece> {
         self.current_chessboard().get_piece(square)
     }

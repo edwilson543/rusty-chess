@@ -1,4 +1,4 @@
-use crate::domain::{game, rulebook};
+use crate::domain::{game, rulebook_v2};
 use thiserror;
 
 #[derive(thiserror::Error, Debug, PartialEq)]
@@ -14,5 +14,5 @@ pub trait ChessEngine {
     fn generate_next_move(
         &self,
         game: &game::Game,
-    ) -> Result<Box<dyn rulebook::Move>, SuggestNextMoveError>;
+    ) -> Result<rulebook_v2::Move, SuggestNextMoveError>;
 }

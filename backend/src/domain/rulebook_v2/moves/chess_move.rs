@@ -1,6 +1,5 @@
 use super::{pieces, translation};
 use crate::domain::chess_set;
-use crate::domain::rulebook_v2::moves::chess_move::MoveValidationError::MoveIsNotLegalForPiece;
 use std::collections::BTreeMap;
 use std::fmt;
 use thiserror;
@@ -134,7 +133,7 @@ impl Move {
                 return Ok(rule);
             }
         }
-        Err(MoveIsNotLegalForPiece)
+        Err(MoveValidationError::MoveIsNotLegalForPiece)
     }
 
     fn validate_occupant_of_to_square(
