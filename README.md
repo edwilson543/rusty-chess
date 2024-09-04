@@ -45,15 +45,21 @@ Then visit http://localhost:5173/
     - This represents a physical chess set, as you might expect to buy from a shop
     - All models are value objects; for example `Chessboard`, `Piece` and `Colour`
     - Each model is implemented either as a `struct` or an `enum`
-    - The `Chessboard` does not enforce any rules of chess. The most it does is provide methods for adding and removing
-    pieces from the board
+    - `Chessboard` does not enforce any rules of chess. It can have pieces arbitrarily added or removed from its
+    squares
   - **`rulebook/`**
     - This is where the rules of chess are defined
-    - Legal moves are modelled by implementations of the `Move` trait. For example, en passant
-    - All other rules are modelled by functions. For example, the initial starting position and checkmate
+    - The `Move` struct models a move by one player
+    - Implementations of the `MoveRule` trait dictate whether a `Move` is valid for a given piece, at a given stage in 
+    the game. For example, there are four implementations of `MoveRule` for pawns:
+      - `AllowSingelSquareForward`
+      - `AllowDoubleSquareForward`
+      - `AllowDiagonalCapture`
+      - `AllowEnPassant`
+    - All other rules are modelled by functions. For example, the initial starting position, check and checkmate
   - **`game/`**
     - The `game` subdomain pulls together the `chess_set` and `rulebook` into a playable model of chess
-    - The key model is the `Game` struct, an entity representing a single game of chess
+    - The key model is the `Game` struct, an entity representing a single chess game
     - `Game` includes methods for playing moves, and records the history of a single chess game
   - **`engine/`**
     - This portion of the domain is what allows you to "play against the computer"
