@@ -1,15 +1,13 @@
-use super::engine::ChessEngine;
-use crate::domain::engine::engine;
-use crate::domain::game;
-use crate::domain::rulebook;
+use super::engine;
+use crate::domain::{game, rulebook};
 
 pub struct MonteCarloTreeSearch;
 
-impl ChessEngine for MonteCarloTreeSearch {
+impl engine::ChessEngine for MonteCarloTreeSearch {
     fn generate_next_move(
         &self,
         game: &game::Game,
-    ) -> Result<Box<dyn rulebook::Move>, engine::SuggestNextMoveError> {
+    ) -> Result<rulebook::Move, engine::SuggestNextMoveError> {
         todo!()
     }
 }

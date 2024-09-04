@@ -10,7 +10,7 @@ impl engine::ChessEngine for Random {
     fn generate_next_move(
         &self,
         game: &game::Game,
-    ) -> Result<Box<dyn rulebook::Move>, engine::SuggestNextMoveError> {
+    ) -> Result<rulebook::Move, engine::SuggestNextMoveError> {
         let Some(to_play_colour) = game.get_status().to_play_colour() else {
             return Err(engine::SuggestNextMoveError::GameHasAlreadyEnded);
         };
@@ -45,10 +45,10 @@ mod tests {
 
         let suggested_move = engine.generate_next_move(&game).unwrap();
 
-        assert_eq!(
-            suggested_move.validate(game.get_chessboard_history()),
-            Ok(())
-        )
+        match suggested_move.validate(game.get_chessboard_history()) {
+            Ok(_) => {}
+            Err(_) => panic!("Random move engine generated an illegal move!"),
+        }
     }
 
     #[test]

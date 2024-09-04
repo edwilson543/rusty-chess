@@ -1,49 +1,52 @@
-use crate::domain::rulebook::moves::ordinary_move::ordinary_move::OrdinaryMove;
-use crate::domain::rulebook::moves::ordinary_move::rule::OrdinaryMoveRule;
-use crate::domain::rulebook::moves::translation;
+use crate::domain::chess_set;
+use crate::domain::rulebook::moves::{chess_move, translation};
 use std::vec;
 
-pub fn get_knight_move_rules() -> vec::IntoIter<Box<dyn OrdinaryMoveRule>> {
-    let rules = vec![Box::new(LShapedJump) as Box<dyn OrdinaryMoveRule>];
-
-    rules.into_iter()
+pub fn get_knight_move_rules() -> vec::IntoIter<Box<dyn chess_move::MoveRule>> {
+    vec![Box::new(AllowLShapedJumped) as Box<dyn chess_move::MoveRule>].into_iter()
 }
 
-struct LShapedJump;
+struct AllowLShapedJumped;
 
-impl OrdinaryMoveRule for LShapedJump {
-    fn allows_move(&self, chess_move: &OrdinaryMove) -> bool {
-        let allowed_vectors = [
-            translation::ChessVector::new(1, 2),
-            translation::ChessVector::new(2, 1),
-            translation::ChessVector::new(2, -1),
-            translation::ChessVector::new(1, -2),
-            translation::ChessVector::new(-1, -2),
-            translation::ChessVector::new(-2, -1),
-            translation::ChessVector::new(-2, 1),
-            translation::ChessVector::new(-1, 2),
-        ];
+impl chess_move::MoveRule for AllowLShapedJumped {
+    fn allows_move(
+        &self,
+        chess_move: &chess_move::Move,
+        chessboard_history: &Vec<chess_set::Chessboard>,
+    ) -> bool {
+        let _ = chessboard_history;
 
-        let direction_allowed = allowed_vectors
-            .into_iter()
-            .any(|vector| chess_move.translation.vector == vector);
+        let is_valid_vector = knight_allowed_vectors().contains(&chess_move.translation.vector);
+        let is_single_jump = chess_move.translation.scalar == 1;
 
-        // Knights can jump, so we don't check for obstruction.
-        direction_allowed && chess_move.translation.scalar == 1
+        is_valid_vector && is_single_jump
     }
+}
+
+fn knight_allowed_vectors() -> Vec<translation::ChessVector> {
+    vec![
+        translation::ChessVector::new(1, 2),
+        translation::ChessVector::new(2, 1),
+        translation::ChessVector::new(2, -1),
+        translation::ChessVector::new(1, -2),
+        translation::ChessVector::new(-1, -2),
+        translation::ChessVector::new(-2, -1),
+        translation::ChessVector::new(-2, 1),
+        translation::ChessVector::new(-1, 2),
+    ]
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::domain::chess_set::{Colour, File, Piece, PieceType, Rank, Square};
-    use crate::domain::rulebook::moves::OrdinaryMove;
+    use crate::domain::chess_set::{Chessboard, Colour, File, Piece, PieceType, Rank, Square};
+    use crate::domain::rulebook::moves::chess_move;
     use crate::testing::factories;
     use rstest::rstest;
 
-    fn is_move_allowed(chess_move: &OrdinaryMove) -> bool {
+    fn is_move_allowed(chess_move: chess_move::Move, chessboard: &Chessboard) -> bool {
         let mut rules = get_knight_move_rules();
-        rules.any(|rule| rule.allows_move(chess_move))
+        rules.any(|rule| rule.allows_move(&chess_move, &vec![chessboard.clone()]))
     }
 
     #[rstest]
@@ -62,9 +65,9 @@ mod tests {
         let knight = Piece::new(Colour::White, PieceType::Knight);
 
         let chessboard = factories::chessboard();
-        let chess_move = OrdinaryMove::new(&chessboard, &knight, &from_square, &to_square);
+        let chess_move = chess_move::Move::new(knight, from_square, to_square);
 
-        assert!(is_move_allowed(&chess_move));
+        assert!(is_move_allowed(chess_move, &chessboard));
     }
 
     #[rstest]
@@ -83,9 +86,9 @@ mod tests {
         let knight = Piece::new(Colour::Black, PieceType::Knight);
 
         let chessboard = factories::chessboard();
-        let chess_move = OrdinaryMove::new(&chessboard, &knight, &from_square, &to_square);
+        let chess_move = chess_move::Move::new(knight, from_square, to_square);
 
-        assert!(is_move_allowed(&chess_move));
+        assert!(is_move_allowed(chess_move, &chessboard));
     }
 
     #[rstest]
@@ -96,8 +99,8 @@ mod tests {
         let knight = Piece::new(Colour::White, PieceType::Knight);
 
         let chessboard = factories::chessboard();
-        let chess_move = OrdinaryMove::new(&chessboard, &knight, &from_square, &to_square);
+        let chess_move = chess_move::Move::new(knight, from_square, to_square);
 
-        assert!(!is_move_allowed(&chess_move));
+        assert!(!is_move_allowed(chess_move, &chessboard));
     }
 }

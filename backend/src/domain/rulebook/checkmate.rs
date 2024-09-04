@@ -1,7 +1,6 @@
 use super::check;
+use super::moves::chess_move;
 use crate::domain::chess_set;
-
-use super::helpers;
 
 pub fn is_player_checkmated(
     player: chess_set::Colour,
@@ -13,13 +12,52 @@ pub fn is_player_checkmated(
         return false;
     }
 
-    let legal_moves = helpers::get_legal_moves(player, chessboard_history);
+    let legal_moves = get_legal_moves(player, chessboard_history);
     legal_moves.len() == 0
 }
 
+/// Get the legal moves that can be played on the latest chessboard in a chessboard history.
+///
+/// This is used for:
+/// * Working out whether a player is checkmated
+/// * Generating moves
+pub fn get_legal_moves(
+    player: chess_set::Colour,
+    chessboard_history: &Vec<chess_set::Chessboard>,
+) -> Vec<chess_move::Move> {
+    let chessboard = chessboard_history.last().unwrap();
+
+    let mut legal_moves = vec![];
+    for (from_square, maybe_piece) in chessboard.position.clone().into_iter() {
+        let Some(moved_piece) = maybe_piece else {
+            continue;
+        };
+        if !(moved_piece.get_colour() == &player) {
+            continue;
+        };
+
+        for (to_square, _) in chessboard.position.clone().into_iter() {
+            let chess_move = chess_move::Move::new(moved_piece, from_square, to_square);
+
+            match check::would_player_be_left_in_check(&player, &chess_move, chessboard_history) {
+                Ok(false) => {}
+                Ok(true) => continue,
+                Err(_) => continue,
+            }
+
+            match chess_move.validate(chessboard_history) {
+                Ok(_) => legal_moves.push(chess_move),
+                Err(_) => continue,
+            }
+        }
+    }
+
+    legal_moves
+}
+
 #[cfg(test)]
-mod tests {
-    use super::*;
+mod checkmate_tests {
+    use super::is_player_checkmated;
     use crate::domain::chess_set::{Chessboard, Colour, File, Piece, PieceType, Rank, Square};
     use std::collections::BTreeMap;
 
@@ -220,5 +258,21 @@ mod tests {
         let chessboard = Chessboard::new(starting_position);
 
         assert!(!is_player_checkmated(Colour::Black, &vec![chessboard]));
+    }
+}
+
+#[cfg(test)]
+mod get_legal_moves_tests {
+    use super::get_legal_moves;
+    use crate::domain::chess_set::Colour;
+    use crate::testing::factories;
+
+    #[test]
+    fn there_are_twenty_legal_opening_moves() {
+        let chessboard = factories::chessboard();
+
+        let legal_moves = get_legal_moves(Colour::White, &vec![chessboard]);
+
+        assert_eq!(legal_moves.len(), 20);
     }
 }

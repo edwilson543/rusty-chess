@@ -1,37 +1,47 @@
-use crate::domain::rulebook::moves::ordinary_move::multi_square_move::MultiSquareMove;
-use crate::domain::rulebook::moves::ordinary_move::rule::OrdinaryMoveRule;
-use crate::domain::rulebook::moves::translation;
+use crate::domain::chess_set;
+use crate::domain::rulebook::moves::{chess_move, translation};
 use std::vec;
 
-pub fn get_bishop_move_rules() -> vec::IntoIter<Box<dyn OrdinaryMoveRule>> {
-    let diagonals = [
+pub fn get_bishop_move_rules() -> vec::IntoIter<Box<dyn chess_move::MoveRule>> {
+    vec![Box::new(AllowDiagonalTranslations) as Box<dyn chess_move::MoveRule>].into_iter()
+}
+
+struct AllowDiagonalTranslations;
+
+impl chess_move::MoveRule for AllowDiagonalTranslations {
+    fn allows_move(
+        &self,
+        chess_move: &chess_move::Move,
+        chessboard_history: &Vec<chess_set::Chessboard>,
+    ) -> bool {
+        let is_diagonal = diagonals().contains(&chess_move.translation.vector);
+        let is_obstructed = chess_move.is_obstructed(chessboard_history.last().unwrap());
+
+        is_diagonal && !is_obstructed
+    }
+}
+
+fn diagonals() -> Vec<translation::ChessVector> {
+    vec![
         translation::ChessVector::new(1, 1),
         translation::ChessVector::new(1, -1),
         translation::ChessVector::new(-1, -1),
         translation::ChessVector::new(-1, 1),
-    ];
-
-    let mut rules: Vec<Box<dyn OrdinaryMoveRule>> = vec![];
-    for diagonal in diagonals {
-        let rule = MultiSquareMove::new(diagonal);
-        rules.push(Box::new(rule) as Box<dyn OrdinaryMoveRule>);
-    }
-
-    rules.into_iter()
+    ]
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::domain::chess_set::{Chessboard, Colour, File, Piece, PieceType, Rank, Square};
-    use crate::domain::rulebook::moves::OrdinaryMove;
+    use crate::domain::rulebook::moves::chess_move;
     use crate::testing::factories;
     use rstest::rstest;
     use std::collections::BTreeMap;
 
-    fn is_move_allowed(chess_move: &OrdinaryMove) -> bool {
+    fn is_move_allowed(chess_move: chess_move::Move, chessboard: &Chessboard) -> bool {
         let mut rules = get_bishop_move_rules();
-        rules.any(|rule| rule.allows_move(chess_move))
+        rules.any(|rule| rule.allows_move(&chess_move, &vec![chessboard.clone()]))
     }
 
     #[rstest]
@@ -45,9 +55,9 @@ mod tests {
         starting_position.insert(from_square, bishop);
 
         let chessboard = Chessboard::new(starting_position);
-        let chess_move = OrdinaryMove::new(&chessboard, &bishop, &from_square, &to_square);
+        let chess_move = chess_move::Move::new(bishop, from_square, to_square);
 
-        assert!(is_move_allowed(&chess_move));
+        assert!(is_move_allowed(chess_move, &chessboard));
     }
 
     #[rstest]
@@ -60,9 +70,9 @@ mod tests {
         starting_position.insert(from_square, bishop);
 
         let chessboard = Chessboard::new(starting_position);
-        let chess_move = OrdinaryMove::new(&chessboard, &bishop, &from_square, &to_square);
+        let chess_move = chess_move::Move::new(bishop, from_square, to_square);
 
-        assert!(!is_move_allowed(&chess_move));
+        assert!(!is_move_allowed(chess_move, &chessboard));
     }
 
     #[test]
@@ -72,8 +82,8 @@ mod tests {
         let bishop = Piece::new(Colour::White, PieceType::Bishop);
 
         let chessboard = factories::chessboard();
-        let chess_move = OrdinaryMove::new(&chessboard, &bishop, &from_square, &to_square);
+        let chess_move = chess_move::Move::new(bishop, from_square, to_square);
 
-        assert!(!is_move_allowed(&chess_move));
+        assert!(!is_move_allowed(chess_move, &chessboard));
     }
 }

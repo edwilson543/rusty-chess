@@ -71,7 +71,7 @@ mod tests {
         // Play an opening move for white so that it's black's turn.
         let from_square = Square::new(Rank::Two, File::E);
         let to_square = Square::new(Rank::Four, File::E);
-        game.play_unvalidated_move(&Colour::White, &from_square, &to_square)
+        game.play_move(&Colour::White, &from_square, &to_square)
             .unwrap();
         game_repo.update(&game);
 

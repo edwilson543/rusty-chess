@@ -1,5 +1,4 @@
-use super::moves;
-use super::moves::Move;
+use super::moves::chess_move;
 use crate::domain::chess_set;
 
 /// Test whether a move would leave a player in check.
@@ -10,14 +9,14 @@ use crate::domain::chess_set;
 /// * Test whether any of the opponent's pieces can attack that square
 pub fn would_player_be_left_in_check(
     player: &chess_set::Colour,
-    chess_move: &Box<dyn Move>,
-    chessboard: &chess_set::Chessboard,
-) -> Result<bool, chess_set::ChessboardActionError> {
-    let mut trial_chessboard = chessboard.clone();
-    match chess_move.apply(&mut trial_chessboard) {
-        Ok(_) => {}
+    chess_move: &chess_move::Move,
+    chessboard_history: &Vec<chess_set::Chessboard>,
+) -> Result<bool, chess_move::MoveValidationError> {
+    let trial_chessboard = match chess_move.apply_if_valid(chessboard_history) {
+        Ok(chessboard) => chessboard,
         Err(error) => return Err(error),
     };
+
     Ok(is_player_in_check(&player, trial_chessboard))
 }
 
@@ -27,17 +26,16 @@ pub fn is_player_in_check(player: &chess_set::Colour, chessboard: chess_set::Che
     let opponent_player = player.swap();
 
     for (from_square, opponent_piece) in chessboard.get_pieces(opponent_player) {
-        let potential_move =
-            moves::OrdinaryMove::new(&chessboard, &opponent_piece, &from_square, &king_location);
+        let attack_king_move = chess_move::Move::new(opponent_piece, from_square, king_location);
 
-        // Chessboard history isn't needed here, so we just supply an empty vector.
-        let Err(error) = potential_move.validate(&vec![]) else {
-            panic!("Potential move should be invalid, since it to opponent king's square.");
+        // The full chessboard history isn't needed here, so we just supply the current state.
+        match attack_king_move.validate(&vec![chessboard.clone()]) {
+            Err(error) => match error {
+                chess_move::MoveValidationError::CannotCaptureOpponentKing => return true,
+                _ => continue,
+            },
+            Ok(_) => panic!("Should not be allowed to captured opponent king."),
         };
-        match error {
-            moves::MoveValidationError::CannotCaptureOpponentKing => return true,
-            _ => continue,
-        }
     }
 
     false
@@ -45,12 +43,8 @@ pub fn is_player_in_check(player: &chess_set::Colour, chessboard: chess_set::Che
 
 #[cfg(test)]
 mod tests {
-    use super::would_player_be_left_in_check;
-    use super::Move;
-    use crate::domain::chess_set::{
-        Chessboard, ChessboardActionError, Colour, File, Piece, PieceType, Rank, Square,
-    };
-    use crate::domain::rulebook;
+    use super::*;
+    use crate::domain::chess_set::{Chessboard, Colour, File, Piece, PieceType, Rank, Square};
     use crate::testing::factories;
     use rstest::rstest;
     use std::collections::BTreeMap;
@@ -58,7 +52,7 @@ mod tests {
     // Check scenarios.
 
     #[test]
-    fn king_cannot_move_into_check_from_rook() {
+    fn black_king_cannot_move_into_check_from_rook() {
         let mut position = BTreeMap::new();
 
         let white_rook = Piece::new(Colour::White, PieceType::Rook);
@@ -71,22 +65,15 @@ mod tests {
         let king_to_square = Square::new(Rank::Eight, File::F);
 
         let chessboard = Chessboard::new(position);
+        let chess_move = chess_move::Move::new(black_king, king_from_square, king_to_square);
 
-        let chess_move = rulebook::OrdinaryMove::new(
-            &chessboard,
-            &black_king,
-            &king_from_square,
-            &king_to_square,
-        );
-
-        let boxed_move = Box::new(chess_move) as Box<dyn Move>;
-        let result = would_player_be_left_in_check(&Colour::Black, &boxed_move, &chessboard);
+        let result = would_player_be_left_in_check(&Colour::Black, &chess_move, &vec![chessboard]);
 
         assert_eq!(result, Ok(true));
     }
 
     #[test]
-    fn king_cannot_move_into_check_from_knight() {
+    fn white_king_cannot_move_into_check_from_knight() {
         let mut position = BTreeMap::new();
 
         let black_knight = Piece::new(Colour::Black, PieceType::Knight);
@@ -99,23 +86,15 @@ mod tests {
         let king_to_square = Square::new(Rank::One, File::B);
 
         let chessboard = Chessboard::new(position);
+        let chess_move = chess_move::Move::new(white_king, king_from_square, king_to_square);
 
-        let chess_move = rulebook::OrdinaryMove::new(
-            &chessboard,
-            &white_king,
-            &king_from_square,
-            &king_to_square,
-        );
-
-        let boxed_move = Box::new(chess_move) as Box<dyn Move>;
-        let result =
-            would_player_be_left_in_check(&Colour::White, &Box::new(boxed_move), &chessboard);
+        let result = would_player_be_left_in_check(&Colour::White, &chess_move, &vec![chessboard]);
 
         assert_eq!(result, Ok(true));
     }
 
     #[test]
-    fn cannot_move_piece_shielding_king_from_check_from_bishop() {
+    fn cannot_move_piece_shielding_black_king_from_check_from_bishop() {
         let mut position = BTreeMap::new();
 
         let white_bishop = Piece::new(Colour::White, PieceType::Bishop);
@@ -129,26 +108,18 @@ mod tests {
         let shield_piece = Piece::new(Colour::Black, PieceType::Pawn);
         let shield_from_square = Square::new(Rank::Four, File::D);
         position.insert(shield_from_square, shield_piece);
-
         let shield_to_square = Square::new(Rank::Three, File::D);
 
         let chessboard = Chessboard::new(position);
+        let chess_move = chess_move::Move::new(shield_piece, shield_from_square, shield_to_square);
 
-        let chess_move = rulebook::OrdinaryMove::new(
-            &chessboard,
-            &shield_piece,
-            &shield_from_square,
-            &shield_to_square,
-        );
-
-        let boxed_move = Box::new(chess_move) as Box<dyn Move>;
-        let result = would_player_be_left_in_check(&Colour::Black, &boxed_move, &chessboard);
+        let result = would_player_be_left_in_check(&Colour::Black, &chess_move, &vec![chessboard]);
 
         assert_eq!(result, Ok(true));
     }
 
     #[test]
-    fn cannot_move_piece_shielding_king_from_check_from_queen() {
+    fn cannot_move_piece_shielding_white_king_from_check_from_queen() {
         let mut position = BTreeMap::new();
 
         let black_queen = Piece::new(Colour::Black, PieceType::Bishop);
@@ -162,26 +133,18 @@ mod tests {
         let shield_piece = Piece::new(Colour::White, PieceType::Pawn);
         let shield_from_square = Square::new(Rank::Two, File::G);
         position.insert(shield_from_square, shield_piece);
-
         let shield_to_square = Square::new(Rank::Three, File::G);
 
         let chessboard = Chessboard::new(position);
+        let chess_move = chess_move::Move::new(shield_piece, shield_from_square, shield_to_square);
 
-        let chess_move = rulebook::OrdinaryMove::new(
-            &chessboard,
-            &shield_piece,
-            &shield_from_square,
-            &shield_to_square,
-        );
-
-        let boxed_move = Box::new(chess_move) as Box<dyn Move>;
-        let result = would_player_be_left_in_check(&Colour::White, &boxed_move, &chessboard);
+        let result = would_player_be_left_in_check(&Colour::White, &chess_move, &vec![chessboard]);
 
         assert_eq!(result, Ok(true));
     }
 
     #[test]
-    fn king_cannot_move_into_check_from_pawn() {
+    fn white_king_cannot_move_into_check_from_pawn() {
         let mut position = BTreeMap::new();
 
         let black_pawn = Piece::new(Colour::Black, PieceType::Pawn);
@@ -195,22 +158,15 @@ mod tests {
         let king_to_square = Square::new(Rank::One, File::F);
 
         let chessboard = Chessboard::new(position);
+        let chess_move = chess_move::Move::new(white_king, king_from_square, king_to_square);
 
-        let chess_move = rulebook::OrdinaryMove::new(
-            &chessboard,
-            &white_king,
-            &king_from_square,
-            &king_to_square,
-        );
-
-        let boxed_move = Box::new(chess_move) as Box<dyn Move>;
-        let result = would_player_be_left_in_check(&Colour::White, &boxed_move, &chessboard);
+        let result = would_player_be_left_in_check(&Colour::White, &chess_move, &vec![chessboard]);
 
         assert_eq!(result, Ok(true));
     }
 
     #[test]
-    fn white_king_would_leave_black_king_in_check() {
+    fn black_king_would_leave_black_king_in_check() {
         let mut position = BTreeMap::new();
 
         let white_king = Piece::new(Colour::White, PieceType::King);
@@ -224,22 +180,16 @@ mod tests {
         let black_king_to_square = Square::new(Rank::Five, File::E);
 
         let chessboard = Chessboard::new(position);
+        let chess_move =
+            chess_move::Move::new(black_king, black_king_from_square, black_king_to_square);
 
-        let chess_move = rulebook::OrdinaryMove::new(
-            &chessboard,
-            &black_king,
-            &black_king_from_square,
-            &black_king_to_square,
-        );
-
-        let boxed_move = Box::new(chess_move) as Box<dyn Move>;
-        let result = would_player_be_left_in_check(&Colour::Black, &boxed_move, &chessboard);
+        let result = would_player_be_left_in_check(&Colour::Black, &chess_move, &vec![chessboard]);
 
         assert_eq!(result, Ok(true));
     }
 
     #[test]
-    fn king_must_move_out_of_check() {
+    fn white_king_must_move_out_of_check() {
         let mut position = BTreeMap::new();
 
         let black_pawn = Piece::new(Colour::Black, PieceType::Pawn);
@@ -258,17 +208,15 @@ mod tests {
         let to_square = Square::new(Rank::Five, File::A);
 
         let chessboard = Chessboard::new(position);
+        let chess_move = chess_move::Move::new(white_pawn, from_square, to_square);
 
-        let chess_move =
-            rulebook::OrdinaryMove::new(&chessboard, &white_pawn, &from_square, &to_square);
-
-        let boxed_move = Box::new(chess_move) as Box<dyn Move>;
-        let result = would_player_be_left_in_check(&Colour::White, &boxed_move, &chessboard);
+        let result = would_player_be_left_in_check(&Colour::White, &chess_move, &vec![chessboard]);
 
         assert_eq!(result, Ok(true));
     }
 
     // Non-check scenarios.
+
     #[test]
     fn piece_does_not_check_king_when_cannot_attack_square() {
         let mut position = BTreeMap::new();
@@ -283,16 +231,9 @@ mod tests {
         let king_to_square = Square::new(Rank::Eight, File::E);
 
         let chessboard = Chessboard::new(position);
+        let chess_move = chess_move::Move::new(black_king, king_from_square, king_to_square);
 
-        let chess_move = rulebook::OrdinaryMove::new(
-            &chessboard,
-            &black_king,
-            &king_from_square,
-            &king_to_square,
-        );
-
-        let boxed_move = Box::new(chess_move) as Box<dyn Move>;
-        let result = would_player_be_left_in_check(&Colour::Black, &boxed_move, &chessboard);
+        let result = would_player_be_left_in_check(&Colour::Black, &chess_move, &vec![chessboard]);
 
         assert_eq!(result, Ok(false));
     }
@@ -319,16 +260,9 @@ mod tests {
         position.insert(shield_from_square, shield_piece);
 
         let chessboard = Chessboard::new(position);
+        let chess_move = chess_move::Move::new(white_king, king_from_square, king_to_square);
 
-        let chess_move = rulebook::OrdinaryMove::new(
-            &chessboard,
-            &white_king,
-            &king_from_square,
-            &king_to_square,
-        );
-
-        let boxed_move = Box::new(chess_move) as Box<dyn Move>;
-        let result = would_player_be_left_in_check(&Colour::White, &boxed_move, &chessboard);
+        let result = would_player_be_left_in_check(&Colour::White, &chess_move, &vec![chessboard]);
 
         assert_eq!(result, Ok(false));
     }
@@ -341,17 +275,12 @@ mod tests {
 
         let from_square = factories::some_square();
         let to_square = factories::some_other_square();
-        let chess_move = rulebook::OrdinaryMove::new(
-            &empty_chessboard,
-            &factories::some_piece(),
-            &from_square,
-            &to_square,
-        );
+        let chess_move = chess_move::Move::new(factories::some_piece(), from_square, to_square);
 
-        let boxed_move = Box::new(chess_move) as Box<dyn Move>;
-        let result = would_player_be_left_in_check(&Colour::White, &boxed_move, &empty_chessboard);
+        let result =
+            would_player_be_left_in_check(&Colour::White, &chess_move, &vec![empty_chessboard]);
 
-        let expected_error = Err(ChessboardActionError::SquareIsEmpty(from_square));
+        let expected_error = Err(chess_move::MoveValidationError::PieceIsNotAtFromSquare);
         assert_eq!(result, expected_error);
     }
 }
