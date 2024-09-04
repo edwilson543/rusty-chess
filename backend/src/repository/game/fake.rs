@@ -114,7 +114,7 @@ mod tests {
 
             let from_square = Square::new(Rank::Two, File::A);
             let to_square = Square::new(Rank::Three, File::A);
-            game.play_unvalidated_move(&Colour::White, &from_square, &to_square)
+            game.play_move(&Colour::White, &from_square, &to_square)
                 .unwrap();
 
             repo.update(&game);

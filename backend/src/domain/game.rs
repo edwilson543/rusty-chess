@@ -1,6 +1,7 @@
 use crate::domain::chess_set;
 use crate::domain::rulebook;
 use crate::domain::rulebook::Move;
+use crate::domain::rulebook_v2;
 use serde;
 
 #[derive(thiserror::Error, Debug, PartialEq)]
@@ -16,6 +17,9 @@ pub enum GameError {
 
     #[error("{0}")]
     MoveValidationError(rulebook::MoveValidationError),
+
+    #[error("{0}")]
+    MoveValidationErrorV2(rulebook_v2::MoveValidationError),
 
     #[error("Cannot play move since it would leave player in check.")]
     MoveWouldLeavePlayerInCheck,
@@ -66,13 +70,7 @@ impl Game {
         }
     }
 
-    /// Construct, validate and apply a chess move.
-    ///
-    /// This method takes care of checking the rulebook for different types of rule,
-    /// including ordinary moves, en passant and castling.
-    /// The only exception is "pawn promotion", which requires additional input
-    /// and so is handled separately.
-    pub fn play_unvalidated_move(
+    pub fn play_move(
         &mut self,
         player: &chess_set::Colour,
         from_square: &chess_set::Square,
@@ -87,29 +85,26 @@ impl Game {
             Err(error) => return Err(error),
         };
 
-        // Try playing the move as a "special move".
-        if piece.get_piece_type() == &chess_set::PieceType::Pawn {
-            let en_passant = rulebook::EnPassant::new(&piece, from_square, to_square);
-            let boxed_en_passant = Box::new(en_passant) as Box<dyn Move>;
-            if let Ok(_) = self.validate_move(player, &boxed_en_passant) {
-                return self.play_validated_move(boxed_en_passant);
-            }
-        }
+        let chess_move = rulebook_v2::Move::new(piece, from_square.clone(), to_square.clone());
 
-        // TODO -> check castling once implemented.
-
-        // Try playing the move as an "ordinary move".
-        let ordinary_move = rulebook::OrdinaryMove::new(
-            self.current_chessboard(),
-            &piece,
-            &from_square,
-            &to_square,
-        );
-        let boxed_move = Box::new(ordinary_move) as Box<dyn Move>;
-        return match self.validate_move(player, &boxed_move) {
-            Ok(()) => self.play_validated_move(boxed_move),
-            Err(err) => Err(err),
+        match rulebook_v2::would_player_be_left_in_check(
+            player,
+            &chess_move,
+            &self.chessboard_history,
+        ) {
+            Ok(false) => {}
+            Ok(true) => return Err(GameError::MoveWouldLeavePlayerInCheck),
+            Err(error) => return Err(GameError::MoveValidationErrorV2(error)),
         };
+
+        let updated_chessboard = match chess_move.apply_if_valid(&self.chessboard_history) {
+            Ok(chessboard) => chessboard,
+            Err(error) => return Err(GameError::MoveValidationErrorV2(error)),
+        };
+
+        self.chessboard_history.push(updated_chessboard);
+        self.progress_game_status();
+        Ok(&self.status)
     }
 
     pub fn play_validated_move(
@@ -255,7 +250,7 @@ mod tests {
             let from_square = chess_set::Square::new(Rank::Two, File::E);
             let to_square = chess_set::Square::new(Rank::Four, File::E);
 
-            let result = game.play_unvalidated_move(&Colour::White, &from_square, &to_square);
+            let result = game.play_move(&Colour::White, &from_square, &to_square);
 
             assert_eq!(result, Ok(&GameStatus::ToPlayBlack));
             assert_eq!(game.get_piece_at_square(&from_square), None);
@@ -270,7 +265,7 @@ mod tests {
             let from_square = chess_set::Square::new(Rank::One, File::G);
             let to_square = chess_set::Square::new(Rank::Three, File::F);
 
-            let result = game.play_unvalidated_move(&Colour::White, &from_square, &to_square);
+            let result = game.play_move(&Colour::White, &from_square, &to_square);
 
             assert_eq!(result, Ok(&GameStatus::ToPlayBlack));
             assert_eq!(game.get_piece_at_square(&from_square), None);
@@ -285,7 +280,7 @@ mod tests {
             let from_square = chess_set::Square::new(Rank::Seven, File::C);
             let to_square = chess_set::Square::new(Rank::Six, File::C);
 
-            let result = game.play_unvalidated_move(&Colour::Black, &from_square, &to_square);
+            let result = game.play_move(&Colour::Black, &from_square, &to_square);
 
             let expected_error = GameError::PlayIsOutOfTurn(Colour::Black);
             assert_eq!(result, Err(expected_error));
@@ -300,7 +295,7 @@ mod tests {
             let from_square = chess_set::Square::new(Rank::Seven, File::C);
             let to_square = chess_set::Square::new(Rank::Six, File::C);
 
-            let result = game.play_unvalidated_move(&Colour::White, &from_square, &to_square);
+            let result = game.play_move(&Colour::White, &from_square, &to_square);
 
             let expected_error = GameError::CannotMoveOpponentPiece(Colour::White);
             assert_eq!(result, Err(expected_error));
@@ -315,7 +310,7 @@ mod tests {
             let from_square = chess_set::Square::new(Rank::Three, File::H);
             let to_square = chess_set::Square::new(Rank::Four, File::H);
 
-            let result = game.play_unvalidated_move(&Colour::White, &from_square, &to_square);
+            let result = game.play_move(&Colour::White, &from_square, &to_square);
 
             let expected_error = GameError::ChessboardActionError(
                 chess_set::ChessboardActionError::SquareIsEmpty(from_square),
@@ -333,10 +328,10 @@ mod tests {
             let to_square = chess_set::Square::new(Rank::Three, File::A);
             let white_bishop = game.get_piece_at_square(&from_square).unwrap();
 
-            let result = game.play_unvalidated_move(&Colour::White, &from_square, &to_square);
+            let result = game.play_move(&Colour::White, &from_square, &to_square);
 
-            let expected_error = GameError::MoveValidationError(
-                rulebook::MoveValidationError::MoveIsNotLegalForPiece,
+            let expected_error = GameError::MoveValidationErrorV2(
+                rulebook_v2::MoveValidationError::MoveIsNotLegalForPiece,
             );
             assert_eq!(result, Err(expected_error));
             assert_eq!(game.get_piece_at_square(&from_square), Some(white_bishop));

@@ -24,7 +24,7 @@ pub fn play_move(
         return Err(PlayMoveError::GameDoesNotExist(game_id.clone()));
     };
 
-    match game.play_unvalidated_move(&player, &from_square, &to_square) {
+    match game.play_move(&player, &from_square, &to_square) {
         Err(err) => return Err(PlayMoveError::InvalidMove(err)),
         Ok(_) => {}
     }
