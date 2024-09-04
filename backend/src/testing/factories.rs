@@ -1,4 +1,4 @@
-use crate::domain::{chess_set, rulebook};
+use crate::domain::{chess_set, rulebook_v2};
 
 pub fn some_square() -> chess_set::Square {
     chess_set::Square::new(chess_set::Rank::One, chess_set::File::A)
@@ -17,6 +17,6 @@ pub fn some_other_piece() -> chess_set::Piece {
 }
 
 pub fn chessboard() -> chess_set::Chessboard {
-    let starting_position = rulebook::get_official_starting_position();
+    let starting_position = rulebook_v2::get_official_starting_position();
     chess_set::Chessboard::new(starting_position)
 }
