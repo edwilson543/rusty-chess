@@ -236,7 +236,7 @@ mod tests {
             let to_square = chess_set::Square::new(chess_set::Rank::Three, chess_set::File::B);
             let black_king =
                 chess_set::Piece::new(chess_set::Colour::Black, chess_set::PieceType::King);
-            let _ = chessboard.add_piece(black_king, &to_square);
+            let _ = chessboard.position.insert(to_square, Some(black_king));
 
             let chess_move = Move::new(white_pawn, from_square, to_square);
             let result = chess_move.validate(&vec![chessboard]);

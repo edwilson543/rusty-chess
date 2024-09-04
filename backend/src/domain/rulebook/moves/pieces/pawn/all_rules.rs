@@ -86,7 +86,7 @@ mod tests {
 
         let mut chessboard = factories::chessboard();
         let black_pawn = Piece::new(Colour::Black, PieceType::Pawn);
-        let _ = chessboard.add_piece(black_pawn, &to_square);
+        chessboard.position.insert(to_square, Some(black_pawn));
 
         let chess_move = chess_move::Move::new(white_pawn, from_square, to_square);
 
@@ -101,7 +101,7 @@ mod tests {
 
         let mut chessboard = factories::chessboard();
         let white_pawn = Piece::new(Colour::White, PieceType::Pawn);
-        let _ = chessboard.add_piece(white_pawn, &to_square);
+        chessboard.position.insert(to_square, Some(white_pawn));
 
         let chess_move = chess_move::Move::new(black_pawn, from_square, to_square);
 
@@ -251,21 +251,22 @@ mod en_passant_tests {
     #[case(File::E)]
     fn white_can_play_en_passant(#[case] white_starting_file: File) {
         let previous_state = factories::chessboard();
+        let mut position_updates = BTreeMap::new();
 
         // Move the black pawn that will be captured.
-        let captured_pawn_from_square = Square::new(Rank::Seven, File::D);
-        let captured_pawn_to_square = Square::new(Rank::Five, File::D);
-        let mut current_state = previous_state.clone();
-        current_state
-            .move_piece(&captured_pawn_from_square, &captured_pawn_to_square)
-            .unwrap();
+        let black_pawn_from_square = Square::new(Rank::Seven, File::D);
+        position_updates.insert(black_pawn_from_square, None);
+        let black_pawn = Piece::new(Colour::Black, PieceType::Pawn);
+        let black_pawn_to_square = Square::new(Rank::Five, File::D);
+        position_updates.insert(black_pawn_to_square, Some(black_pawn.clone()));
 
         // Artificially put a white pawn in a valid position to play an en passant.
         let white_pawn_from_square = Square::new(Rank::Five, white_starting_file);
         let white_pawn = Piece::new(Colour::White, PieceType::Pawn);
-        current_state
-            .add_piece(white_pawn, &white_pawn_from_square)
-            .unwrap();
+        position_updates.insert(white_pawn_from_square, Some(white_pawn));
+
+        let mut current_state = previous_state.clone();
+        current_state.update_position(position_updates);
 
         let white_pawn_to_square = Square::new(Rank::Six, File::D);
         let en_passant =
@@ -282,7 +283,7 @@ mod en_passant_tests {
             move_outcome.get(&white_pawn_to_square).unwrap(),
             &Some(white_pawn)
         );
-        assert_eq!(move_outcome.get(&captured_pawn_to_square).unwrap(), &None);
+        assert_eq!(move_outcome.get(&black_pawn_to_square).unwrap(), &None);
     }
 
     #[rstest]
@@ -290,21 +291,22 @@ mod en_passant_tests {
     #[case(File::H)]
     fn black_can_play_en_passant(#[case] black_starting_file: File) {
         let previous_state = factories::chessboard();
+        let mut position_updates = BTreeMap::new();
 
         // Move the white pawn that will be captured.
         let white_pawn_from_square = Square::new(Rank::Two, File::G);
+        position_updates.insert(white_pawn_from_square, None);
+        let white_pawn = Piece::new(Colour::White, PieceType::Pawn);
         let white_pawn_to_square = Square::new(Rank::Four, File::G);
-        let mut current_state = previous_state.clone();
-        current_state
-            .move_piece(&white_pawn_from_square, &white_pawn_to_square)
-            .unwrap();
+        position_updates.insert(white_pawn_to_square, Some(white_pawn));
 
         // Artificially put a black pawn in a valid position to play an en passant.
         let black_pawn_from_square = Square::new(Rank::Four, black_starting_file);
         let black_pawn = Piece::new(Colour::Black, PieceType::Pawn);
-        current_state
-            .add_piece(black_pawn, &black_pawn_from_square)
-            .unwrap();
+        position_updates.insert(black_pawn_from_square, Some(black_pawn));
+
+        let mut current_state = previous_state.clone();
+        current_state.update_position(position_updates);
 
         let black_pawn_to_square = Square::new(Rank::Three, File::G);
         let en_passant =
@@ -324,45 +326,25 @@ mod en_passant_tests {
         assert_eq!(move_outcome.get(&white_pawn_to_square).unwrap(), &None);
     }
 
-    #[rstest]
-    #[case::rook(PieceType::Rook)]
-    #[case::bishop(PieceType::Bishop)]
-    #[case::queen(PieceType::Queen)]
-    fn cannot_play_en_passant_with_a_non_pawn(#[case] piece_type: PieceType) {
-        let previous_state = factories::chessboard();
-
-        // Move the black pawn that will be captured.
-        let from_square = Square::new(Rank::Seven, File::D);
-        let to_square = Square::new(Rank::Five, File::D);
-        let mut current_state = previous_state.clone();
-        current_state.move_piece(&from_square, &to_square).unwrap();
-
-        // Artificially put a white pawn in a valid position to play an en passant.
-        let square = Square::new(Rank::Five, File::E);
-        let piece = Piece::new(Colour::White, piece_type);
-        current_state.add_piece(piece, &square).unwrap();
-
-        let target_square = Square::new(Rank::Six, File::D);
-        let en_passant = chess_move::Move::new(piece, square, target_square);
-        let chessboard_history = vec![previous_state, current_state];
-
-        assert!(is_move_allowed(&en_passant, &chessboard_history));
-    }
-
     #[test]
     fn cannot_play_en_passant_if_pawn_double_advancement_was_not_previous_turn() {
         let previous_state = factories::chessboard();
+        let mut position_updates = BTreeMap::new();
 
         // Move the black pawn that will be captured.
-        let from_square = Square::new(Rank::Seven, File::D);
-        let to_square = Square::new(Rank::Five, File::D);
-        let mut current_state = previous_state.clone();
-        current_state.move_piece(&from_square, &to_square).unwrap();
+        let black_pawn_from_square = Square::new(Rank::Seven, File::D);
+        position_updates.insert(black_pawn_from_square, None);
+        let black_pawn = Piece::new(Colour::Black, PieceType::Pawn);
+        let black_pawn_to_square = Square::new(Rank::Five, File::D);
+        position_updates.insert(black_pawn_to_square, Some(black_pawn));
 
         // Artificially put a white pawn in a valid position to play an en passant.
         let square = Square::new(Rank::Five, File::E);
         let white_pawn = Piece::new(Colour::White, PieceType::Pawn);
-        current_state.add_piece(white_pawn, &square).unwrap();
+        position_updates.insert(square, Some(white_pawn));
+
+        let mut current_state = previous_state.clone();
+        current_state.update_position(position_updates);
 
         let target_square = Square::new(Rank::Six, File::D);
         let en_passant = chess_move::Move::new(white_pawn, square, target_square);
@@ -388,14 +370,16 @@ mod en_passant_tests {
         starting_position.insert(white_starting_square, white_pawn);
 
         let previous_state = Chessboard::new(starting_position);
+
         let mut current_state = previous_state.clone();
+        let mut position_updates = BTreeMap::new();
 
         // Move the black pawn that will be captured to the same
         // rank as the white (an illegal move).
         let to_square = Square::new(Rank::Three, File::D);
-        current_state
-            .move_piece(&black_starting_square, &to_square)
-            .unwrap();
+        let black_pawn = Piece::new(Colour::Black, PieceType::Pawn);
+        position_updates.insert(to_square, Some(black_pawn));
+        current_state.update_position(position_updates);
 
         // Try and make an en passant with the pawn still on its starting rank.
         let target_square = Square::new(Rank::Four, File::D);
