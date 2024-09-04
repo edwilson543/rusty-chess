@@ -1,8 +1,6 @@
 use super::moves::chess_move;
 use crate::domain::chess_set;
 
-use thiserror;
-
 /// Test whether a move would leave a player in check.
 ///
 /// The strategy is to:

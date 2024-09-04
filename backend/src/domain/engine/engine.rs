@@ -1,4 +1,4 @@
-use crate::domain::{game, rulebook_v2};
+use crate::domain::{game, rulebook};
 use thiserror;
 
 #[derive(thiserror::Error, Debug, PartialEq)]
@@ -11,8 +11,6 @@ pub enum SuggestNextMoveError {
 ///
 /// Example implementations include Minimax and MCTS.
 pub trait ChessEngine {
-    fn generate_next_move(
-        &self,
-        game: &game::Game,
-    ) -> Result<rulebook_v2::Move, SuggestNextMoveError>;
+    fn generate_next_move(&self, game: &game::Game)
+        -> Result<rulebook::Move, SuggestNextMoveError>;
 }

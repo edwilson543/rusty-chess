@@ -1,5 +1,5 @@
 use crate::domain::chess_set;
-use crate::domain::rulebook_v2::moves::{chess_move, translation};
+use crate::domain::rulebook::moves::{chess_move, translation};
 
 pub struct AllowDoubleSquareForward;
 

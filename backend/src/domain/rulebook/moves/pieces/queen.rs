@@ -1,5 +1,5 @@
 use super::{bishop, rook};
-use crate::domain::rulebook_v2::moves::chess_move;
+use crate::domain::rulebook::moves::chess_move;
 use std::vec;
 
 pub fn get_queen_move_rules() -> vec::IntoIter<Box<dyn chess_move::MoveRule>> {

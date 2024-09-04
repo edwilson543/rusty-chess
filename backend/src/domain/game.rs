@@ -1,5 +1,5 @@
 use crate::domain::chess_set;
-use crate::domain::rulebook_v2;
+use crate::domain::rulebook;
 use serde;
 
 #[derive(thiserror::Error, Debug, PartialEq)]
@@ -14,7 +14,7 @@ pub enum GameError {
     CannotMoveOpponentPiece(chess_set::Colour),
 
     #[error("{0}")]
-    MoveValidationErrorV2(rulebook_v2::MoveValidationError),
+    MoveValidationErrorV2(rulebook::MoveValidationError),
 
     #[error("Cannot play move since it would leave player in check.")]
     MoveWouldLeavePlayerInCheck,
@@ -43,7 +43,7 @@ pub struct Game {
 // Public interface.
 impl Game {
     pub fn new(id: i32) -> Self {
-        let starting_position = rulebook_v2::get_official_starting_position();
+        let starting_position = rulebook::get_official_starting_position();
         let chessboard = chess_set::Chessboard::new(starting_position);
 
         Self {
@@ -80,13 +80,10 @@ impl Game {
             Err(error) => return Err(error),
         };
 
-        let chess_move = rulebook_v2::Move::new(piece, from_square.clone(), to_square.clone());
+        let chess_move = rulebook::Move::new(piece, from_square.clone(), to_square.clone());
 
-        match rulebook_v2::would_player_be_left_in_check(
-            player,
-            &chess_move,
-            &self.chessboard_history,
-        ) {
+        match rulebook::would_player_be_left_in_check(player, &chess_move, &self.chessboard_history)
+        {
             Ok(false) => {}
             Ok(true) => return Err(GameError::MoveWouldLeavePlayerInCheck),
             Err(error) => return Err(GameError::MoveValidationErrorV2(error)),
@@ -97,7 +94,7 @@ impl Game {
 
     pub fn play_validated_move(
         &mut self,
-        chess_move: rulebook_v2::Move,
+        chess_move: rulebook::Move,
     ) -> Result<&GameStatus, GameError> {
         let updated_chessboard = match chess_move.apply_if_valid(&self.chessboard_history) {
             Ok(chessboard) => chessboard,
@@ -138,7 +135,7 @@ impl Game {
         let to_play_colour = colour.swap();
 
         // Check for a win or draw. // TODO -> check for draw.
-        if rulebook_v2::is_player_checkmated(to_play_colour, self.get_chessboard_history()) {
+        if rulebook::is_player_checkmated(to_play_colour, self.get_chessboard_history()) {
             self.status = GameStatus::from_winning_colour(colour);
         } else {
             self.status = GameStatus::from_to_play_colour(to_play_colour)
@@ -296,7 +293,7 @@ mod tests {
             let result = game.play_move(&Colour::White, &from_square, &to_square);
 
             let expected_error = GameError::MoveValidationErrorV2(
-                rulebook_v2::MoveValidationError::MoveIsNotLegalForPiece,
+                rulebook::MoveValidationError::MoveIsNotLegalForPiece,
             );
             assert_eq!(result, Err(expected_error));
             assert_eq!(game.get_piece_at_square(&from_square), Some(white_bishop));

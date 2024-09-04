@@ -1,6 +1,6 @@
 use super::{bishop, king, knight, pawn, queen, rook};
 use crate::domain::chess_set;
-use crate::domain::rulebook_v2::moves::chess_move;
+use crate::domain::rulebook::moves::chess_move;
 use std::vec;
 
 pub fn get_move_rules_for_piece(

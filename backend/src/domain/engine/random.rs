@@ -1,6 +1,6 @@
 use super::engine;
 use crate::domain::game;
-use crate::domain::rulebook_v2;
+use crate::domain::rulebook;
 
 use rand::{thread_rng, Rng};
 
@@ -10,13 +10,13 @@ impl engine::ChessEngine for Random {
     fn generate_next_move(
         &self,
         game: &game::Game,
-    ) -> Result<rulebook_v2::Move, engine::SuggestNextMoveError> {
+    ) -> Result<rulebook::Move, engine::SuggestNextMoveError> {
         let Some(to_play_colour) = game.get_status().to_play_colour() else {
             return Err(engine::SuggestNextMoveError::GameHasAlreadyEnded);
         };
 
         let mut legal_moves =
-            rulebook_v2::get_legal_moves(to_play_colour, game.get_chessboard_history());
+            rulebook::get_legal_moves(to_play_colour, game.get_chessboard_history());
 
         let mut rng = thread_rng();
         let selected_move_index = rng.gen_range(0..legal_moves.len());

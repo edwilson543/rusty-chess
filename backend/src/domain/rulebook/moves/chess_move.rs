@@ -166,8 +166,6 @@ impl fmt::Display for MoveValidationError {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-
     #[cfg(test)]
     mod test_validate {
         use super::super::*;
@@ -252,7 +250,7 @@ mod tests {
     }
 
     #[cfg(test)]
-    mod test_apply_move_if_valid {
+    mod test_apply_if_valid {
         use super::super::*;
         use crate::domain::chess_set;
         use crate::testing::factories;

@@ -2,7 +2,7 @@ use chess::domain::chess_set::{Colour, File, PieceType, Rank, Square};
 use chess::domain::game::{Game, GameStatus};
 
 #[test]
-fn white_can_play_move() {
+fn white_can_play_en_passant() {
     let mut game = Game::new(1);
 
     let from_square = Square::new(Rank::Two, File::A);
@@ -43,7 +43,7 @@ fn white_can_play_move() {
 }
 
 #[test]
-fn black_can_play_move() {
+fn black_can_play_en_passant() {
     let mut game = Game::new(1);
 
     let from_square = Square::new(Rank::Two, File::A);
