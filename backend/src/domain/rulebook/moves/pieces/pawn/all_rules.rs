@@ -10,7 +10,7 @@ pub fn get_pawn_move_rules() -> vec::IntoIter<Box<dyn chess_move::MoveRule>> {
         Box::new(single_square_forward::AllowSingleSquareForward) as Box<dyn chess_move::MoveRule>,
         Box::new(double_square_forward::AllowDoubleSquareForward) as Box<dyn chess_move::MoveRule>,
         Box::new(diagonal_capture::AllowDiagonalCapture) as Box<dyn chess_move::MoveRule>,
-        Box::new(en_passant::AllowEnPassant) as Box<dyn chess_move::MoveRule>,
+        Box::new(en_passant::AllowEnPassantCapture) as Box<dyn chess_move::MoveRule>,
     ]
     .into_iter()
 }
@@ -220,7 +220,6 @@ mod tests {
 mod en_passant_tests {
     use crate::domain::chess_set::{Chessboard, Colour, File, Piece, PieceType, Rank, Square};
     use crate::domain::rulebook::moves::chess_move;
-    use crate::domain::rulebook::moves::chess_move::MoveRule;
     use crate::domain::rulebook::moves::pieces::pawn::get_pawn_move_rules;
     use crate::testing::factories;
     use rstest::rstest;

@@ -2,11 +2,7 @@ use crate::domain::chess_set;
 use crate::domain::rulebook::moves::{chess_move, translation};
 use std::vec;
 
-pub fn get_king_move_rules() -> vec::IntoIter<Box<dyn chess_move::MoveRule>> {
-    vec![Box::new(AllowSingleSquareAnyDirection) as Box<dyn chess_move::MoveRule>].into_iter()
-}
-
-struct AllowSingleSquareAnyDirection;
+pub struct AllowSingleSquareAnyDirection;
 
 impl chess_move::MoveRule for AllowSingleSquareAnyDirection {
     fn allows_move(
@@ -38,16 +34,12 @@ fn king_allowed_vectors() -> Vec<translation::ChessVector> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use crate::domain::chess_set::{Chessboard, Colour, File, Piece, PieceType, Rank, Square};
+    use super::AllowSingleSquareAnyDirection;
+    use crate::domain::chess_set::{Colour, File, Piece, PieceType, Rank, Square};
     use crate::domain::rulebook::moves::chess_move;
+    use crate::domain::rulebook::MoveRule;
     use crate::testing::factories;
     use rstest::rstest;
-
-    fn is_move_allowed(chess_move: chess_move::Move, chessboard: &Chessboard) -> bool {
-        let mut rules = get_king_move_rules();
-        rules.any(|rule| rule.allows_move(&chess_move, &vec![chessboard.clone()]))
-    }
 
     #[rstest]
     #[case::forwards(Square::new(Rank::One, File::A), Square::new(Rank::Two, File::A))]
@@ -67,7 +59,7 @@ mod tests {
         let chessboard = factories::chessboard();
         let chess_move = chess_move::Move::new(king, from_square, to_square);
 
-        assert!(is_move_allowed(chess_move, &chessboard));
+        assert!(AllowSingleSquareAnyDirection.allows_move(&chess_move, &vec![chessboard]));
     }
 
     #[rstest]
@@ -80,6 +72,6 @@ mod tests {
         let chessboard = factories::chessboard();
         let chess_move = chess_move::Move::new(king, from_square, to_square);
 
-        assert!(!is_move_allowed(chess_move, &chessboard));
+        assert!(!AllowSingleSquareAnyDirection.allows_move(&chess_move, &vec![chessboard]));
     }
 }

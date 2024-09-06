@@ -8,7 +8,6 @@ use crate::domain::chess_set;
 /// * Find the square the player's king is on
 /// * Test whether any of the opponent's pieces can attack that square
 pub fn would_player_be_left_in_check(
-    player: &chess_set::Colour,
     chess_move: &chess_move::Move,
     chessboard_history: &Vec<chess_set::Chessboard>,
 ) -> Result<bool, chess_move::MoveValidationError> {
@@ -17,7 +16,10 @@ pub fn would_player_be_left_in_check(
         Err(error) => return Err(error),
     };
 
-    Ok(is_player_in_check(&player, trial_chessboard))
+    Ok(is_player_in_check(
+        &chess_move.piece.get_colour(),
+        trial_chessboard,
+    ))
 }
 
 pub fn is_player_in_check(player: &chess_set::Colour, chessboard: chess_set::Chessboard) -> bool {
@@ -67,7 +69,7 @@ mod tests {
         let chessboard = Chessboard::new(position);
         let chess_move = chess_move::Move::new(black_king, king_from_square, king_to_square);
 
-        let result = would_player_be_left_in_check(&Colour::Black, &chess_move, &vec![chessboard]);
+        let result = would_player_be_left_in_check(&chess_move, &vec![chessboard]);
 
         assert_eq!(result, Ok(true));
     }
@@ -88,7 +90,7 @@ mod tests {
         let chessboard = Chessboard::new(position);
         let chess_move = chess_move::Move::new(white_king, king_from_square, king_to_square);
 
-        let result = would_player_be_left_in_check(&Colour::White, &chess_move, &vec![chessboard]);
+        let result = would_player_be_left_in_check(&chess_move, &vec![chessboard]);
 
         assert_eq!(result, Ok(true));
     }
@@ -113,7 +115,7 @@ mod tests {
         let chessboard = Chessboard::new(position);
         let chess_move = chess_move::Move::new(shield_piece, shield_from_square, shield_to_square);
 
-        let result = would_player_be_left_in_check(&Colour::Black, &chess_move, &vec![chessboard]);
+        let result = would_player_be_left_in_check(&chess_move, &vec![chessboard]);
 
         assert_eq!(result, Ok(true));
     }
@@ -138,7 +140,7 @@ mod tests {
         let chessboard = Chessboard::new(position);
         let chess_move = chess_move::Move::new(shield_piece, shield_from_square, shield_to_square);
 
-        let result = would_player_be_left_in_check(&Colour::White, &chess_move, &vec![chessboard]);
+        let result = would_player_be_left_in_check(&chess_move, &vec![chessboard]);
 
         assert_eq!(result, Ok(true));
     }
@@ -160,7 +162,7 @@ mod tests {
         let chessboard = Chessboard::new(position);
         let chess_move = chess_move::Move::new(white_king, king_from_square, king_to_square);
 
-        let result = would_player_be_left_in_check(&Colour::White, &chess_move, &vec![chessboard]);
+        let result = would_player_be_left_in_check(&chess_move, &vec![chessboard]);
 
         assert_eq!(result, Ok(true));
     }
@@ -183,7 +185,7 @@ mod tests {
         let chess_move =
             chess_move::Move::new(black_king, black_king_from_square, black_king_to_square);
 
-        let result = would_player_be_left_in_check(&Colour::Black, &chess_move, &vec![chessboard]);
+        let result = would_player_be_left_in_check(&chess_move, &vec![chessboard]);
 
         assert_eq!(result, Ok(true));
     }
@@ -210,7 +212,7 @@ mod tests {
         let chessboard = Chessboard::new(position);
         let chess_move = chess_move::Move::new(white_pawn, from_square, to_square);
 
-        let result = would_player_be_left_in_check(&Colour::White, &chess_move, &vec![chessboard]);
+        let result = would_player_be_left_in_check(&chess_move, &vec![chessboard]);
 
         assert_eq!(result, Ok(true));
     }
@@ -233,7 +235,7 @@ mod tests {
         let chessboard = Chessboard::new(position);
         let chess_move = chess_move::Move::new(black_king, king_from_square, king_to_square);
 
-        let result = would_player_be_left_in_check(&Colour::Black, &chess_move, &vec![chessboard]);
+        let result = would_player_be_left_in_check(&chess_move, &vec![chessboard]);
 
         assert_eq!(result, Ok(false));
     }
@@ -262,7 +264,7 @@ mod tests {
         let chessboard = Chessboard::new(position);
         let chess_move = chess_move::Move::new(white_king, king_from_square, king_to_square);
 
-        let result = would_player_be_left_in_check(&Colour::White, &chess_move, &vec![chessboard]);
+        let result = would_player_be_left_in_check(&chess_move, &vec![chessboard]);
 
         assert_eq!(result, Ok(false));
     }
@@ -277,8 +279,7 @@ mod tests {
         let to_square = factories::some_other_square();
         let chess_move = chess_move::Move::new(factories::some_piece(), from_square, to_square);
 
-        let result =
-            would_player_be_left_in_check(&Colour::White, &chess_move, &vec![empty_chessboard]);
+        let result = would_player_be_left_in_check(&chess_move, &vec![empty_chessboard]);
 
         let expected_error = Err(chess_move::MoveValidationError::PieceIsNotAtFromSquare);
         assert_eq!(result, expected_error);
