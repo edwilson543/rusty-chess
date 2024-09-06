@@ -40,6 +40,9 @@ impl chess_move::MoveRule for AllowCastle {
         if check::is_player_in_check(chess_move.piece.get_colour(), chessboard.clone()) {
             return false;
         }
+        if is_king_moving_from_through_check(chess_move, chessboard_history) {
+            return false;
+        }
 
         true
     }
@@ -59,8 +62,6 @@ impl chess_move::MoveRule for AllowCastle {
         outcome
     }
 }
-
-// King move helpers.
 
 fn is_king_moving_from_valid_square(chess_move: &chess_move::Move) -> bool {
     let valid_file = chess_move.from_square.get_file() == &chess_set::File::E;
@@ -83,6 +84,36 @@ fn is_king_moving_to_valid_square(chess_move: &chess_move::Move) -> bool {
     valid_rank && valid_file
 }
 
+fn is_king_moving_from_through_check(
+    chess_move: &chess_move::Move,
+    chessboard_history: &Vec<chess_set::Chessboard>,
+) -> bool {
+    let from_file_index = chess_move.from_square.get_file().index();
+    let to_file_index = chess_move.to_square.get_file().index();
+
+    let file_index_range = match from_file_index < to_file_index {
+        true => (from_file_index + 1)..to_file_index,
+        false => (to_file_index + 1)..from_file_index,
+    };
+
+    for file_index in file_index_range {
+        let middle_square = chess_set::Square::new(
+            chess_move.from_square.get_rank().clone(),
+            chess_set::File::from_index(file_index),
+        );
+        let intermediary_move = chess_move::Move::new(
+            chess_move.piece.clone(),
+            chess_move.from_square,
+            middle_square,
+        );
+        match check::would_player_be_left_in_check(&intermediary_move, chessboard_history) {
+            Ok(true) => return true,
+            _ => continue,
+        }
+    }
+    false
+}
+
 fn has_piece_at_square_previously_moved(
     chess_move: &chess_move::Move,
     chessboard_history: &Vec<chess_set::Chessboard>,
@@ -96,8 +127,6 @@ fn has_piece_at_square_previously_moved(
     false
 }
 
-// Rook move helpers.
-
 fn get_corresponding_legal_rook_move(king_move: &chess_move::Move) -> chess_move::Move {
     let rank = king_move.from_square.get_rank();
 
@@ -110,7 +139,7 @@ fn get_corresponding_legal_rook_move(king_move: &chess_move::Move) -> chess_move
     let to_file = match king_move.to_square.get_file() {
         chess_set::File::C => chess_set::File::D, // Queenside castle.
         chess_set::File::G => chess_set::File::F, // Kingside castle.
-        _ => return panic!("King's move should be validated first!"),
+        _ => panic!("King's move should be validated first!"),
     };
 
     let from_square = chess_set::Square::new(rank.clone(), from_file.clone());
@@ -133,9 +162,13 @@ mod tests {
     use std::collections::BTreeMap;
 
     #[rstest]
-    #[case::queenside(File::C, File::A)]
-    #[case::kingside(File::G, File::H)]
-    fn white_king_can_castle(#[case] king_to_file: File, #[case] rook_from_file: File) {
+    #[case::queenside(File::C, File::A, File::D)]
+    #[case::kingside(File::G, File::H, File::F)]
+    fn white_king_can_castle(
+        #[case] king_to_file: File,
+        #[case] rook_from_file: File,
+        #[case] rook_to_file: File,
+    ) {
         let mut starting_position = BTreeMap::new();
 
         let king_from_square = Square::new(Rank::One, File::E);
@@ -157,12 +190,18 @@ mod tests {
         assert_eq!(outcome.get(&king_from_square).unwrap(), &None);
         assert_eq!(outcome.get(&rook_from_square).unwrap(), &None);
         assert_eq!(outcome.get(&king_to_square).unwrap(), &Some(white_king));
+        let rook_to_square = Square::new(Rank::One, rook_to_file);
+        assert_eq!(outcome.get(&rook_to_square).unwrap(), &Some(white_rook));
     }
 
     #[rstest]
-    #[case::queenside(File::C, File::A)]
-    #[case::kingside(File::G, File::H)]
-    fn black_king_can_castle(#[case] king_to_file: File, #[case] rook_from_file: File) {
+    #[case::queenside(File::C, File::A, File::D)]
+    #[case::kingside(File::G, File::H, File::F)]
+    fn black_king_can_castle(
+        #[case] king_to_file: File,
+        #[case] rook_from_file: File,
+        #[case] rook_to_file: File,
+    ) {
         let mut starting_position = BTreeMap::new();
 
         let king_from_square = Square::new(Rank::Eight, File::E);
@@ -179,6 +218,13 @@ mod tests {
         let castle = chess_move::Move::new(black_king, king_from_square, king_to_square);
 
         assert!(AllowCastle.allows_move(&castle, &vec![chessboard]));
+
+        let outcome = AllowCastle.get_move_outcome(&castle);
+        assert_eq!(outcome.get(&king_from_square).unwrap(), &None);
+        assert_eq!(outcome.get(&rook_from_square).unwrap(), &None);
+        assert_eq!(outcome.get(&king_to_square).unwrap(), &Some(black_king));
+        let rook_to_square = Square::new(Rank::Eight, rook_to_file);
+        assert_eq!(outcome.get(&rook_to_square).unwrap(), &Some(black_rook));
     }
 
     #[test]
@@ -201,6 +247,56 @@ mod tests {
 
         let king_to_square = Square::new(Rank::One, File::C);
         let castle = chess_move::Move::new(white_king, king_from_square, king_to_square);
+
+        assert!(!AllowCastle.allows_move(&castle, &vec![chessboard]));
+    }
+
+    #[rstest]
+    #[case::file_b(File::B)]
+    #[case::file_c(File::C)]
+    fn queenside_castle_disallowed_if_king_would_move_through_check(#[case] attacked_file: File) {
+        let mut starting_position = BTreeMap::new();
+
+        let king_from_square = Square::new(Rank::One, File::E);
+        let white_king = Piece::new(Colour::White, PieceType::King);
+        starting_position.insert(king_from_square, white_king);
+
+        let rook_from_square = Square::new(Rank::One, File::A);
+        let white_rook = Piece::new(Colour::White, PieceType::Rook);
+        starting_position.insert(rook_from_square, white_rook);
+
+        let black_queen_square = Square::new(Rank::Three, attacked_file);
+        let white_rook = Piece::new(Colour::Black, PieceType::Queen);
+        starting_position.insert(black_queen_square, white_rook);
+
+        let chessboard = Chessboard::new(starting_position);
+
+        let king_to_square = Square::new(Rank::One, File::C);
+        let castle = chess_move::Move::new(white_king, king_from_square, king_to_square);
+
+        assert!(!AllowCastle.allows_move(&castle, &vec![chessboard]));
+    }
+
+    #[test]
+    fn kingside_castle_disallowed_if_king_would_move_through_check() {
+        let mut starting_position = BTreeMap::new();
+
+        let king_from_square = Square::new(Rank::Eight, File::E);
+        let black_king = Piece::new(Colour::Black, PieceType::King);
+        starting_position.insert(king_from_square, black_king);
+
+        let rook_from_square = Square::new(Rank::Eight, File::A);
+        let black_rook = Piece::new(Colour::Black, PieceType::Rook);
+        starting_position.insert(rook_from_square, black_rook);
+
+        let white_queen_square = Square::new(Rank::Five, File::F);
+        let white_rook = Piece::new(Colour::White, PieceType::Queen);
+        starting_position.insert(white_queen_square, white_rook);
+
+        let chessboard = Chessboard::new(starting_position);
+
+        let king_to_square = Square::new(Rank::One, File::C);
+        let castle = chess_move::Move::new(black_king, king_from_square, king_to_square);
 
         assert!(!AllowCastle.allows_move(&castle, &vec![chessboard]));
     }
@@ -358,8 +454,8 @@ mod tests {
         starting_position.insert(rook_from_square, black_rook);
 
         let blocking_knight_square = Square::new(Rank::Eight, File::B);
-        let white_rook = Piece::new(Colour::Black, PieceType::Knight);
-        starting_position.insert(blocking_knight_square, white_rook);
+        let white_knight = Piece::new(Colour::White, PieceType::Knight);
+        starting_position.insert(blocking_knight_square, white_knight);
 
         let chessboard = Chessboard::new(starting_position);
 
