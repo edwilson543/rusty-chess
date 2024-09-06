@@ -39,7 +39,7 @@ pub fn get_legal_moves(
         for (to_square, _) in chessboard.position.clone().into_iter() {
             let chess_move = chess_move::Move::new(moved_piece, from_square, to_square);
 
-            match check::would_player_be_left_in_check(&player, &chess_move, chessboard_history) {
+            match check::would_player_be_left_in_check(&chess_move, chessboard_history) {
                 Ok(false) => {}
                 Ok(true) => continue,
                 Err(_) => continue,

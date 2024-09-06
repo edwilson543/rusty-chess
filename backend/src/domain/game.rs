@@ -82,8 +82,7 @@ impl Game {
 
         let chess_move = rulebook::Move::new(piece, from_square.clone(), to_square.clone());
 
-        match rulebook::would_player_be_left_in_check(player, &chess_move, &self.chessboard_history)
-        {
+        match rulebook::would_player_be_left_in_check(&chess_move, &self.chessboard_history) {
             Ok(false) => {}
             Ok(true) => return Err(GameError::MoveWouldLeavePlayerInCheck),
             Err(error) => return Err(GameError::MoveValidationErrorV2(error)),

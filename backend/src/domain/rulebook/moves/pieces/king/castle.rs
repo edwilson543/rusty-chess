@@ -1,7 +1,7 @@
 use crate::domain::chess_set;
+use crate::domain::rulebook::check;
 use crate::domain::rulebook::moves::chess_move;
 use std::collections::BTreeMap;
-use crate::domain::rulebook::check;
 
 pub struct AllowCastle;
 
