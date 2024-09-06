@@ -1,6 +1,7 @@
 use crate::domain::chess_set;
 use crate::domain::rulebook::moves::chess_move;
 use std::collections::BTreeMap;
+use crate::domain::rulebook::check;
 
 pub struct AllowCastle;
 
@@ -12,6 +13,7 @@ impl chess_move::MoveRule for AllowCastle {
     ) -> bool {
         let chessboard = chessboard_history.last().unwrap();
 
+        // Check the king's move is valid.
         if !is_king_moving_from_valid_square(chess_move) {
             return false;
         };
@@ -25,8 +27,7 @@ impl chess_move::MoveRule for AllowCastle {
             return false;
         };
 
-        // TODO -> check if king is moving through check.
-
+        // Check the corresponding rook move is valid.
         let rook_move = get_corresponding_legal_rook_move(chess_move);
         if has_piece_at_square_previously_moved(&rook_move, chessboard_history) {
             return false;
@@ -34,6 +35,11 @@ impl chess_move::MoveRule for AllowCastle {
         if rook_move.is_obstructed(chessboard) {
             return false;
         };
+
+        // Check the king isn't moving out of or through check.
+        if check::is_player_in_check(chess_move.piece.get_colour(), chessboard.clone()) {
+            return false;
+        }
 
         true
     }
@@ -173,6 +179,30 @@ mod tests {
         let castle = chess_move::Move::new(black_king, king_from_square, king_to_square);
 
         assert!(AllowCastle.allows_move(&castle, &vec![chessboard]));
+    }
+
+    #[test]
+    fn castle_disallowed_if_player_is_in_check() {
+        let mut starting_position = BTreeMap::new();
+
+        let king_from_square = Square::new(Rank::One, File::E);
+        let white_king = Piece::new(Colour::White, PieceType::King);
+        starting_position.insert(king_from_square, white_king);
+
+        let rook_from_square = Square::new(Rank::One, File::A);
+        let white_rook = Piece::new(Colour::White, PieceType::Rook);
+        starting_position.insert(rook_from_square, white_rook);
+
+        let black_queen_square = Square::new(Rank::Three, File::G);
+        let white_rook = Piece::new(Colour::Black, PieceType::Queen);
+        starting_position.insert(black_queen_square, white_rook);
+
+        let chessboard = Chessboard::new(starting_position);
+
+        let king_to_square = Square::new(Rank::One, File::C);
+        let castle = chess_move::Move::new(white_king, king_from_square, king_to_square);
+
+        assert!(!AllowCastle.allows_move(&castle, &vec![chessboard]));
     }
 
     #[test]
