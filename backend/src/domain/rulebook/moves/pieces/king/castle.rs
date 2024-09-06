@@ -1,5 +1,6 @@
 use crate::domain::chess_set;
 use crate::domain::rulebook::moves::chess_move;
+use std::collections::BTreeMap;
 
 pub struct AllowCastle;
 
@@ -35,6 +36,21 @@ impl chess_move::MoveRule for AllowCastle {
         };
 
         true
+    }
+
+    fn get_move_outcome(
+        &self,
+        chess_move: &chess_move::Move,
+    ) -> BTreeMap<chess_set::Square, Option<chess_set::Piece>> {
+        let mut outcome = BTreeMap::new();
+        outcome.insert(chess_move.from_square, None);
+        outcome.insert(chess_move.to_square, Some(chess_move.piece));
+
+        let rook_move = get_corresponding_legal_rook_move(chess_move);
+        outcome.insert(rook_move.from_square, None);
+        outcome.insert(rook_move.to_square, Some(rook_move.piece));
+
+        outcome
     }
 }
 
@@ -130,6 +146,11 @@ mod tests {
         let castle = chess_move::Move::new(white_king, king_from_square, king_to_square);
 
         assert!(AllowCastle.allows_move(&castle, &vec![chessboard]));
+
+        let outcome = AllowCastle.get_move_outcome(&castle);
+        assert_eq!(outcome.get(&king_from_square).unwrap(), &None);
+        assert_eq!(outcome.get(&rook_from_square).unwrap(), &None);
+        assert_eq!(outcome.get(&king_to_square).unwrap(), &Some(white_king));
     }
 
     #[rstest]

@@ -220,7 +220,6 @@ mod tests {
 mod en_passant_tests {
     use crate::domain::chess_set::{Chessboard, Colour, File, Piece, PieceType, Rank, Square};
     use crate::domain::rulebook::moves::chess_move;
-    use crate::domain::rulebook::moves::chess_move::MoveRule;
     use crate::domain::rulebook::moves::pieces::pawn::get_pawn_move_rules;
     use crate::testing::factories;
     use rstest::rstest;
