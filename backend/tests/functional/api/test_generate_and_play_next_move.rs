@@ -47,7 +47,7 @@ fn bad_response_when_game_does_not_exist() {
     let build = api::rocket_build();
     let client = local::blocking::Client::tracked(build).unwrap();
 
-    let url = format!("/api/games/{}/play-move/", 12345);
+    let url = format!("/api/games/{}/generate-and-play-next-move/", 12345);
     let payload = serde_json::json!(
         {"player": "White", "from_square": "G1", "to_square": "G3"}
     );

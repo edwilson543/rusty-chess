@@ -1,4 +1,4 @@
-use crate::domain::{chess_set, game};
+use crate::domain::{chess_set, game, rulebook};
 use serde;
 use serde::ser::SerializeStruct;
 
@@ -61,6 +61,19 @@ impl serde::Serialize for game::Game {
     }
 }
 
+impl serde::Serialize for rulebook::Move {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let mut state = serializer.serialize_struct("rulebook::Move", 1)?;
+        state.serialize_field("from_square", &self.from_square)?;
+        state.serialize_field("to_square", &self.to_square)?;
+        state.serialize_field("player", self.piece.get_colour())?;
+        state.end()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -114,6 +127,22 @@ mod tests {
 
         assert!(
             game_json.starts_with(r#"{"id":1,"status":"ToPlayWhite","chessboard":{"position":{"#)
+        );
+    }
+
+    #[test]
+    fn serializes_move_to_json() {
+        let from_square = chess_set::Square::new(chess_set::Rank::Eight, chess_set::File::E);
+        let to_square = chess_set::Square::new(chess_set::Rank::Five, chess_set::File::C);
+        let piece = chess_set::Piece::new(chess_set::Colour::White, chess_set::PieceType::King);
+
+        let chess_move = rulebook::Move::new(piece, from_square, to_square);
+
+        let move_json = serde_json::to_string(&chess_move).unwrap();
+
+        assert_eq!(
+            move_json,
+            "{\"from_square\":\"E8\",\"to_square\":\"C5\",\"player\":\"White\"}"
         );
     }
 }

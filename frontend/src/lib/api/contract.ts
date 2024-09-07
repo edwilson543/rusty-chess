@@ -109,6 +109,7 @@ const move = z.object({
   from_square: z.string(),
   to_square: z.string(),
 });
+const legal_moves = z.array(move);
 
 // Contract.
 
@@ -146,6 +147,18 @@ export const contract = c.router({
       400: z.object({ error: z.string() }),
     },
   },
+  getLegalMoves: {
+    method: "GET",
+    path: "/games/:gameId/get-legal-moves/",
+    pathParams: z.object({
+      gameId: z.number(),
+    }),
+    responses: {
+      200: legal_moves,
+      400: z.object({}),
+      404: z.object({}),
+    },
+  },
   getGameState: {
     method: "GET",
     path: "/games/:gameId/",
@@ -160,3 +173,4 @@ export const contract = c.router({
 });
 
 export type GameSchema = z.infer<typeof game>;
+export type LegalMovesSchema = z.infer<typeof legal_moves>;

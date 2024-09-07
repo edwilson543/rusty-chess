@@ -1,7 +1,12 @@
 import { assertEvent, setup } from "xstate";
 
 import { actions } from "./actions.ts";
-import { startGame, playMove, generateAndPlayNextMove } from "./actors.ts";
+import {
+  startGame,
+  playMove,
+  generateAndPlayNextMove,
+  getLegalMoves,
+} from "./actors.ts";
 import { guards } from "./guards.ts";
 import * as machineTypes from "./types";
 import * as types from "../../lib/types.ts";
@@ -16,6 +21,7 @@ const GameMachine = setup({
     startGame,
     playMove,
     generateAndPlayNextMove,
+    getLegalMoves,
   },
   delays: {
     opponentThinkingTimeMs: 500,
@@ -25,6 +31,7 @@ const GameMachine = setup({
   id: "game",
   context: {
     game: null,
+    legalMoves: [],
     localPlayerColour: types.Colour.White,
     squareToMoveFrom: null,
   },
@@ -62,6 +69,17 @@ const GameMachine = setup({
       },
     },
     [machineTypes.GameState.LocalPlayerTurn]: {
+      invoke: {
+        id: "getLegalMoves",
+        src: "getLegalMoves",
+        input: ({ context }) => {
+          return { gameId: context.game?.id };
+        },
+        onDone: {
+          actions: [machineTypes.Action.SetLegalMoves],
+          target: machineTypes.GameState.LocalPlayerTurn,
+        },
+      },
       always: {
         target: machineTypes.GameState.GameComplete,
         guard: machineTypes.Guard.GameIsComplete,
@@ -71,15 +89,19 @@ const GameMachine = setup({
           actions: machineTypes.Action.SetSquareToMoveFrom,
         },
         [machineTypes.GameEvent.PlayMove]: {
-          target: machineTypes.GameState.SubmittingMove,
+          target: machineTypes.GameState.SubmittingLocalPlayerMove,
         },
         [machineTypes.GameEvent.SwapColours]: {
           actions: machineTypes.Action.SwapColours,
           target: machineTypes.GameState.OpponentPlayerTurn,
         },
       },
+      exit: [
+        { type: machineTypes.Action.ClearSquareToPlayFrom },
+        { type: machineTypes.Action.ClearLegalMoves },
+      ],
     },
-    [machineTypes.GameState.SubmittingMove]: {
+    [machineTypes.GameState.SubmittingLocalPlayerMove]: {
       invoke: {
         id: "playMove",
         src: "playMove",
@@ -109,10 +131,11 @@ const GameMachine = setup({
         guard: machineTypes.Guard.GameIsComplete,
       },
       after: {
-        opponentThinkingTimeMs: machineTypes.GameState.SubmittingOpponentMove,
+        opponentThinkingTimeMs:
+          machineTypes.GameState.SubmittingOpponentPlayerMove,
       },
     },
-    [machineTypes.GameState.SubmittingOpponentMove]: {
+    [machineTypes.GameState.SubmittingOpponentPlayerMove]: {
       invoke: {
         id: "generateAndPlayNextMove",
         src: "generateAndPlayNextMove",

@@ -21,3 +21,10 @@ export const generateAndPlayNextMove = fromPromise(
     return apiClient.generateAndPlayNextMove({ gameId: input.gameId });
   },
 );
+
+export const getLegalMoves = fromPromise(
+  ({ input }: { input: { gameId: number } }) => {
+    const apiClient = getApiClient();
+    return apiClient.getLegalMoves({ gameId: input.gameId });
+  },
+);

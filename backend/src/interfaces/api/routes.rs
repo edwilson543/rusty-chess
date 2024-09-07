@@ -3,6 +3,7 @@ use rocket::http;
 use rocket::serde::json;
 
 use crate::config;
+use crate::domain::rulebook;
 use crate::services::games;
 
 use super::deserializers;
@@ -72,5 +73,23 @@ pub async fn generate_and_play_next_move(id: i32) -> (http::Status, json::Json<S
                 json::Json(json::to_string(&payload).unwrap()),
             )
         }
+    }
+}
+
+#[rocket::get("/games/<id>/get-legal-moves")]
+pub async fn get_legal_moves(id: i32) -> (http::Status, json::Json<String>) {
+    let mut repo = config::get_game_repo();
+    let game = match repo.get(&id) {
+        Some(game) => game,
+        None => return (http::Status::NotFound, json::Json("".into())),
+    };
+    match game.get_status().to_play_colour() {
+        Some(to_play_colour) => {
+            let legal_moves =
+                rulebook::get_legal_moves(to_play_colour, game.get_chessboard_history());
+            let payload = serde_json::to_string(&legal_moves).unwrap();
+            return (http::Status::Ok, json::Json(payload));
+        }
+        None => return (http::Status::BadRequest, json::Json("".into())),
     }
 }
