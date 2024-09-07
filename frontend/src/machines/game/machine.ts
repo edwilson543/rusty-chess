@@ -1,7 +1,12 @@
 import { assertEvent, setup } from "xstate";
 
 import { actions } from "./actions.ts";
-import { startGame, playMove, generateAndPlayNextMove } from "./actors.ts";
+import {
+  startGame,
+  playMove,
+  generateAndPlayNextMove,
+  getLegalMoves,
+} from "./actors.ts";
 import { guards } from "./guards.ts";
 import * as machineTypes from "./types";
 import * as types from "../../lib/types.ts";
@@ -16,6 +21,7 @@ const GameMachine = setup({
     startGame,
     playMove,
     generateAndPlayNextMove,
+    getLegalMoves,
   },
   delays: {
     opponentThinkingTimeMs: 500,
@@ -62,6 +68,17 @@ const GameMachine = setup({
       },
     },
     [machineTypes.GameState.LocalPlayerTurn]: {
+      invoke: {
+        id: "getLegalMoves",
+        src: "getLegalMoves",
+        input: ({ context }) => {
+          return { gameId: context.game?.id };
+        },
+        onDone: {
+          actions: [machineTypes.Action.SetLegalMoves],
+          target: machineTypes.GameState.LocalPlayerTurn,
+        },
+      },
       always: {
         target: machineTypes.GameState.GameComplete,
         guard: machineTypes.Guard.GameIsComplete,
@@ -78,6 +95,7 @@ const GameMachine = setup({
           target: machineTypes.GameState.OpponentPlayerTurn,
         },
       },
+      exit: [{ type: machineTypes.Action.ClearLegalMoves }],
     },
     [machineTypes.GameState.SubmittingLocalPlayerMove]: {
       invoke: {
@@ -109,7 +127,8 @@ const GameMachine = setup({
         guard: machineTypes.Guard.GameIsComplete,
       },
       after: {
-        opponentThinkingTimeMs: machineTypes.GameState.SubmittingOpponentPlayerMove,
+        opponentThinkingTimeMs:
+          machineTypes.GameState.SubmittingOpponentPlayerMove,
       },
     },
     [machineTypes.GameState.SubmittingOpponentPlayerMove]: {

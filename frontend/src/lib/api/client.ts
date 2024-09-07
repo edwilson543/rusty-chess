@@ -1,9 +1,9 @@
 import { initClient } from "@ts-rest/core";
 
-import {contract, GameSchema, LegalMovesSchema} from "./contract.ts";
+import { contract, GameSchema, LegalMovesSchema } from "./contract.ts";
 import * as serializers from "./serializers.ts";
 import * as types from "../types.ts";
-import {Game, Move} from "../types.ts";
+import { Game, Move } from "../types.ts";
 
 export interface APIClient {
   startGame(): Promise<types.Game>;
@@ -96,10 +96,10 @@ class RestAPIClient implements APIClient {
       switch (response.status) {
         case 200:
           return serializers.parseLegalMoves(
-              JSON.parse(response.body) as LegalMovesSchema,
+            JSON.parse(response.body) as LegalMovesSchema,
           );
         default:
-          return []
+          return [];
       }
     });
   }

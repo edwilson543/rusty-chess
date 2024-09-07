@@ -5,6 +5,7 @@ export interface GameContextProps {
   game: types.Game | null;
   localPlayerColour: types.Colour;
   squareToMoveFrom: types.Square | null;
+  legalMoves: types.Move[];
 }
 
 // Events.
@@ -18,6 +19,7 @@ export enum GameEvent {
   GameStarted = "xstate.done.actor.startGame",
   MovePlayed = "xstate.done.actor.playMove",
   MoveGeneratedAndPlayed = "xstate.done.actor.generateAndPlayNextMove",
+  SetLegalMoves = "xstate.done.actor.getLegalMoves",
 }
 
 export interface PlayMoveEvent {
@@ -39,10 +41,16 @@ interface SetActiveGameEvent {
   output: types.Game;
 }
 
+interface SetLegalMoves {
+  type: GameEvent.SetLegalMoves;
+  output: types.Move[];
+}
+
 export type GameEventProps =
   | PlayMoveEvent
   | SelectSquareToMoveFrom
-  | SetActiveGameEvent;
+  | SetActiveGameEvent
+  | SetLegalMoves;
 
 // States.
 
@@ -65,6 +73,9 @@ export enum Action {
   SetLocalPlayerToWhite = "set-local-player-to-white",
   SetSquareToMoveFrom = "set-square-to-move-from",
   SwapColours = "swap-colours",
+  // Legal moves.
+  SetLegalMoves = "set-legal-moves",
+  ClearLegalMoves = "clear-legal-moves",
 }
 
 // Guards.

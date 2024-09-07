@@ -39,4 +39,16 @@ export const actions: ActionFunctionMap<
       return types.Colour.White;
     },
   }),
+  // Legal moves.
+  [machineTypes.Action.SetLegalMoves]: assign({
+    legalMoves: ({ event }) => {
+      assertEvent(event, machineTypes.GameEvent.SetLegalMoves);
+      return event.output;
+    },
+  }),
+  [machineTypes.Action.ClearLegalMoves]: assign({
+    legalMoves: () => {
+      return [];
+    },
+  }),
 };
