@@ -1,9 +1,9 @@
 import { initClient } from "@ts-rest/core";
 
-import { contract, GameSchema } from "./contract.ts";
+import {contract, GameSchema, LegalMovesSchema} from "./contract.ts";
 import * as serializers from "./serializers.ts";
 import * as types from "../types.ts";
-import { Game } from "../types.ts";
+import {Game, Move} from "../types.ts";
 
 export interface APIClient {
   startGame(): Promise<types.Game>;
@@ -17,6 +17,8 @@ export interface APIClient {
   }): Promise<types.Game>;
 
   generateAndPlayNextMove({ gameId }: { gameId: number }): Promise<types.Game>;
+
+  getLegalMoves({ gameId }: { gameId: number }): Promise<types.Move[]>;
 }
 
 export const getApiClient = (): APIClient => {
@@ -82,6 +84,22 @@ class RestAPIClient implements APIClient {
           );
         default:
           throw new Error(`Error playing move: ${response.status}`);
+      }
+    });
+  }
+
+  getLegalMoves({ gameId }: { gameId: number }): Promise<Move[]> {
+    const promise = client.getLegalMoves({
+      params: { gameId: gameId },
+    }) as Promise<Response>;
+    return promise.then((response: Response) => {
+      switch (response.status) {
+        case 200:
+          return serializers.parseLegalMoves(
+              JSON.parse(response.body) as LegalMovesSchema,
+          );
+        default:
+          return []
       }
     });
   }

@@ -1,4 +1,4 @@
-import { GameSchema } from "./contract.ts";
+import { GameSchema, LegalMovesSchema } from "./contract.ts";
 import * as types from "../types.ts";
 
 export const parseGameSchemaToGame = (game: GameSchema): types.Game => {
@@ -28,11 +28,33 @@ export const parseGameSchemaToGame = (game: GameSchema): types.Game => {
   };
 };
 
+export const parseLegalMoves = (legalMoves: LegalMovesSchema): types.Move[] => {
+  const parsedMoves: types.Move[] = [];
+  legalMoves.forEach((legalMove) => {
+    parsedMoves.push({
+      fromSquare: positionKeyToEmptySquare(legalMove.from_square),
+      toSquare: positionKeyToEmptySquare(legalMove.to_square),
+      player: legalMove.player as types.Colour,
+    });
+  });
+  return parsedMoves;
+};
+
 export const squareToString = (square: types.Square): string => {
   return `${square.file}${square.rank}`;
 };
 
 // Helpers.
+
+const positionKeyToEmptySquare = (key: string): types.Square => {
+  const rank = positionKeyToRank(key);
+  const file = positionKeyToFile(key);
+  return {
+    rank: rank,
+    file: file,
+    piece: null,
+  };
+};
 
 const positionKeyToRank = (key: string): types.Rank => {
   const rank = parseInt(key[1]) as unknown as types.Rank;
