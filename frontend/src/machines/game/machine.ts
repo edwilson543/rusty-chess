@@ -31,6 +31,7 @@ const GameMachine = setup({
   id: "game",
   context: {
     game: null,
+    legalMoves: [],
     localPlayerColour: types.Colour.White,
     squareToMoveFrom: null,
   },

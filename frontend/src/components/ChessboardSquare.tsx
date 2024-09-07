@@ -23,10 +23,21 @@ export const ChessboardSquare = (props: ChessboardSquareProps) => {
   const isLocalPlayerTurn = useSelector(gameMachineRef, (state) =>
     state.matches(GameState.LocalPlayerTurn),
   );
+  const legalMoves = useSelector(
+    gameMachineRef,
+    (state) => state.context.legalMoves,
+  );
 
   // Properties.
   const canSquareBeMovedTo =
-    squareToMoveFrom && !(squareToMoveFrom === props.square);
+    squareToMoveFrom &&
+    legalMoves.some(
+      (move) =>
+        move.fromSquare.rank === squareToMoveFrom.rank &&
+        move.fromSquare.file === squareToMoveFrom.file &&
+        move.toSquare.rank === props.square.rank &&
+        move.toSquare.file === props.square.file,
+    );
 
   const isPieceSelected = props.square === squareToMoveFrom;
   const canPieceBeSelected =
@@ -54,9 +65,6 @@ export const ChessboardSquare = (props: ChessboardSquareProps) => {
     });
   };
 
-  // Styling.
-  const cursor = canSquareBeMovedTo ? "pointer" : "default";
-
   return (
     <div
       onClick={onSquareClick}
@@ -69,7 +77,9 @@ export const ChessboardSquare = (props: ChessboardSquareProps) => {
         height: "80px",
         border: "1px solid black",
         backgroundColor: getColourForSquare(props.square),
-        cursor: cursor,
+        // Highlight squares that can be moved to.
+        boxShadow: canSquareBeMovedTo ? "inset 0 0 10px #f8a100" : "",
+        cursor: canSquareBeMovedTo ? "pointer" : "default",
       }}
     >
       {props.square.piece && (
