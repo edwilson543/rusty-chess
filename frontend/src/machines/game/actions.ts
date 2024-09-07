@@ -18,12 +18,6 @@ export const actions: ActionFunctionMap<
       return event.output;
     },
   }),
-  [machineTypes.Action.SetSquareToMoveFrom]: assign({
-    squareToMoveFrom: ({ event }) => {
-      assertEvent(event, machineTypes.GameEvent.SetSquareToMoveFrom);
-      return event.square;
-    },
-  }),
   [machineTypes.Action.SwapColours]: assign({
     localPlayerColour: ({ context, event }) => {
       assertEvent(event, machineTypes.GameEvent.SwapColours);
@@ -37,6 +31,18 @@ export const actions: ActionFunctionMap<
   [machineTypes.Action.SetLocalPlayerToWhite]: assign({
     localPlayerColour: () => {
       return types.Colour.White;
+    },
+  }),
+  // Square to play from.
+  [machineTypes.Action.SetSquareToMoveFrom]: assign({
+    squareToMoveFrom: ({ event }) => {
+      assertEvent(event, machineTypes.GameEvent.SetSquareToMoveFrom);
+      return event.square;
+    },
+  }),
+  [machineTypes.Action.ClearSquareToPlayFrom]: assign({
+    squareToMoveFrom: () => {
+      return null;
     },
   }),
   // Legal moves.

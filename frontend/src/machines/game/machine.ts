@@ -96,7 +96,10 @@ const GameMachine = setup({
           target: machineTypes.GameState.OpponentPlayerTurn,
         },
       },
-      exit: [{ type: machineTypes.Action.ClearLegalMoves }],
+      exit: [
+        { type: machineTypes.Action.ClearSquareToPlayFrom },
+        { type: machineTypes.Action.ClearLegalMoves },
+      ],
     },
     [machineTypes.GameState.SubmittingLocalPlayerMove]: {
       invoke: {
