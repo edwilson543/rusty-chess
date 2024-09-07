@@ -71,7 +71,7 @@ const GameMachine = setup({
           actions: machineTypes.Action.SetSquareToMoveFrom,
         },
         [machineTypes.GameEvent.PlayMove]: {
-          target: machineTypes.GameState.SubmittingMove,
+          target: machineTypes.GameState.SubmittingLocalPlayerMove,
         },
         [machineTypes.GameEvent.SwapColours]: {
           actions: machineTypes.Action.SwapColours,
@@ -79,7 +79,7 @@ const GameMachine = setup({
         },
       },
     },
-    [machineTypes.GameState.SubmittingMove]: {
+    [machineTypes.GameState.SubmittingLocalPlayerMove]: {
       invoke: {
         id: "playMove",
         src: "playMove",
@@ -109,10 +109,10 @@ const GameMachine = setup({
         guard: machineTypes.Guard.GameIsComplete,
       },
       after: {
-        opponentThinkingTimeMs: machineTypes.GameState.SubmittingOpponentMove,
+        opponentThinkingTimeMs: machineTypes.GameState.SubmittingOpponentPlayerMove,
       },
     },
-    [machineTypes.GameState.SubmittingOpponentMove]: {
+    [machineTypes.GameState.SubmittingOpponentPlayerMove]: {
       invoke: {
         id: "generateAndPlayNextMove",
         src: "generateAndPlayNextMove",

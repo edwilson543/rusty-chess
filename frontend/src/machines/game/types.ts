@@ -54,8 +54,8 @@ export enum GameState {
   Unavailable = "unavailable",
   // Loading states.
   StartingGame = "starting-game",
-  SubmittingMove = "submitting-move",
-  SubmittingOpponentMove = "submitting-opponent-move",
+  SubmittingLocalPlayerMove = "submitting-local-player-move",
+  SubmittingOpponentPlayerMove = "submitting-opponent--player-move",
 }
 
 // Actions.
