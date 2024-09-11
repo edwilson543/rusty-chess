@@ -49,7 +49,7 @@ Then visit http://localhost:5173/
     squares
   - **`rulebook/`**
     - This is where the rules of chess are defined
-    - The `Move` struct models a move by one player
+    - The `Move` struct models a move made by one player
     - Implementations of the `MoveRule` trait dictate whether a `Move` is valid for a given piece, at a given stage in 
     the game. For example, there are four implementations of `MoveRule` for pawns:
       - `AllowSingleSquareForward`
@@ -60,7 +60,7 @@ Then visit http://localhost:5173/
   - **`game/`**
     - The `game` subdomain pulls together the `chess_set` and `rulebook` into a playable model of chess
     - The key model is the `Game` struct, an entity representing a single chess game
-    - `Game` includes methods for playing moves, and records the history of a single chess game
+    - `Game` includes methods for playing moves, and records the history of chessboard positions in the game
   - **`engine/`**
     - This portion of the domain is what allows you to "play against the computer"
     - The `ChessEngine` trait models the process of move generation
