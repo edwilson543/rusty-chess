@@ -182,6 +182,18 @@ impl GameStatus {
         }
     }
 
+    pub fn winner(&self) -> Option<chess_set::Colour> {
+        match self {
+            GameStatus::WonByWhite => Some(chess_set::Colour::White),
+            GameStatus::WonByBlack => Some(chess_set::Colour::Black),
+            _ => None,
+        }
+    }
+
+    pub fn is_draw(&self) -> bool {
+        self == &GameStatus::Drawn
+    }
+
     fn from_winning_colour(colour: chess_set::Colour) -> Self {
         match colour {
             chess_set::Colour::White => GameStatus::WonByWhite,
