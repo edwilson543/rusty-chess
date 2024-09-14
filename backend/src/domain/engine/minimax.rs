@@ -125,10 +125,9 @@ impl Minimax {
 
         // Evaluate the position if we're at the max search depth.
         if current_search_depth == self.max_search_depth {
-            let current_chessboard = game.current_chessboard().clone();
             let score = self
                 .evaluator
-                .evaluate_position(current_chessboard, maximizer);
+                .evaluate_position(game.current_chessboard(), maximizer);
             return Some(score);
         }
 

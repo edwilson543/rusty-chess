@@ -10,12 +10,12 @@ impl chessboard_evaluator::ChessboardEvaluator for PiecePlacementChessboardEvalu
     /// https://github.com/asdfjkl/neural_network_chess/releases
     fn evaluate_position(
         &self,
-        chessboard: chess_set::Chessboard,
+        chessboard: &chess_set::Chessboard,
         for_colour: &chess_set::Colour,
     ) -> i32 {
         let mut total_score = 0;
 
-        for (square, maybe_piece) in chessboard.position.into_iter() {
+        for (square, maybe_piece) in chessboard.position.clone().into_iter() {
             let Some(piece) = maybe_piece else { continue };
 
             let piece_score = evaluate_piece(piece.get_piece_type());
@@ -72,7 +72,7 @@ mod tests {
     fn initial_position_scores_as_zero_for_both_players(#[case] for_colour: Colour) {
         let chessboard = factories::chessboard();
 
-        let score = PiecePlacementChessboardEvaluator.evaluate_position(chessboard, &for_colour);
+        let score = PiecePlacementChessboardEvaluator.evaluate_position(&chessboard, &for_colour);
 
         assert_eq!(score, 0)
     }
@@ -91,7 +91,7 @@ mod tests {
 
         let chessboard = Chessboard::new(starting_position);
 
-        let score = PiecePlacementChessboardEvaluator.evaluate_position(chessboard, &for_colour);
+        let score = PiecePlacementChessboardEvaluator.evaluate_position(&chessboard, &for_colour);
 
         assert_eq!(score, expected_score)
     }
@@ -115,7 +115,7 @@ mod tests {
 
         let chessboard = Chessboard::new(starting_position);
 
-        let score = PiecePlacementChessboardEvaluator.evaluate_position(chessboard, &for_colour);
+        let score = PiecePlacementChessboardEvaluator.evaluate_position(&chessboard, &for_colour);
 
         assert_eq!(score, expected_score)
     }
