@@ -2,6 +2,7 @@ mod engine;
 mod minimax;
 mod monte_carlo_tree_search;
 mod random;
+mod evaluation;
 
 pub use engine::{ChessEngine, SuggestNextMoveError};
 pub use minimax::Minimax;
