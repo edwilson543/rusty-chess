@@ -19,7 +19,8 @@ pub fn get_random_chess_engine() -> Box<dyn engine::ChessEngine> {
 
 pub fn get_minimax_chess_engine() -> Box<dyn engine::ChessEngine> {
     let evaluator = get_chessboard_evaluator();
-    let chess_engine = engine::Minimax::new(evaluator);
+    let max_search_depth = 3;
+    let chess_engine = engine::Minimax::new(evaluator, max_search_depth);
     Box::new(chess_engine)
 }
 

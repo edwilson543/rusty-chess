@@ -88,12 +88,12 @@ impl Game {
             Err(error) => return Err(GameError::MoveValidationErrorV2(error)),
         };
 
-        self.play_validated_move(chess_move)
+        self.play_validated_move(&chess_move)
     }
 
     pub fn play_validated_move(
         &mut self,
-        chess_move: rulebook::Move,
+        chess_move: &rulebook::Move,
     ) -> Result<&GameStatus, GameError> {
         let updated_chessboard = match chess_move.apply_if_valid(&self.chessboard_history) {
             Ok(chessboard) => chessboard,

@@ -31,7 +31,7 @@ pub fn generate_and_play_next_move(
         Err(err) => return Err(GenerateNextMoveError::SuggestMoveError(err)),
     };
 
-    game.play_validated_move(move_to_play)
+    game.play_validated_move(&move_to_play)
         .unwrap_or_else(|_| panic!("Engine generated an invalid move!"));
 
     game_repo.update(&game);
