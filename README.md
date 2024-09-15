@@ -4,7 +4,11 @@ The app consists of a Rust backend and TypeScript frontend that communicate via 
 ## Demo:
 It took surprisingly many attempts to b2b Scholar's Mate the random chess engine...
 
-https://github.com/user-attachments/assets/dee96ae8-65f1-47ae-acfa-947a0673db78
+https://github.com/user-attachments/assets/523e3242-9077-42a5-b7c7-b065831d9503
+
+Minimax is slightly more clever...
+
+https://github.com/user-attachments/assets/6537e67b-dfcf-4162-997f-ba93783b4128
 
 
 ## System requirements:
