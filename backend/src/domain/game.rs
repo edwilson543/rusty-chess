@@ -133,9 +133,10 @@ impl Game {
 
         let to_play_colour = colour.swap();
 
-        // Check for a win or draw. // TODO -> check for draw.
         if rulebook::is_player_checkmated(to_play_colour, self.get_chessboard_history()) {
             self.status = GameStatus::from_winning_colour(colour);
+        } else if let Some(_) = rulebook::is_draw(&self.chessboard_history) {
+            self.status = GameStatus::Drawn;
         } else {
             self.status = GameStatus::from_to_play_colour(to_play_colour)
         }
