@@ -33,6 +33,12 @@ export const actions: ActionFunctionMap<
       return types.Colour.White;
     },
   }),
+  [machineTypes.Action.SetEngine]: assign({
+    engine: ({ event }) => {
+      assertEvent(event, machineTypes.GameEvent.SetEngine);
+      return event.engine;
+    },
+  }),
   // Square to play from.
   [machineTypes.Action.SetSquareToMoveFrom]: assign({
     squareToMoveFrom: ({ event }) => {

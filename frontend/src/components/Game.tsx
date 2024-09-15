@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useSelector } from "@xstate/react";
 
 import { Chessboard } from "./Chessboard";
+import { SelectEngine } from "./SelectEngine.tsx";
 import { GameMachineContext } from "../context.ts";
 import { GameEvent } from "../machines/game/types.ts";
 
@@ -66,6 +67,7 @@ export const Game = () => {
               style={{ marginLeft: "5px", cursor: "pointer" }}
             />
           </span>
+          <SelectEngine />
         </div>
         {game && (
           <Chessboard

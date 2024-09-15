@@ -16,11 +16,11 @@ export const playMove = fromPromise(
 );
 
 export const generateAndPlayNextMove = fromPromise(
-  ({ input }: { input: { gameId: number } }) => {
+  ({ input }: { input: { gameId: number; engine: types.Engine } }) => {
     const apiClient = getApiClient();
     return apiClient.generateAndPlayNextMove({
       gameId: input.gameId,
-      engine: types.Engine.Minimax,
+      engine: input.engine,
     });
   },
 );
