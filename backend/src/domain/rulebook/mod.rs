@@ -2,6 +2,7 @@ mod check;
 mod checkmate;
 mod moves;
 mod starting_position;
+mod draws;
 
 pub use check::would_player_be_left_in_check;
 pub use checkmate::{get_legal_moves, is_player_checkmated};
