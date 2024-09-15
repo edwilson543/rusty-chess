@@ -1,3 +1,4 @@
+use crate::config;
 use crate::domain::chess_set;
 use serde;
 
@@ -24,6 +25,11 @@ impl<'request> Move<'request> {
     pub fn get_to_square(&'request self) -> chess_set::Square {
         deserialize_to_square(self.to_square)
     }
+}
+
+#[derive(serde::Deserialize)]
+pub struct GenerateMove {
+    pub engine: config::ChessEngineImplementation,
 }
 
 /// Convert `A1` to the square in file A, and rank 1.
