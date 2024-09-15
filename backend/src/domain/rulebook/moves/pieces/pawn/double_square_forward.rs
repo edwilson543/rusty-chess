@@ -17,7 +17,9 @@ impl chess_move::MoveRule for AllowDoubleSquareForward {
         let is_first_move_for_pawn = is_first_move_for_pawn(&chess_move);
         let is_square_occupied = chessboard.is_square_occupied(&chess_move.to_square);
 
-        let middle_square = forwards.apply_to_square(&chess_move.from_square);
+        let Some(middle_square) = forwards.apply_to_square(&chess_move.from_square) else {
+            return false;
+        };
         let is_obstructed = chessboard.is_square_occupied(&middle_square);
 
         is_forwards
