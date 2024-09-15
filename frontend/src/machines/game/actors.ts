@@ -18,7 +18,10 @@ export const playMove = fromPromise(
 export const generateAndPlayNextMove = fromPromise(
   ({ input }: { input: { gameId: number } }) => {
     const apiClient = getApiClient();
-    return apiClient.generateAndPlayNextMove({ gameId: input.gameId });
+    return apiClient.generateAndPlayNextMove({
+      gameId: input.gameId,
+      engine: types.Engine.Minimax,
+    });
   },
 );
 

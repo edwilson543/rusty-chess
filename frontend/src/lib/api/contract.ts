@@ -142,6 +142,7 @@ export const contract = c.router({
     pathParams: z.object({
       gameId: z.number(),
     }),
+    body: z.object({ engine: z.enum(["Random", "Minimax"]) }),
     responses: {
       200: game,
       400: z.object({ error: z.string() }),
