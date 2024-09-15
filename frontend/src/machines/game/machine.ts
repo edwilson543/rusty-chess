@@ -34,12 +34,16 @@ const GameMachine = setup({
     legalMoves: [],
     localPlayerColour: types.Colour.White,
     squareToMoveFrom: null,
+    engine: types.Engine.Minimax,
   },
   initial: machineTypes.GameState.Idle,
   predictableActionArguments: true,
   on: {
     [machineTypes.GameEvent.StartNewGame]: {
       target: `.${machineTypes.GameState.StartingGame}`,
+    },
+    [machineTypes.GameEvent.SetEngine]: {
+      actions: [machineTypes.Action.SetEngine],
     },
   },
   states: {
@@ -140,7 +144,7 @@ const GameMachine = setup({
         id: "generateAndPlayNextMove",
         src: "generateAndPlayNextMove",
         input: ({ context }) => {
-          return { gameId: context.game?.id };
+          return { gameId: context.game?.id, engine: context.engine };
         },
         onDone: {
           actions: machineTypes.Action.SetActiveGame,

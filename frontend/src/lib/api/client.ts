@@ -3,7 +3,6 @@ import { initClient } from "@ts-rest/core";
 import { contract, GameSchema, LegalMovesSchema } from "./contract.ts";
 import * as serializers from "./serializers.ts";
 import * as types from "../types.ts";
-import { Game, Move } from "../types.ts";
 
 export interface APIClient {
   startGame(): Promise<types.Game>;
@@ -16,7 +15,13 @@ export interface APIClient {
     move: types.Move;
   }): Promise<types.Game>;
 
-  generateAndPlayNextMove({ gameId }: { gameId: number }): Promise<types.Game>;
+  generateAndPlayNextMove({
+    gameId,
+    engine,
+  }: {
+    gameId: number;
+    engine: types.Engine;
+  }): Promise<types.Game>;
 
   getLegalMoves({ gameId }: { gameId: number }): Promise<types.Move[]>;
 }
@@ -31,7 +36,7 @@ const client = initClient(contract, {
 });
 
 class RestAPIClient implements APIClient {
-  startGame(): Promise<Game> {
+  startGame(): Promise<types.Game> {
     const promise = client.startGame() as Promise<Response>;
     return promise.then((response: Response) => {
       switch (response.status) {
@@ -51,7 +56,7 @@ class RestAPIClient implements APIClient {
   }: {
     gameId: number;
     move: types.Move;
-  }): Promise<Game> {
+  }): Promise<types.Game> {
     const promise = client.playMove({
       params: { gameId: gameId },
       body: {
@@ -72,9 +77,18 @@ class RestAPIClient implements APIClient {
     });
   }
 
-  generateAndPlayNextMove({ gameId }: { gameId: number }): Promise<Game> {
+  generateAndPlayNextMove({
+    gameId,
+    engine,
+  }: {
+    gameId: number;
+    engine: types.Engine;
+  }): Promise<types.Game> {
     const promise = client.generateAndPlayNextMove({
       params: { gameId: gameId },
+      body: {
+        engine: engine,
+      },
     }) as Promise<Response>;
     return promise.then((response: Response) => {
       switch (response.status) {
@@ -88,7 +102,7 @@ class RestAPIClient implements APIClient {
     });
   }
 
-  getLegalMoves({ gameId }: { gameId: number }): Promise<Move[]> {
+  getLegalMoves({ gameId }: { gameId: number }): Promise<types.Move[]> {
     const promise = client.getLegalMoves({
       params: { gameId: gameId },
     }) as Promise<Response>;

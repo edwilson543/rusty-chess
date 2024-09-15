@@ -6,6 +6,7 @@ export interface GameContextProps {
   localPlayerColour: types.Colour;
   squareToMoveFrom: types.Square | null;
   legalMoves: types.Move[];
+  engine: types.Engine;
 }
 
 // Events.
@@ -15,6 +16,7 @@ export enum GameEvent {
   PlayMove = "play-move",
   SetSquareToMoveFrom = "set-square-to-move-from",
   SwapColours = "swap-colours",
+  SetEngine = "set-engine",
   // Events that set the active game.
   GameStarted = "xstate.done.actor.startGame",
   MovePlayed = "xstate.done.actor.playMove",
@@ -46,11 +48,17 @@ interface SetLegalMoves {
   output: types.Move[];
 }
 
+export interface SetEngine {
+  type: GameEvent.SetEngine;
+  engine: types.Engine;
+}
+
 export type GameEventProps =
   | PlayMoveEvent
   | SelectSquareToMoveFrom
   | SetActiveGameEvent
-  | SetLegalMoves;
+  | SetLegalMoves
+  | SetEngine;
 
 // States.
 
@@ -72,6 +80,7 @@ export enum Action {
   SetActiveGame = "set-active-game",
   SetLocalPlayerToWhite = "set-local-player-to-white",
   SwapColours = "swap-colours",
+  SetEngine = "set-engine",
   // Square to play from.
   SetSquareToMoveFrom = "set-square-to-move-from",
   ClearSquareToPlayFrom = "clear-square-to-play-from",

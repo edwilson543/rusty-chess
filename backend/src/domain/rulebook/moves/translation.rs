@@ -59,11 +59,20 @@ impl ChessVector {
         Self { x: x, y: 0 }
     }
 
-    pub fn apply_to_square(&self, from_square: &chess_set::Square) -> chess_set::Square {
+    pub fn apply_to_square(&self, from_square: &chess_set::Square) -> Option<chess_set::Square> {
         let to_square_rank_index = from_square.get_rank().index() + self.y;
         let to_square_file_index = from_square.get_file().index() + self.x;
 
-        chess_set::Square::from_indexes(to_square_rank_index, to_square_file_index)
+        // TODO -> move logic to `from_indexes` etc.
+        if to_square_rank_index < 1 || to_square_rank_index > 8 {
+            return None;
+        };
+        if to_square_file_index < 1 || to_square_file_index > 8 {
+            return None;
+        };
+
+        let square = chess_set::Square::from_indexes(to_square_rank_index, to_square_file_index);
+        Some(square)
     }
 
     // Queries.

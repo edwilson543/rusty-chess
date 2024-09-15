@@ -17,6 +17,7 @@ pub enum MoveValidationError {
     CannotCaptureOpponentKing,
 }
 
+#[derive(Clone)]
 pub struct Move {
     pub piece: chess_set::Piece,
     pub from_square: chess_set::Square,

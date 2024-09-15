@@ -67,3 +67,8 @@ export interface Move {
   fromSquare: Square;
   toSquare: Square;
 }
+
+export enum Engine {
+  Random = "Random",
+  Minimax = "Minimax",
+}

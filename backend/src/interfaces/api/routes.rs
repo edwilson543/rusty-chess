@@ -56,10 +56,13 @@ pub async fn play_move(
     }
 }
 
-#[rocket::post("/games/<id>/generate-and-play-next-move")]
-pub async fn generate_and_play_next_move(id: i32) -> (http::Status, json::Json<String>) {
+#[rocket::post("/games/<id>/generate-and-play-next-move", data = "<generate_move>")]
+pub async fn generate_and_play_next_move(
+    id: i32,
+    generate_move: json::Json<deserializers::GenerateMove>,
+) -> (http::Status, json::Json<String>) {
     let repo = config::get_game_repo();
-    let engine = config::get_chess_engine();
+    let engine = config::get_chess_engine(&generate_move.engine);
 
     match games::generate_and_play_next_move(repo, engine, id) {
         Ok(game) => {

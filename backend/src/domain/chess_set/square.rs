@@ -72,7 +72,7 @@ impl Rank {
             6 => Rank::Six,
             7 => Rank::Seven,
             8 => Rank::Eight,
-            _ => panic!("Not a valid rank!"),
+            _ => panic!("'{}' is not a valid rank!", index),
         }
     }
 }
@@ -115,7 +115,7 @@ impl File {
             6 => File::F,
             7 => File::G,
             8 => File::H,
-            _ => panic!("Not a valid file!"),
+            _ => panic!("'{}' is not a valid file!", index),
         }
     }
 
@@ -129,7 +129,7 @@ impl File {
             'F' => File::F,
             'G' => File::G,
             'H' => File::H,
-            _ => panic!("Not a valid file!"),
+            _ => panic!("'{}' is not a valid file!", letter),
         }
     }
 }

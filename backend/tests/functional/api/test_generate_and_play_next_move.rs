@@ -16,7 +16,7 @@ fn can_generate_and_play_opening_moves_for_white_then_black() {
 
     let url = format!("/api/games/{}/generate-and-play-next-move/", game.get_id());
     let payload = serde_json::json!(
-        {"player": "White", "from_square": "G1", "to_square": "G3"}
+        {"engine": "Random"}
     );
 
     // Automate white's opening move.
@@ -49,7 +49,7 @@ fn bad_response_when_game_does_not_exist() {
 
     let url = format!("/api/games/{}/generate-and-play-next-move/", 12345);
     let payload = serde_json::json!(
-        {"player": "White", "from_square": "G1", "to_square": "G3"}
+        {"engine": "Random"}
     );
 
     let request = client.post(url).body(payload.to_string());

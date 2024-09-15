@@ -4,6 +4,7 @@ use crate::domain::rulebook;
 
 use rand::{thread_rng, Rng};
 
+/// Chess engine that randomly selects a legal move.
 pub struct Random;
 
 impl engine::ChessEngine for Random {

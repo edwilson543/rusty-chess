@@ -88,12 +88,12 @@ impl Game {
             Err(error) => return Err(GameError::MoveValidationErrorV2(error)),
         };
 
-        self.play_validated_move(chess_move)
+        self.play_validated_move(&chess_move)
     }
 
     pub fn play_validated_move(
         &mut self,
-        chess_move: rulebook::Move,
+        chess_move: &rulebook::Move,
     ) -> Result<&GameStatus, GameError> {
         let updated_chessboard = match chess_move.apply_if_valid(&self.chessboard_history) {
             Ok(chessboard) => chessboard,
@@ -180,6 +180,18 @@ impl GameStatus {
             GameStatus::ToPlayBlack => Some(chess_set::Colour::Black),
             _ => None,
         }
+    }
+
+    pub fn winner(&self) -> Option<chess_set::Colour> {
+        match self {
+            GameStatus::WonByWhite => Some(chess_set::Colour::White),
+            GameStatus::WonByBlack => Some(chess_set::Colour::Black),
+            _ => None,
+        }
+    }
+
+    pub fn is_draw(&self) -> bool {
+        self == &GameStatus::Drawn
     }
 
     fn from_winning_colour(colour: chess_set::Colour) -> Self {
