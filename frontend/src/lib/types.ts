@@ -71,4 +71,5 @@ export interface Move {
 export enum Engine {
   Random = "Random",
   Minimax = "Minimax",
+  MCTS = "MCTS",
 }

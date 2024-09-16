@@ -11,6 +11,7 @@ pub fn get_game_repo() -> Box<dyn repository::GameRepository> {
 pub enum ChessEngineImplementation {
     Random,
     Minimax,
+    MCTS,
 }
 
 /// Get the concrete chess engine to use.
@@ -20,6 +21,7 @@ pub fn get_chess_engine(
     match implementation {
         ChessEngineImplementation::Random => get_random_chess_engine(),
         ChessEngineImplementation::Minimax => get_minimax_chess_engine(),
+        ChessEngineImplementation::MCTS => get_mcts_chess_engine(),
     }
 }
 
@@ -32,6 +34,11 @@ fn get_minimax_chess_engine() -> Box<dyn engine::ChessEngine> {
     let evaluator = get_chessboard_evaluator();
     let max_search_depth = 3;
     let chess_engine = engine::Minimax::new(evaluator, max_search_depth);
+    Box::new(chess_engine)
+}
+
+fn get_mcts_chess_engine() -> Box<dyn engine::ChessEngine> {
+    let chess_engine = engine::MonteCarloTreeSearch::new();
     Box::new(chess_engine)
 }
 

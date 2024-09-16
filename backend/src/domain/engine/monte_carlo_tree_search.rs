@@ -38,6 +38,12 @@ impl ChessEngine for MonteCarloTreeSearch {
     }
 }
 
+impl MonteCarloTreeSearch {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+
 struct MCTSTree {
     to_play_colour: chess_set::Colour,
     nodes: HashMap<u32, MCTSNode>,
