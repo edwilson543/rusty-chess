@@ -38,7 +38,8 @@ fn get_minimax_chess_engine() -> Box<dyn engine::ChessEngine> {
 }
 
 fn get_mcts_chess_engine() -> Box<dyn engine::ChessEngine> {
-    let chess_engine = engine::MonteCarloTreeSearch::new();
+    let max_search_duration_seconds = 10;
+    let chess_engine = engine::MonteCarloTreeSearch::new(max_search_duration_seconds);
     Box::new(chess_engine)
 }
 

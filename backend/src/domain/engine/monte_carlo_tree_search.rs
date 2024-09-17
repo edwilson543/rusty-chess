@@ -2,10 +2,13 @@ use super::{engine, random, ChessEngine};
 use crate::domain::game::GameStatus;
 use crate::domain::{chess_set, game, rulebook};
 use std::collections::HashMap;
+use std::time;
 
 const UPPER_CONFIDENCE_BOUND_BIAS: f32 = 1.4;
 
-pub struct MonteCarloTreeSearch;
+pub struct MonteCarloTreeSearch {
+    max_search_duration_seconds: u64,
+}
 
 impl ChessEngine for MonteCarloTreeSearch {
     fn generate_next_move(
@@ -18,9 +21,9 @@ impl ChessEngine for MonteCarloTreeSearch {
 
         let mut mcts_tree = MCTSTree::new(to_play_colour, game.clone());
 
-        let number_of_simulations = 10;
+        let started_searching_at = time::Instant::now();
 
-        for _ in 0..number_of_simulations {
+        while started_searching_at.elapsed().as_secs() < self.max_search_duration_seconds {
             let selected_node_id = mcts_tree.select(&MCTSTree::root_node_id());
             let selected_node = mcts_tree.get_node(&selected_node_id);
 
@@ -39,8 +42,10 @@ impl ChessEngine for MonteCarloTreeSearch {
 }
 
 impl MonteCarloTreeSearch {
-    pub fn new() -> Self {
-        Self {}
+    pub fn new(max_search_duration_seconds: u64) -> Self {
+        Self {
+            max_search_duration_seconds,
+        }
     }
 }
 
@@ -299,7 +304,8 @@ mod tests {
         let chessboard = Chessboard::new(starting_position);
         let game = Game::reincarnate(1, GameStatus::ToPlayBlack, vec![chessboard]);
 
-        let mcts_engine = MonteCarloTreeSearch::new();
+        let max_search_duration_seconds = 1;
+        let mcts_engine = MonteCarloTreeSearch::new(max_search_duration_seconds);
 
         let black_move = mcts_engine.generate_next_move(&game);
 
