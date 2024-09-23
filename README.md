@@ -2,13 +2,18 @@ Chess web app that I made to try out Rust.
 The app consists of a Rust backend and TypeScript frontend that communicate via a REST API.
 
 ## Demo:
-It took surprisingly many attempts to b2b Scholar's Mate the random chess engine...
+It took surprisingly many attempts to b2b Scholar's Mate the random chess engine:
 
 https://github.com/user-attachments/assets/523e3242-9077-42a5-b7c7-b065831d9503
 
-Minimax is slightly more clever...
+...Minimax is slightly more clever:
 
 https://github.com/user-attachments/assets/6537e67b-dfcf-4162-997f-ba93783b4128
+
+...but the Monte Carlo tree search needs more time to think:
+
+https://github.com/user-attachments/assets/17b7b3f9-06be-4f0f-9518-c14526b15733
+
 
 
 ## System requirements:
