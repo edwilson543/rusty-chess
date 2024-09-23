@@ -11,6 +11,7 @@ run_frontend:
 
 .PHONY:install
 install:
+	curl --proto '=https' --tlsv1.2 -LsSf https://github.com/diesel-rs/diesel/releases/latest/download/diesel_cli-installer.sh | sh
 	cd backend && make setup_db
 	cd backend && make build
 	cd frontend && make install

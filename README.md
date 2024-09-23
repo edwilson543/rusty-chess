@@ -12,7 +12,7 @@ https://github.com/user-attachments/assets/6537e67b-dfcf-4162-997f-ba93783b4128
 
 
 ## System requirements:
-- Cargo 1.78.0
+- Cargo & rustc 1.78.0
 - Node 18.16.0
 - Postgres 14.9
 
