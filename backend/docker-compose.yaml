@@ -1,0 +1,31 @@
+services:
+  db:
+    image: postgres:14.9
+    container_name: db
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=chess
+
+  migrations:
+    build:
+      context: .
+      dockerfile: migrations.Dockerfile
+    container_name: migrations
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgres://user:password@db/chess
+    restart: on-failure
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: api
+    depends_on:
+      - migrations
+    ports:
+      - 8000:8000
+    environment:
+      - DATABASE_URL=postgres://user:password@db/chess
