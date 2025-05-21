@@ -34,10 +34,10 @@ export const Piece = (props: PieceProps) => {
     >
       <FontAwesomeIcon
         icon={iconMapping[props.piece.pieceType]}
-        size={"2xl"}
+        size={props.isSelected ? "4x" : "3x"}
         style={{ color: colour, cursor: cursor }}
-        border={props.isSelected}
         onClick={props.onClick}
+        title={`${props.piece.colour} ${props.piece.pieceType}`}
       />
     </div>
   );

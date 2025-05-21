@@ -68,6 +68,7 @@ export const ChessboardSquare = (props: ChessboardSquareProps) => {
   return (
     <div
       onClick={onSquareClick}
+      data-testid={`square-${props.square.file}${props.square.rank}`}
       style={{
         display: "flex",
         flexDirection: "column",

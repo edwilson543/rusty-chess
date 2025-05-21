@@ -42,7 +42,7 @@ export const Game = () => {
           {game.toPlayColour && (
             <span>
               <b>To play: </b>
-              <i>{game.toPlayColour}</i>
+              <i data-testid={"to-play-colour"}>{game.toPlayColour}</i>
             </span>
           )}
           {game.outcome && (
@@ -52,11 +52,14 @@ export const Game = () => {
           )}
           <span>
             <b>You are: </b>
-            <i>{localPlayerColour}</i>
+            <i data-testid={"local-player-colour"}>{localPlayerColour}</i>
             <FontAwesomeIcon
               onClick={swapColours}
               icon={faArrowsRotate}
               style={{ marginLeft: "5px", cursor: "pointer" }}
+              title={"Swap colours"}
+              role={"button"}
+              aria-label={"Swap colours"}
             />
           </span>
           <span>
@@ -65,6 +68,7 @@ export const Game = () => {
               onClick={startNewGame}
               icon={faShuffle}
               style={{ marginLeft: "5px", cursor: "pointer" }}
+              title={"Start new game"}
             />
           </span>
           <SelectEngine />
