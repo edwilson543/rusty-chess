@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint . && prettier --check .",
     "test": "echo 'write some frontend tests...'",
+    "testing-server": "vite --host=127.0.0.1 --port=5174",
     "format": "eslint --fix . && prettier --write .",
     "preview": "vite preview"
   },

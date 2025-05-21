@@ -20,7 +20,9 @@ test:
 
 .PHONY:playwright
 playwright:
+	docker compose -f ../backend/docker-compose.yaml up -d
 	npx playwright test
+	docker compose -f ../backend/docker-compose.yaml down
 
 .PHONY:lint
 lint:
