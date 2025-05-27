@@ -3,6 +3,13 @@ import { fromPromise } from "xstate";
 import { getApiClient } from "../../lib/api/client.ts";
 import * as types from "../../lib/types.ts";
 
+export const loadGame = fromPromise(
+  ({ input }: { input: { publicGameId: number } }) => {
+    const apiClient = getApiClient();
+    return apiClient.loadGame({ publicGameId: input.publicGameId });
+  },
+);
+
 export const startGame = fromPromise(() => {
   const apiClient = getApiClient();
   return apiClient.startGame();
