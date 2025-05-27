@@ -1,4 +1,10 @@
-import { ActionFunctionMap, ProvidedActor, assertEvent, assign } from "xstate";
+import {
+  ActionFunctionMap,
+  ProvidedActor,
+  assertEvent,
+  assign,
+  enqueueActions,
+} from "xstate";
 
 import * as machineTypes from "./types.ts";
 import * as types from "../../lib/types.ts";
@@ -8,15 +14,27 @@ export const actions: ActionFunctionMap<
   machineTypes.GameEventProps,
   ProvidedActor
 > = {
-  [machineTypes.Action.SetActiveGame]: assign({
-    game: ({ event }) => {
-      assertEvent(event, [
-        machineTypes.GameEvent.GameStarted,
-        machineTypes.GameEvent.MovePlayed,
-        machineTypes.GameEvent.MoveGeneratedAndPlayed,
-      ]);
-      return event.output;
-    },
+  [machineTypes.Action.SetActiveGame]: enqueueActions(({ enqueue, event }) => {
+    assertEvent(event, [
+      machineTypes.GameEvent.GameLoaded,
+      machineTypes.GameEvent.GameStarted,
+      machineTypes.GameEvent.MovePlayed,
+      machineTypes.GameEvent.MoveGeneratedAndPlayed,
+    ]);
+
+    enqueue.assign({
+      game: event.output,
+      publicGameId: event.output.id,
+    });
+
+    enqueue(() => {
+      const url = new URL(window.location);
+
+      if (url.searchParams.get("gameId") !== event.output.id) {
+        url.searchParams.set("gameId", event.output.id);
+        window.history.pushState({}, "", url);
+      }
+    });
   }),
   [machineTypes.Action.SwapColours]: assign({
     localPlayerColour: ({ context, event }) => {

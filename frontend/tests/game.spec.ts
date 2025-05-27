@@ -30,8 +30,7 @@ test.describe("gameplay", () => {
 
     await assertions.expectToPlayColourToEqual(page, "Black");
 
-    const movedPiece = locators.getPieceAtSquare(page, "E4", "White", "Pawn");
-    await expect(movedPiece).toBeVisible();
+    await assertions.expectPieceToOccupySquare(page, "E4", "White", "Pawn");
 
     const previousSquare = locators.getSquare(page, "E2");
     await expect(previousSquare).toBeEmpty();
@@ -52,13 +51,7 @@ test.describe("gameplay", () => {
     await assertions.expectToPlayColourToEqual(page, "White");
 
     // The pawn should still be at E2
-    const originalPiece = locators.getPieceAtSquare(
-      page,
-      "E2",
-      "White",
-      "Pawn",
-    );
-    await expect(originalPiece).toBeVisible();
+    await assertions.expectPieceToOccupySquare(page, "E2", "White", "Pawn");
 
     // And D3 should be empty
     await expect(squareD3).toBeEmpty();
@@ -92,9 +85,7 @@ test.describe("game controls", () => {
     await locators.getPieceAtSquare(page, "B1", "White", "Knight").click();
     await locators.getSquare(page, "A3").click();
 
-    await expect(
-      locators.getPieceAtSquare(page, "A3", "White", "Knight"),
-    ).toBeVisible();
+    await assertions.expectPieceToOccupySquare(page, "A3", "White", "Knight");
     await assertions.expectToPlayColourToEqual(page, "Black");
 
     // Start a new game.
@@ -103,9 +94,7 @@ test.describe("game controls", () => {
     await startNewGame.click();
 
     // Verify the board has been reset.
-    await expect(
-      locators.getPieceAtSquare(page, "B1", "White", "Knight"),
-    ).toBeVisible();
+    await assertions.expectPieceToOccupySquare(page, "B1", "White", "Knight");
     await expect(locators.getSquare(page, "A3")).toBeEmpty();
 
     await assertions.expectToPlayColourToEqual(page, "White");
@@ -146,5 +135,35 @@ test.describe("game controls", () => {
     // Change to MCTS.
     await engineSelect.selectOption("MCTS");
     await expect(engineSelect).toHaveValue("MCTS");
+  });
+});
+
+test.describe("existing games", () => {
+  test("public game id is pushed to search params and can be used to bookmark game", async ({
+    page,
+  }) => {
+    await page.goto("/");
+
+    await expect(page).toHaveURL(/\?gameId=/);
+    const gameId = page.url().split("gameId=")[1];
+
+    // Move a piece in the first game.
+    const squareE2 = locators.getSquare(page, "E2");
+    await squareE2.click();
+
+    const squareE4 = locators.getSquare(page, "E4");
+    await squareE4.click();
+
+    await assertions.expectPieceToOccupySquare(page, "E4", "White", "Pawn");
+
+    // Start a new game.
+    const startNewGame = page.getByRole("img", { name: "Start new game" });
+    await startNewGame.click();
+
+    await expect(locators.getSquare(page, "E4")).toBeEmpty();
+
+    // Reload the first game.
+    await page.goto(`/?gameId=${gameId}`);
+    await assertions.expectPieceToOccupySquare(page, "E4", "White", "Pawn");
   });
 });

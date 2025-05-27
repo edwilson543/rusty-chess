@@ -25,6 +25,7 @@ export enum GameEvent {
   SwapColours = "swap-colours",
   SetEngine = "set-engine",
   // Events that set the active game.
+  GameLoaded = "xstate.done.actor.loadGame",
   GameStarted = "xstate.done.actor.startGame",
   MovePlayed = "xstate.done.actor.playMove",
   MoveGeneratedAndPlayed = "xstate.done.actor.generateAndPlayNextMove",
@@ -44,6 +45,7 @@ export interface SelectSquareToMoveFrom {
 
 interface SetActiveGameEvent {
   type:
+    | GameEvent.GameLoaded
     | GameEvent.GameStarted
     | GameEvent.MovePlayed
     | GameEvent.MoveGeneratedAndPlayed;
@@ -76,6 +78,7 @@ export enum GameState {
   GameComplete = "game-complete",
   Unavailable = "unavailable",
   // Loading states.
+  LoadingGame = "loading-game",
   StartingGame = "starting-game",
   SubmittingLocalPlayerMove = "submitting-local-player-move",
   SubmittingOpponentPlayerMove = "submitting-opponent--player-move",
@@ -99,6 +102,7 @@ export enum Action {
 // Guards.
 
 export enum Guard {
+  PublicGameIdIsSet = "public-game-id-is-set",
   GameIsUnset = "game-is-unset",
   GameIsComplete = "game-is-complete",
 }

@@ -2,6 +2,7 @@ import { assertEvent, setup } from "xstate";
 
 import { actions } from "./actions.ts";
 import {
+  loadGame,
   startGame,
   playMove,
   generateAndPlayNextMove,
@@ -19,6 +20,7 @@ const GameMachine = setup({
   },
   actions: actions,
   actors: {
+    loadGame,
     startGame,
     playMove,
     generateAndPlayNextMove,
@@ -30,7 +32,7 @@ const GameMachine = setup({
   guards: guards,
 }).createMachine({
   id: "game",
-  context: ({input}) => ({
+  context: ({ input }) => ({
     game: null,
     publicGameId: input.publicGameId,
     legalMoves: [],
@@ -52,11 +54,34 @@ const GameMachine = setup({
     [machineTypes.GameState.Idle]: {
       always: [
         {
+          target: machineTypes.GameState.LoadingGame,
+          guard: machineTypes.Guard.PublicGameIdIsSet,
+        },
+        {
           target: machineTypes.GameState.StartingGame,
           guard: machineTypes.Guard.GameIsUnset,
         },
         { target: machineTypes.GameState.LocalPlayerTurn },
       ],
+    },
+    [machineTypes.GameState.LoadingGame]: {
+      invoke: {
+        id: "loadGame",
+        src: "loadGame",
+        input: ({ context }) => {
+          return { publicGameId: context.publicGameId };
+        },
+        onDone: {
+          actions: [
+            machineTypes.Action.SetActiveGame,
+            machineTypes.Action.SetLocalPlayerToWhite,
+          ],
+          target: machineTypes.GameState.LocalPlayerTurn,
+        },
+        onError: {
+          target: machineTypes.GameState.Unavailable,
+        },
+      },
     },
     [machineTypes.GameState.StartingGame]: {
       invoke: {

@@ -14,7 +14,12 @@ module.exports = {
     "plugin:react-hooks/recommended",
     "plugin:react/jsx-runtime",
   ],
-  ignorePatterns: ["dist", ".eslintrc.cjs", "playwright.config.ts"],
+  ignorePatterns: [
+    "dist",
+    ".eslintrc.cjs",
+    "playwright.config.ts",
+    "playwright-report/",
+  ],
   parser: "@typescript-eslint/parser",
   parserOptions: {
     ecmaVersion: "latest",
