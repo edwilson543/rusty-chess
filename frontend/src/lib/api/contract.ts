@@ -162,9 +162,9 @@ export const contract = c.router({
   },
   getGameState: {
     method: "GET",
-    path: "/games/:gameId/",
+    path: "/games/:publicGameId/",
     pathParams: z.object({
-      gameId: z.number(),
+      publicGameId: z.number(),
     }),
     responses: {
       200: game,

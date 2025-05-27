@@ -5,6 +5,8 @@ import * as serializers from "./serializers.ts";
 import * as types from "../types.ts";
 
 export interface APIClient {
+  loadGame({ publicGameId }: { publicGameId: number }): Promise<types.Game>;
+
   startGame(): Promise<types.Game>;
 
   playMove({
@@ -36,6 +38,25 @@ const client = initClient(contract, {
 });
 
 class RestAPIClient implements APIClient {
+  loadGame({ publicGameId }: { publicGameId: number }): Promise<types.Game> {
+    const promise = client.getGameState({
+      params: { publicGameId: publicGameId },
+    }) as Promise<Response>;
+    return promise.then((response: Response) => {
+      switch (response.status) {
+        case 200:
+          return serializers.parseGameSchemaToGame(
+            JSON.parse(response.body) as GameSchema,
+          );
+
+        case 404:
+          throw new Error(`Game ${publicGameId} does not exist.`);
+        default:
+          throw new Error(`Unexpected error loading game ${publicGameId}.`);
+      }
+    });
+  }
+
   startGame(): Promise<types.Game> {
     const promise = client.startGame() as Promise<Response>;
     return promise.then((response: Response) => {
