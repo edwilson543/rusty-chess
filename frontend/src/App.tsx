@@ -5,10 +5,15 @@ import { GameMachineContext } from "./context.ts";
 // import { inspect } from "./lib/inspector.ts";
 
 function App() {
+  const searchParams = new URLSearchParams(window.location.search);
+  const publicGameId = getPublicGameId(searchParams);
+
   return (
     <>
       <GameMachineContext.Provider
-      // options={{ inspect }}
+        options={{
+          input: { publicGameId: publicGameId },
+        }}
       >
         <Game />
       </GameMachineContext.Provider>
@@ -17,3 +22,8 @@ function App() {
 }
 
 export default App;
+
+const getPublicGameId = (searchParams: URLSearchParams): number | null => {
+  const id = searchParams.get("gameId");
+  return id ? parseInt(id) : null;
+};

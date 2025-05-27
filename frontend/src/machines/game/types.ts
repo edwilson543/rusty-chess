@@ -1,12 +1,19 @@
-// Context
+// Context.
 import * as types from "../../lib/types.ts";
 
 export interface GameContextProps {
   game: types.Game | null;
+  publicGameId: number | null;
   localPlayerColour: types.Colour;
   squareToMoveFrom: types.Square | null;
   legalMoves: types.Move[];
   engine: types.Engine;
+}
+
+// Input.
+
+export interface GameInput {
+  publicGameId: number | null;
 }
 
 // Events.

@@ -15,6 +15,7 @@ const GameMachine = setup({
   types: {
     context: {} as machineTypes.GameContextProps,
     events: {} as machineTypes.GameEventProps,
+    input: {} as machineTypes.GameInput,
   },
   actions: actions,
   actors: {
@@ -29,13 +30,14 @@ const GameMachine = setup({
   guards: guards,
 }).createMachine({
   id: "game",
-  context: {
+  context: ({input}) => ({
     game: null,
+    publicGameId: input.publicGameId,
     legalMoves: [],
     localPlayerColour: types.Colour.White,
     squareToMoveFrom: null,
     engine: types.Engine.Minimax,
-  },
+  }),
   initial: machineTypes.GameState.Idle,
   predictableActionArguments: true,
   on: {
