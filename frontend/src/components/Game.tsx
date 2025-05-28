@@ -1,4 +1,8 @@
-import { faArrowsRotate, faShuffle } from "@fortawesome/free-solid-svg-icons";
+import {
+  faArrowsRotate,
+  faLink,
+  faShuffle,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useSelector } from "@xstate/react";
 
@@ -21,6 +25,10 @@ export const Game = () => {
 
   const swapColours = () => {
     gameMachineRef.send({ type: GameEvent.SwapColours });
+  };
+
+  const copyGameLink = () => {
+    void navigator.clipboard.writeText(window.location);
   };
 
   if (game === null) {
@@ -59,7 +67,6 @@ export const Game = () => {
               style={{ marginLeft: "5px", cursor: "pointer" }}
               title={"Swap colours"}
               role={"button"}
-              aria-label={"Swap colours"}
             />
           </span>
           <span>
@@ -79,6 +86,25 @@ export const Game = () => {
             localPlayerColour={localPlayerColour}
           />
         )}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "flex-start",
+          }}
+        >
+          <span>
+            <FontAwesomeIcon
+              onClick={copyGameLink}
+              icon={faLink}
+              style={{ cursor: "pointer" }}
+              title={"Share game"}
+              role={"button"}
+            />
+            <b> Share game</b>
+          </span>
+        </div>
       </div>
     </>
   );

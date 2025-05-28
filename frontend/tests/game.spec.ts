@@ -139,7 +139,43 @@ test.describe("game controls", () => {
 });
 
 test.describe("existing games", () => {
-  test("public game id is pushed to search params and can be used to bookmark game", async ({
+  test("can share game by copying link to clipboard", async ({
+    page,
+    context,
+  }) => {
+    await page.goto("/");
+
+    await expect(page).toHaveURL(/\?gameId=/);
+
+    // Move a piece.
+    const squareE2 = locators.getSquare(page, "E2");
+    await squareE2.click();
+
+    const squareE4 = locators.getSquare(page, "E4");
+    await squareE4.click();
+
+    await assertions.expectPieceToOccupySquare(page, "E4", "White", "Pawn");
+
+    // Grant clipboard permissions to browser context.
+    await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+
+    // Copy the game's link to the clipboard.
+    const shareGame = page.getByRole("button", { name: "Share game" });
+    await shareGame.click();
+
+    const clipboardText = await page.evaluate(() =>
+      navigator.clipboard.readText(),
+    );
+    expect(clipboardText).toEqual(page.url());
+
+    // Open a new page with the url.
+    const newPage = await context.newPage();
+    await newPage.goto(clipboardText);
+
+    await assertions.expectPieceToOccupySquare(newPage, "E4", "White", "Pawn");
+  });
+
+  test("can revisit game using game id pushed to url search params", async ({
     page,
   }) => {
     await page.goto("/");
