@@ -126,11 +126,11 @@ test.describe("game controls", () => {
 
   test("can select game engine to play against", async ({ page }) => {
     const engineSelect = page.getByRole("combobox");
-    await expect(engineSelect).toHaveValue("Minimax");
-
-    // Change to Random.
-    await engineSelect.selectOption("Random");
     await expect(engineSelect).toHaveValue("Random");
+
+    // Change to Minimax.
+    await engineSelect.selectOption("Minimax");
+    await expect(engineSelect).toHaveValue("Minimax");
 
     // Change to MCTS.
     await engineSelect.selectOption("MCTS");

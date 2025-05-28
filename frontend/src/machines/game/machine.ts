@@ -38,7 +38,7 @@ const GameMachine = setup({
     legalMoves: [],
     localPlayerColour: types.Colour.White,
     squareToMoveFrom: null,
-    engine: types.Engine.Minimax,
+    engine: types.Engine.Random,
   }),
   initial: machineTypes.GameState.Idle,
   predictableActionArguments: true,
