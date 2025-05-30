@@ -1,8 +1,6 @@
 import { Piece } from "./Piece.tsx";
 import * as chess from "../domain/chess.ts";
-import { useActiveChessGame } from "../hooks/";
-import { GameMachineContext } from "../machines/game";
-import { GameEvent } from "../machines/game/types.ts";
+import { useActiveChessGame, useChessGameActions } from "../hooks/";
 
 interface ChessboardSquareProps {
   square: chess.Square;
@@ -11,8 +9,7 @@ interface ChessboardSquareProps {
 export const ChessboardSquare = (props: ChessboardSquareProps) => {
   const { squareToMoveFrom, localPlayerColour, isLocalPlayerTurn, legalMoves } =
     useActiveChessGame();
-
-  const gameMachineRef = GameMachineContext.useActorRef();
+  const { selectPiece, deselectPiece, playMove } = useChessGameActions();
 
   // Properties.
   const canSquareBeMovedTo =
@@ -34,21 +31,15 @@ export const ChessboardSquare = (props: ChessboardSquareProps) => {
     if (!canSquareBeMovedTo) {
       return null;
     }
-    gameMachineRef.send({
-      type: GameEvent.PlayMove,
-      fromSquare: squareToMoveFrom,
-      toSquare: props.square,
-    });
+    playMove(squareToMoveFrom, props.square);
   };
 
   const onPieceClick = () => {
     if (!canPieceBeSelected) {
       return null;
     }
-    gameMachineRef.send({
-      type: GameEvent.SetSquareToMoveFrom,
-      square: isPieceSelected ? null : props.square,
-    });
+
+    isPieceSelected ? deselectPiece() : selectPiece(props.square);
   };
 
   return (

@@ -9,7 +9,7 @@ interface useChessGameActionsReturn {
   swapColours: () => void;
   selectEngine: (engine: chess.Engine) => void;
   selectPiece: (square: chess.Square) => void;
-  deselectPiece: (square: chess.Square) => void;
+  deselectPiece: () => void;
   playMove: (fromSquare: chess.Square, toSquare: chess.Square) => void;
 }
 
@@ -27,10 +27,10 @@ export const useChessGameActions = (): useChessGameActionsReturn => {
           type: GameEvent.SetSquareToMoveFrom,
           square,
         }),
-      deselectPiece: (square) =>
+      deselectPiece: () =>
         gameMachineRef.send({
           type: GameEvent.SetSquareToMoveFrom,
-          square,
+          square: null,
         }),
       playMove: (fromSquare, toSquare) =>
         gameMachineRef.send({
