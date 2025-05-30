@@ -72,7 +72,7 @@ export type GameEventProps =
 // States.
 
 export enum GameState {
-  Idle = "idle",
+  Initialising = "initialising",
   LocalPlayerTurn = "local-play-turn",
   OpponentPlayerTurn = "opponent-turn",
   GameComplete = "game-complete",

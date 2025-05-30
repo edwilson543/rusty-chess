@@ -40,7 +40,7 @@ const GameMachine = setup({
     squareToMoveFrom: null,
     engine: types.Engine.Random,
   }),
-  initial: machineTypes.GameState.Idle,
+  initial: machineTypes.GameState.Initialising,
   predictableActionArguments: true,
   on: {
     [machineTypes.GameEvent.StartNewGame]: {
@@ -51,7 +51,7 @@ const GameMachine = setup({
     },
   },
   states: {
-    [machineTypes.GameState.Idle]: {
+    [machineTypes.GameState.Initialising]: {
       always: [
         {
           target: machineTypes.GameState.LoadingGame,
