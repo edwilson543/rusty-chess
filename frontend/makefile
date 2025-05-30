@@ -10,7 +10,7 @@ install:
 
 
 .PHONY:local_ci
-local_ci: lint test playwright
+local_ci: lint depcruiser test playwright
 
 
 .PHONY:test
@@ -29,6 +29,9 @@ lint:
 	npm run lint
 	npm run format
 
+.PHONY:depcruiser
+depcruiser:
+	npm run depcruiser
 
 .PHONY:format
 format:

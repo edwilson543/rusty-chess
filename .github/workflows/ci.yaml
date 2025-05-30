@@ -57,6 +57,9 @@ jobs:
     - name: Lint
       run: make lint
 
+    - name: Check dependency graph
+      run: make depcruiser
+
     - name: Test
       run: make test
 
