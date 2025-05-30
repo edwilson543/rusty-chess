@@ -1,33 +1,18 @@
-import { useSelector } from "@xstate/react";
-
 import { Piece } from "./Piece.tsx";
 import * as chess from "../domain/chess.ts";
+import { useActiveChessGame } from "../hooks/useActiveChessGame.ts";
 import { GameMachineContext } from "../machines/game";
-import { GameState, GameEvent } from "../machines/game/types.ts";
+import { GameEvent } from "../machines/game/types.ts";
 
 interface ChessboardSquareProps {
   square: chess.Square;
 }
 
 export const ChessboardSquare = (props: ChessboardSquareProps) => {
-  // State.
+  const { squareToMoveFrom, localPlayerColour, isLocalPlayerTurn, legalMoves } =
+    useActiveChessGame();
+
   const gameMachineRef = GameMachineContext.useActorRef();
-  const squareToMoveFrom = useSelector(
-    gameMachineRef,
-    (state) => state.context.squareToMoveFrom,
-  );
-  const localPlayerColour = useSelector(
-    gameMachineRef,
-    (state) => state.context.localPlayerColour,
-  );
-  const isLocalPlayerTurn = useSelector(
-    gameMachineRef,
-    (state) => state.value === GameState.LocalPlayerTurn,
-  );
-  const legalMoves = useSelector(
-    gameMachineRef,
-    (state) => state.context.legalMoves,
-  );
 
   // Properties.
   const canSquareBeMovedTo =

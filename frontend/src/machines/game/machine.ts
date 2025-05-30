@@ -168,8 +168,7 @@ export const gameMachine = setup({
         guard: types.Guard.GameIsComplete,
       },
       after: {
-        opponentThinkingTimeMs:
-          types.GameState.SubmittingOpponentPlayerMove,
+        opponentThinkingTimeMs: types.GameState.SubmittingOpponentPlayerMove,
       },
     },
     [types.GameState.SubmittingOpponentPlayerMove]: {

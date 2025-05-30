@@ -5,8 +5,8 @@ import { useMemo } from "react";
 import { useSearchParams, BrowserRouter } from "react-router-dom";
 
 import { Game } from "./components/Game.tsx";
-import { inspect } from "./machines/inspector.ts";
 import { GameMachineContext } from "./machines/game";
+import { inspect } from "./machines/inspector.ts";
 
 function App() {
   return (

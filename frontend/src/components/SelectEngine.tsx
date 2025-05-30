@@ -1,15 +1,11 @@
-import { useSelector } from "@xstate/react";
-
 import * as chess from "../domain/chess.ts";
+import { useActiveChessGame } from "../hooks/useActiveChessGame.ts";
 import { GameMachineContext } from "../machines/game";
 import { GameEvent } from "../machines/game/types.ts";
 
 export const SelectEngine = () => {
+  const { engine: selectedEngine } = useActiveChessGame();
   const gameMachineRef = GameMachineContext.useActorRef();
-  const selectedEngine = useSelector(
-    gameMachineRef,
-    (state) => state.context.engine,
-  );
 
   const onEngineChange = (engine: chess.Engine) => {
     gameMachineRef.send({ type: GameEvent.SetEngine, engine: engine });
