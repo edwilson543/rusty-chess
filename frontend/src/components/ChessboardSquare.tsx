@@ -20,8 +20,9 @@ export const ChessboardSquare = (props: ChessboardSquareProps) => {
     gameMachineRef,
     (state) => state.context.localPlayerColour,
   );
-  const isLocalPlayerTurn = useSelector(gameMachineRef, (state) =>
-    state.matches(GameState.LocalPlayerTurn),
+  const isLocalPlayerTurn = useSelector(
+    gameMachineRef,
+    (state) => state.value === GameState.LocalPlayerTurn,
   );
   const legalMoves = useSelector(
     gameMachineRef,

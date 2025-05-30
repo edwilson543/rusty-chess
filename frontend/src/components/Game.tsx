@@ -28,7 +28,7 @@ export const Game = () => {
   };
 
   const copyGameLink = () => {
-    void navigator.clipboard.writeText(window.location);
+    void navigator.clipboard.writeText(window.location.href);
   };
 
   if (game === null) {

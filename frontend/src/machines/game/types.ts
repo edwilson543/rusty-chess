@@ -57,9 +57,17 @@ interface SetLegalMoves {
   output: types.Move[];
 }
 
-export interface SetEngine {
+interface SetEngine {
   type: GameEvent.SetEngine;
   engine: types.Engine;
+}
+
+interface StartNewGame {
+  type: GameEvent.StartNewGame;
+}
+
+interface SwapColours {
+  type: GameEvent.SwapColours;
 }
 
 export type GameEventProps =
@@ -67,7 +75,9 @@ export type GameEventProps =
   | SelectSquareToMoveFrom
   | SetActiveGameEvent
   | SetLegalMoves
-  | SetEngine;
+  | SetEngine
+  | StartNewGame
+  | SwapColours;
 
 // States.
 
