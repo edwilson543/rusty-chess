@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint . && prettier --check .",
+    "type-check": "tsc --build --noEmit",
     "test": "echo 'write some frontend tests...'",
     "testing-server": "vite --host=127.0.0.1 --port=5174",
     "format": "eslint --fix . && prettier --write .",
