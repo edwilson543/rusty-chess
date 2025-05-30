@@ -1,13 +1,13 @@
 // Context.
-import * as types from "../../domain/types.ts";
+import * as chess from "../../domain/chess.ts";
 
 export interface GameContextProps {
-  game: types.Game | null;
+  game: chess.Game | null;
   publicGameId: number | null;
-  localPlayerColour: types.Colour;
-  squareToMoveFrom: types.Square | null;
-  legalMoves: types.Move[];
-  engine: types.Engine;
+  localPlayerColour: chess.Colour;
+  squareToMoveFrom: chess.Square | null;
+  legalMoves: chess.Move[];
+  engine: chess.Engine;
 }
 
 // Input.
@@ -34,13 +34,13 @@ export enum GameEvent {
 
 export interface PlayMoveEvent {
   type: GameEvent.PlayMove;
-  fromSquare: types.Square;
-  toSquare: types.Square;
+  fromSquare: chess.Square;
+  toSquare: chess.Square;
 }
 
 export interface SelectSquareToMoveFrom {
   type: GameEvent.SetSquareToMoveFrom;
-  square: types.Square | null;
+  square: chess.Square | null;
 }
 
 interface SetActiveGameEvent {
@@ -49,17 +49,17 @@ interface SetActiveGameEvent {
     | GameEvent.GameStarted
     | GameEvent.MovePlayed
     | GameEvent.MoveGeneratedAndPlayed;
-  output: types.Game;
+  output: chess.Game;
 }
 
 interface SetLegalMoves {
   type: GameEvent.SetLegalMoves;
-  output: types.Move[];
+  output: chess.Move[];
 }
 
 interface SetEngine {
   type: GameEvent.SetEngine;
-  engine: types.Engine;
+  engine: chess.Engine;
 }
 
 interface StartNewGame {

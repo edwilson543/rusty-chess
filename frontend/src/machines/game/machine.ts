@@ -10,7 +10,7 @@ import {
 } from "./actors.ts";
 import { guards } from "./guards.ts";
 import * as machineTypes from "./types";
-import * as types from "../../domain/types.ts";
+import * as chess from "../../domain/chess.ts";
 
 export const gameMachine = setup({
   types: {
@@ -36,9 +36,9 @@ export const gameMachine = setup({
     game: null,
     publicGameId: input.publicGameId,
     legalMoves: [],
-    localPlayerColour: types.Colour.White,
+    localPlayerColour: chess.Colour.White,
     squareToMoveFrom: null,
-    engine: types.Engine.Random,
+    engine: chess.Engine.Random,
   }),
   predictableActionArguments: true,
   on: {

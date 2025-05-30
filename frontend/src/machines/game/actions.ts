@@ -7,7 +7,7 @@ import {
 } from "xstate";
 
 import * as machineTypes from "./types.ts";
-import * as types from "../../domain/types.ts";
+import * as chess from "../../domain/chess.ts";
 
 export const actions: ActionFunctionMap<
   machineTypes.GameContextProps,
@@ -45,15 +45,15 @@ export const actions: ActionFunctionMap<
     localPlayerColour: ({ context, event }) => {
       assertEvent(event, machineTypes.GameEvent.SwapColours);
       const swapper = {
-        [types.Colour.White]: types.Colour.Black,
-        [types.Colour.Black]: types.Colour.White,
+        [chess.Colour.White]: chess.Colour.Black,
+        [chess.Colour.Black]: chess.Colour.White,
       };
       return swapper[context.localPlayerColour];
     },
   }),
   [machineTypes.Action.SetLocalPlayerToWhite]: assign({
     localPlayerColour: () => {
-      return types.Colour.White;
+      return chess.Colour.White;
     },
   }),
   [machineTypes.Action.SetEngine]: assign({

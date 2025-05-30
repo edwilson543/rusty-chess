@@ -1,6 +1,6 @@
 import { useSelector } from "@xstate/react";
 
-import * as types from "../domain/types.ts";
+import * as chess from "../domain/chess.ts";
 import { GameMachineContext } from "../machines/game";
 import { GameEvent } from "../machines/game/types.ts";
 
@@ -11,7 +11,7 @@ export const SelectEngine = () => {
     (state) => state.context.engine,
   );
 
-  const onEngineChange = (engine: types.Engine) => {
+  const onEngineChange = (engine: chess.Engine) => {
     gameMachineRef.send({ type: GameEvent.SetEngine, engine: engine });
   };
 
@@ -24,7 +24,7 @@ export const SelectEngine = () => {
           defaultValue={selectedEngine}
           name={"engine"}
         >
-          {Object.values(types.Engine).map((engine) => (
+          {Object.values(chess.Engine).map((engine) => (
             <option key={engine} value={engine}>
               {engine}
             </option>

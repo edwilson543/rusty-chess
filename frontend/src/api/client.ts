@@ -2,30 +2,30 @@ import { initClient } from "@ts-rest/core";
 
 import { contract, GameSchema, LegalMovesSchema } from "./contract.ts";
 import * as serializers from "./serializers.ts";
-import * as types from "../domain/types.ts";
+import * as chess from "../domain/chess.ts";
 
 export interface APIClient {
-  loadGame({ publicGameId }: { publicGameId: number }): Promise<types.Game>;
+  loadGame({ publicGameId }: { publicGameId: number }): Promise<chess.Game>;
 
-  startGame(): Promise<types.Game>;
+  startGame(): Promise<chess.Game>;
 
   playMove({
     gameId,
     move,
   }: {
     gameId: number;
-    move: types.Move;
-  }): Promise<types.Game>;
+    move: chess.Move;
+  }): Promise<chess.Game>;
 
   generateAndPlayNextMove({
     gameId,
     engine,
   }: {
     gameId: number;
-    engine: types.Engine;
-  }): Promise<types.Game>;
+    engine: chess.Engine;
+  }): Promise<chess.Game>;
 
-  getLegalMoves({ gameId }: { gameId: number }): Promise<types.Move[]>;
+  getLegalMoves({ gameId }: { gameId: number }): Promise<chess.Move[]>;
 }
 
 export const getApiClient = (): APIClient => {
@@ -38,7 +38,7 @@ const client = initClient(contract, {
 });
 
 class RestAPIClient implements APIClient {
-  loadGame({ publicGameId }: { publicGameId: number }): Promise<types.Game> {
+  loadGame({ publicGameId }: { publicGameId: number }): Promise<chess.Game> {
     const promise = client.getGameState({
       params: { publicGameId: publicGameId },
     }) as Promise<Response>;
@@ -57,7 +57,7 @@ class RestAPIClient implements APIClient {
     });
   }
 
-  startGame(): Promise<types.Game> {
+  startGame(): Promise<chess.Game> {
     const promise = client.startGame() as Promise<Response>;
     return promise.then((response: Response) => {
       switch (response.status) {
@@ -76,8 +76,8 @@ class RestAPIClient implements APIClient {
     move,
   }: {
     gameId: number;
-    move: types.Move;
-  }): Promise<types.Game> {
+    move: chess.Move;
+  }): Promise<chess.Game> {
     const promise = client.playMove({
       params: { gameId: gameId },
       body: {
@@ -103,8 +103,8 @@ class RestAPIClient implements APIClient {
     engine,
   }: {
     gameId: number;
-    engine: types.Engine;
-  }): Promise<types.Game> {
+    engine: chess.Engine;
+  }): Promise<chess.Game> {
     const promise = client.generateAndPlayNextMove({
       params: { gameId: gameId },
       body: {
@@ -123,7 +123,7 @@ class RestAPIClient implements APIClient {
     });
   }
 
-  getLegalMoves({ gameId }: { gameId: number }): Promise<types.Move[]> {
+  getLegalMoves({ gameId }: { gameId: number }): Promise<chess.Move[]> {
     const promise = client.getLegalMoves({
       params: { gameId: gameId },
     }) as Promise<Response>;

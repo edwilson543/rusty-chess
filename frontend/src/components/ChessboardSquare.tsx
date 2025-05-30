@@ -1,12 +1,12 @@
 import { useSelector } from "@xstate/react";
 
 import { Piece } from "./Piece.tsx";
-import * as types from "../domain/types.ts";
+import * as chess from "../domain/chess.ts";
 import { GameMachineContext } from "../machines/game";
 import { GameState, GameEvent } from "../machines/game/types.ts";
 
 interface ChessboardSquareProps {
-  square: types.Square;
+  square: chess.Square;
 }
 
 export const ChessboardSquare = (props: ChessboardSquareProps) => {
@@ -96,7 +96,7 @@ export const ChessboardSquare = (props: ChessboardSquareProps) => {
   );
 };
 
-const getColourForSquare = (square: types.Square): string => {
+const getColourForSquare = (square: chess.Square): string => {
   const fileSortOrder = { A: 1, B: 2, C: 3, D: 4, E: 5, F: 6, G: 7, H: 8 };
   const alternate = fileSortOrder[square.file] % 2 === 1 ? 0 : 1;
   return square.rank % 2 === alternate ? "#aeeef2" : "#f2d4d0";
