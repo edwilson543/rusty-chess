@@ -8,6 +8,13 @@ export const guards = {
   }) => {
     return !!context.publicGameId;
   },
+  [machineTypes.Guard.IsLocalPlayerTurn]: ({
+    context,
+  }: {
+    context: machineTypes.GameContextProps;
+  }) => {
+    return context.game?.toPlayColour === context.localPlayerColour;
+  },
   [machineTypes.Guard.GameIsUnset]: ({
     context,
   }: {

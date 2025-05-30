@@ -36,6 +36,10 @@ export const actions: ActionFunctionMap<
       }
     });
   }),
+  [machineTypes.Action.ClearActiveGame]: assign({
+    game: null,
+    publicGameId: null,
+  }),
   [machineTypes.Action.SwapColours]: assign({
     localPlayerColour: ({ context, event }) => {
       assertEvent(event, machineTypes.GameEvent.SwapColours);

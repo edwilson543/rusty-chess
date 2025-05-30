@@ -2,11 +2,11 @@ import { assertEvent, setup } from "xstate";
 
 import { actions } from "./actions.ts";
 import {
-  loadGame,
-  startGame,
-  playMove,
   generateAndPlayNextMove,
   getLegalMoves,
+  loadGame,
+  playMove,
+  startGame,
 } from "./actors.ts";
 import { guards } from "./guards.ts";
 import * as machineTypes from "./types";
@@ -40,62 +40,68 @@ const GameMachine = setup({
     squareToMoveFrom: null,
     engine: types.Engine.Random,
   }),
-  initial: machineTypes.GameState.Initialising,
   predictableActionArguments: true,
   on: {
     [machineTypes.GameEvent.StartNewGame]: {
-      target: `.${machineTypes.GameState.StartingGame}`,
+      target: `.${machineTypes.GameState.Initialising}`,
+      actions: machineTypes.Action.ClearActiveGame,
     },
     [machineTypes.GameEvent.SetEngine]: {
       actions: [machineTypes.Action.SetEngine],
     },
   },
+  initial: machineTypes.GameState.Initialising,
   states: {
     [machineTypes.GameState.Initialising]: {
-      always: [
-        {
-          target: machineTypes.GameState.LoadingGame,
-          guard: machineTypes.Guard.PublicGameIdIsSet,
+      initial: machineTypes.GameState.StartingNewGame,
+      states: {
+        [machineTypes.GameState.StartingNewGame]: {
+          always: {
+            target: `#game.${machineTypes.GameState.Initialising}.${machineTypes.GameState.LoadingExistingGame}`,
+            guard: machineTypes.Guard.PublicGameIdIsSet,
+          },
+          invoke: {
+            id: "startGame",
+            src: "startGame",
+            onDone: {
+              actions: [
+                machineTypes.Action.SetActiveGame,
+                machineTypes.Action.SetLocalPlayerToWhite,
+              ],
+              target: machineTypes.GameState.AssigningPlayerTurn,
+            },
+            onError: {
+              target: `#game.${machineTypes.GameState.Unavailable}`,
+            },
+          },
         },
-        {
-          target: machineTypes.GameState.StartingGame,
-          guard: machineTypes.Guard.GameIsUnset,
+        [machineTypes.GameState.LoadingExistingGame]: {
+          invoke: {
+            id: "loadGame",
+            src: "loadGame",
+            input: ({ context }) => {
+              return { publicGameId: context.publicGameId };
+            },
+            onDone: {
+              actions: [
+                machineTypes.Action.SetActiveGame,
+                machineTypes.Action.SetLocalPlayerToWhite,
+              ],
+              target: machineTypes.GameState.AssigningPlayerTurn,
+            },
+            onError: {
+              target: `#game.${machineTypes.GameState.Unavailable}`,
+            },
+          },
         },
-        { target: machineTypes.GameState.LocalPlayerTurn },
-      ],
-    },
-    [machineTypes.GameState.LoadingGame]: {
-      invoke: {
-        id: "loadGame",
-        src: "loadGame",
-        input: ({ context }) => {
-          return { publicGameId: context.publicGameId };
-        },
-        onDone: {
-          actions: [
-            machineTypes.Action.SetActiveGame,
-            machineTypes.Action.SetLocalPlayerToWhite,
+        [machineTypes.GameState.AssigningPlayerTurn]: {
+          always: [
+            {
+              target: `#game.${machineTypes.GameState.LocalPlayerTurn}`,
+              guard: machineTypes.Guard.IsLocalPlayerTurn,
+            },
+            { target: `#game.${machineTypes.GameState.OpponentPlayerTurn}` },
           ],
-          target: machineTypes.GameState.LocalPlayerTurn,
-        },
-        onError: {
-          target: machineTypes.GameState.Unavailable,
-        },
-      },
-    },
-    [machineTypes.GameState.StartingGame]: {
-      invoke: {
-        id: "startGame",
-        src: "startGame",
-        onDone: {
-          actions: [
-            machineTypes.Action.SetActiveGame,
-            machineTypes.Action.SetLocalPlayerToWhite,
-          ],
-          target: machineTypes.GameState.LocalPlayerTurn,
-        },
-        onError: {
-          target: machineTypes.GameState.Unavailable,
         },
       },
     },

@@ -6,7 +6,7 @@ import { useSearchParams, BrowserRouter } from "react-router-dom";
 
 import { Game } from "./components/Game.tsx";
 import { GameMachineContext } from "./context.ts";
-// import { inspect } from "./lib/inspector.ts";
+import { inspect } from "./lib/inspector.ts";
 
 function App() {
   return (
@@ -34,7 +34,7 @@ function GameMachineProvider({ children }: { children: JSX.Element }) {
       <GameMachineContext.Provider
         options={{
           input: { publicGameId: publicGameId },
-          // inspect,
+          inspect,
         }}
       >
         {children}

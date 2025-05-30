@@ -72,21 +72,25 @@ export type GameEventProps =
 // States.
 
 export enum GameState {
+  // Loading states.
   Initialising = "initialising",
+  LoadingExistingGame = "loading-existing-game",
+  StartingNewGame = "starting-new-game",
+  AssigningPlayerTurn = "assigning-player-turn",
+  // Turns.
   LocalPlayerTurn = "local-play-turn",
   OpponentPlayerTurn = "opponent-turn",
-  GameComplete = "game-complete",
-  Unavailable = "unavailable",
-  // Loading states.
-  LoadingGame = "loading-game",
-  StartingGame = "starting-game",
   SubmittingLocalPlayerMove = "submitting-local-player-move",
   SubmittingOpponentPlayerMove = "submitting-opponent--player-move",
+  // Final states.
+  GameComplete = "game-complete",
+  Unavailable = "unavailable",
 }
 
 // Actions.
 
 export enum Action {
+  ClearActiveGame = "clear-active-game",
   SetActiveGame = "set-active-game",
   SetLocalPlayerToWhite = "set-local-player-to-white",
   SwapColours = "swap-colours",
@@ -102,6 +106,7 @@ export enum Action {
 // Guards.
 
 export enum Guard {
+  IsLocalPlayerTurn = "is-local-player-colour",
   PublicGameIdIsSet = "public-game-id-is-set",
   GameIsUnset = "game-is-unset",
   GameIsComplete = "game-is-complete",
