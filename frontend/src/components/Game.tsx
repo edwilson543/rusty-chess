@@ -7,7 +7,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import { Chessboard } from "./Chessboard";
 import { SelectEngine } from "./SelectEngine.tsx";
-import { useActiveChessGame } from "../hooks/useActiveChessGame.ts";
+import { useActiveChessGame } from "../hooks/";
 import { GameMachineContext } from "../machines/game";
 import { GameEvent } from "../machines/game/types.ts";
 

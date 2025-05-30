@@ -1,5 +1,5 @@
 import * as chess from "../domain/chess.ts";
-import { useActiveChessGame } from "../hooks/useActiveChessGame.ts";
+import { useActiveChessGame } from "../hooks/";
 import { GameMachineContext } from "../machines/game";
 import { GameEvent } from "../machines/game/types.ts";
 
