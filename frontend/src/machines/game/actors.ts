@@ -1,6 +1,6 @@
 import { fromPromise } from "xstate";
 
-import { getApiClient } from "../../lib/api/client.ts";
+import { getApiClient } from "../../api/client.ts";
 import * as types from "../../lib/types.ts";
 
 export const loadGame = fromPromise(
