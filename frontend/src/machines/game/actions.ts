@@ -28,10 +28,11 @@ export const actions: ActionFunctionMap<
     });
 
     enqueue(() => {
-      const url = new URL(window.location);
+      const url = new URL(window.location.href);
+      const currentPublicGameId = event.output.id.toString();
 
-      if (url.searchParams.get("gameId") !== event.output.id) {
-        url.searchParams.set("gameId", event.output.id);
+      if (url.searchParams.get("gameId") !== currentPublicGameId) {
+        url.searchParams.set("gameId", currentPublicGameId);
         window.history.pushState({}, "", url);
       }
     });
