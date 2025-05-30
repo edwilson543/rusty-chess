@@ -1,7 +1,7 @@
 import { useSelector } from "@xstate/react";
 
 import { Piece } from "./Piece.tsx";
-import * as types from "../lib/types.ts";
+import * as types from "../domain/types.ts";
 import { GameMachineContext } from "../machines/game";
 import { GameState, GameEvent } from "../machines/game/types.ts";
 

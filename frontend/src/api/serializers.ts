@@ -1,5 +1,5 @@
 import { GameSchema, LegalMovesSchema } from "./contract.ts";
-import * as types from "../lib/types.ts";
+import * as types from "../domain/types.ts";
 
 export const parseGameSchemaToGame = (game: GameSchema): types.Game => {
   const chessboardPosition = [];

@@ -7,7 +7,7 @@ import {
 } from "xstate";
 
 import * as machineTypes from "./types.ts";
-import * as types from "../../lib/types.ts";
+import * as types from "../../domain/types.ts";
 
 export const actions: ActionFunctionMap<
   machineTypes.GameContextProps,

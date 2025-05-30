@@ -1,5 +1,5 @@
 // Context.
-import * as types from "../../lib/types.ts";
+import * as types from "../../domain/types.ts";
 
 export interface GameContextProps {
   game: types.Game | null;

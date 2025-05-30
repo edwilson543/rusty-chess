@@ -10,7 +10,7 @@ import {
 } from "./actors.ts";
 import { guards } from "./guards.ts";
 import * as machineTypes from "./types";
-import * as types from "../../lib/types.ts";
+import * as types from "../../domain/types.ts";
 
 export const gameMachine = setup({
   types: {

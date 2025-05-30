@@ -2,7 +2,7 @@ import { initClient } from "@ts-rest/core";
 
 import { contract, GameSchema, LegalMovesSchema } from "./contract.ts";
 import * as serializers from "./serializers.ts";
-import * as types from "../lib/types.ts";
+import * as types from "../domain/types.ts";
 
 export interface APIClient {
   loadGame({ publicGameId }: { publicGameId: number }): Promise<types.Game>;

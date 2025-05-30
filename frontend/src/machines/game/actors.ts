@@ -1,7 +1,7 @@
 import { fromPromise } from "xstate";
 
 import { getApiClient } from "../../api/client.ts";
-import * as types from "../../lib/types.ts";
+import * as types from "../../domain/types.ts";
 
 export const loadGame = fromPromise(
   ({ input }: { input: { publicGameId: number } }) => {

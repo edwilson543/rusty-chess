@@ -1,5 +1,5 @@
 import { ChessboardSquare } from "./ChessboardSquare.tsx";
-import * as types from "../lib/types.ts";
+import * as types from "../domain/types.ts";
 
 interface ChessboardProps {
   chessboard: types.Chessboard;
