@@ -1,1 +1,1 @@
-export { default as GameMachine } from "./machine";
+export { GameMachineContext } from "./context";

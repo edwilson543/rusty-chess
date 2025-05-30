@@ -1,7 +1,7 @@
 import { useSelector } from "@xstate/react";
 
-import { GameMachineContext } from "../context.ts";
 import * as types from "../lib/types.ts";
+import { GameMachineContext } from "../machines/game";
 import { GameEvent } from "../machines/game/types.ts";
 
 export const SelectEngine = () => {

@@ -1,8 +1,8 @@
 import { useSelector } from "@xstate/react";
 
 import { Piece } from "./Piece.tsx";
-import { GameMachineContext } from "../context.ts";
 import * as types from "../lib/types.ts";
+import { GameMachineContext } from "../machines/game";
 import { GameState, GameEvent } from "../machines/game/types.ts";
 
 interface ChessboardSquareProps {

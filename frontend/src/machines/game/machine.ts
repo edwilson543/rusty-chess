@@ -12,7 +12,7 @@ import { guards } from "./guards.ts";
 import * as machineTypes from "./types";
 import * as types from "../../lib/types.ts";
 
-const GameMachine = setup({
+export const gameMachine = setup({
   types: {
     context: {} as machineTypes.GameContextProps,
     events: {} as machineTypes.GameEventProps,
@@ -192,5 +192,3 @@ const GameMachine = setup({
     [machineTypes.GameState.Unavailable]: {},
   },
 });
-
-export default GameMachine;
