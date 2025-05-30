@@ -20,7 +20,7 @@ interface PieceProps {
 export const Piece = (props: PieceProps) => {
   // Styling.
   const colour = props.piece.colour === types.Colour.White ? "white" : "black";
-  const cursor = props.canBeSelected ? "pointer" : "default";
+  const cursor = props.canBeSelected ? "pointer" : "not-allowed";
 
   return (
     <div

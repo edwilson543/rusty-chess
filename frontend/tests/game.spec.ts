@@ -173,6 +173,7 @@ test.describe("existing games", () => {
     await newPage.goto(clipboardText);
 
     await assertions.expectPieceToOccupySquare(newPage, "E4", "White", "Pawn");
+    await assertions.expectToPlayColourToEqual(newPage, "Black");
   });
 
   test("can revisit game using game id pushed to url search params", async ({
