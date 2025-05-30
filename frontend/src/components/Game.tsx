@@ -7,22 +7,11 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import { Chessboard } from "./Chessboard";
 import { SelectEngine } from "./SelectEngine.tsx";
-import { useActiveChessGame } from "../hooks/";
-import { GameMachineContext } from "../machines/game";
-import { GameEvent } from "../machines/game/types.ts";
+import { useActiveChessGame, useChessGameActions } from "../hooks/";
 
 export const Game = () => {
   const { game, localPlayerColour } = useActiveChessGame();
-
-  const gameMachineRef = GameMachineContext.useActorRef();
-
-  const startNewGame = () => {
-    gameMachineRef.send({ type: GameEvent.StartNewGame });
-  };
-
-  const swapColours = () => {
-    gameMachineRef.send({ type: GameEvent.SwapColours });
-  };
+  const { startNewGame, swapColours } = useChessGameActions();
 
   const copyGameLink = () => {
     void navigator.clipboard.writeText(window.location.href);
