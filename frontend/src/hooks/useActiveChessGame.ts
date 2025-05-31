@@ -5,6 +5,7 @@ import { GameMachineContext, GameState } from "../machines/game";
 
 interface useActiveChessGameReturn {
   game: chess.Game | null;
+  publicGameId: number | null;
   localPlayerColour: chess.Colour;
   isLocalPlayerTurn: boolean;
   legalMoves: chess.Move[];
@@ -18,6 +19,7 @@ export const useActiveChessGame = (): useActiveChessGameReturn => {
   return useSelector(gameMachineRef, (state) => {
     return {
       game: state.context.game,
+      publicGameId: state.context.publicGameId,
       localPlayerColour: state.context.localPlayerColour,
       isLocalPlayerTurn: state.value === GameState.LocalPlayerTurn,
       legalMoves: state.context.legalMoves,
