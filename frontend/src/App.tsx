@@ -1,10 +1,9 @@
 import "./styles/App.css";
 
-import { useMemo } from "react";
-
-import { useSearchParams, BrowserRouter } from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
 
 import { Game } from "./components/Game.tsx";
+import { useParseGameParamsFromUrl } from "./hooks";
 import { GameMachineContext } from "./machines/game";
 import { inspect } from "./machines/inspector.ts";
 
@@ -23,11 +22,7 @@ function App() {
 export default App;
 
 function GameMachineProvider({ children }: { children: JSX.Element }) {
-  const [searchParams] = useSearchParams();
-  const publicGameId = useMemo<number | null>(
-    () => getPublicGameId(searchParams),
-    [searchParams],
-  );
+  const { publicGameId } = useParseGameParamsFromUrl();
 
   return (
     <>
@@ -42,8 +37,3 @@ function GameMachineProvider({ children }: { children: JSX.Element }) {
     </>
   );
 }
-
-const getPublicGameId = (searchParams: URLSearchParams): number | null => {
-  const id = searchParams.get("gameId");
-  return id ? parseInt(id) : null;
-};

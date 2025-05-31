@@ -7,11 +7,17 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import { Chessboard } from "./Chessboard";
 import { SelectEngine } from "./SelectEngine.tsx";
-import { useActiveChessGame, useChessGameActions } from "../hooks/";
+import {
+  useActiveChessGame,
+  useChessGameActions,
+  useSyncGameParamsToUrl,
+} from "../hooks/";
 
 export const Game = () => {
   const { game, localPlayerColour } = useActiveChessGame();
   const { startNewGame, swapColours } = useChessGameActions();
+
+  useSyncGameParamsToUrl();
 
   const copyGameLink = () => {
     void navigator.clipboard.writeText(window.location.href);

@@ -1,10 +1,4 @@
-import {
-  ActionFunctionMap,
-  ProvidedActor,
-  assertEvent,
-  assign,
-  enqueueActions,
-} from "xstate";
+import { ActionFunctionMap, ProvidedActor, assertEvent, assign } from "xstate";
 
 import * as types from "./types.ts";
 import * as chess from "../../domain/chess.ts";
@@ -14,28 +8,17 @@ export const actions: ActionFunctionMap<
   types.GameEventProps,
   ProvidedActor
 > = {
-  [types.Action.SetActiveGame]: enqueueActions(({ enqueue, event }) => {
+  [types.Action.SetActiveGame]: assign(({ event }) => {
     assertEvent(event, [
       types.GameEvent.GameLoaded,
       types.GameEvent.GameStarted,
       types.GameEvent.MovePlayed,
       types.GameEvent.MoveGeneratedAndPlayed,
     ]);
-
-    enqueue.assign({
+    return {
       game: event.output,
       publicGameId: event.output.id,
-    });
-
-    enqueue(() => {
-      const url = new URL(window.location.href);
-      const currentPublicGameId = event.output.id.toString();
-
-      if (url.searchParams.get("gameId") !== currentPublicGameId) {
-        url.searchParams.set("gameId", currentPublicGameId);
-        window.history.pushState({}, "", url);
-      }
-    });
+    };
   }),
   [types.Action.ClearActiveGame]: assign({
     game: null,
