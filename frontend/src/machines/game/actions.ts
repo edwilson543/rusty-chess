@@ -1,64 +1,65 @@
 import { ActionFunctionMap, ProvidedActor, assertEvent, assign } from "xstate";
 
-import * as machineTypes from "./types.ts";
-import * as types from "../../lib/types.ts";
+import * as types from "./types.ts";
+import * as chess from "../../domain/chess.ts";
 
 export const actions: ActionFunctionMap<
-  machineTypes.GameContextProps,
-  machineTypes.GameEventProps,
+  types.GameContextProps,
+  types.GameEventProps,
   ProvidedActor
 > = {
-  [machineTypes.Action.SetActiveGame]: assign({
-    game: ({ event }) => {
-      assertEvent(event, [
-        machineTypes.GameEvent.GameStarted,
-        machineTypes.GameEvent.MovePlayed,
-        machineTypes.GameEvent.MoveGeneratedAndPlayed,
-      ]);
-      return event.output;
-    },
+  [types.Action.SetActiveGame]: assign(({ event }) => {
+    assertEvent(event, [
+      types.GameEvent.GameLoaded,
+      types.GameEvent.GameStarted,
+      types.GameEvent.MovePlayed,
+      types.GameEvent.MoveGeneratedAndPlayed,
+    ]);
+    return {
+      game: event.output,
+      publicGameId: event.output.id,
+    };
   }),
-  [machineTypes.Action.SwapColours]: assign({
+  [types.Action.ClearActiveGame]: assign({
+    game: null,
+    publicGameId: null,
+  }),
+  [types.Action.SwapColours]: assign({
     localPlayerColour: ({ context, event }) => {
-      assertEvent(event, machineTypes.GameEvent.SwapColours);
+      assertEvent(event, types.GameEvent.SwapColours);
       const swapper = {
-        [types.Colour.White]: types.Colour.Black,
-        [types.Colour.Black]: types.Colour.White,
+        [chess.Colour.White]: chess.Colour.Black,
+        [chess.Colour.Black]: chess.Colour.White,
       };
       return swapper[context.localPlayerColour];
     },
   }),
-  [machineTypes.Action.SetLocalPlayerToWhite]: assign({
-    localPlayerColour: () => {
-      return types.Colour.White;
-    },
-  }),
-  [machineTypes.Action.SetEngine]: assign({
+  [types.Action.SetEngine]: assign({
     engine: ({ event }) => {
-      assertEvent(event, machineTypes.GameEvent.SetEngine);
+      assertEvent(event, types.GameEvent.SetEngine);
       return event.engine;
     },
   }),
   // Square to play from.
-  [machineTypes.Action.SetSquareToMoveFrom]: assign({
+  [types.Action.SetSquareToMoveFrom]: assign({
     squareToMoveFrom: ({ event }) => {
-      assertEvent(event, machineTypes.GameEvent.SetSquareToMoveFrom);
+      assertEvent(event, types.GameEvent.SetSquareToMoveFrom);
       return event.square;
     },
   }),
-  [machineTypes.Action.ClearSquareToPlayFrom]: assign({
+  [types.Action.ClearSquareToPlayFrom]: assign({
     squareToMoveFrom: () => {
       return null;
     },
   }),
   // Legal moves.
-  [machineTypes.Action.SetLegalMoves]: assign({
+  [types.Action.SetLegalMoves]: assign({
     legalMoves: ({ event }) => {
-      assertEvent(event, machineTypes.GameEvent.SetLegalMoves);
+      assertEvent(event, types.GameEvent.SetLegalMoves);
       return event.output;
     },
   }),
-  [machineTypes.Action.ClearLegalMoves]: assign({
+  [types.Action.ClearLegalMoves]: assign({
     legalMoves: () => {
       return [];
     },

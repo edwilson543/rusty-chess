@@ -8,10 +8,10 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-import * as types from "../lib/types.ts";
+import * as chess from "../domain/chess.ts";
 
 interface PieceProps {
-  piece: types.Piece;
+  piece: chess.Piece;
   canBeSelected: boolean;
   isSelected: boolean;
   onClick: () => void;
@@ -19,8 +19,8 @@ interface PieceProps {
 
 export const Piece = (props: PieceProps) => {
   // Styling.
-  const colour = props.piece.colour === types.Colour.White ? "white" : "black";
-  const cursor = props.canBeSelected ? "pointer" : "default";
+  const colour = props.piece.colour === chess.Colour.White ? "white" : "black";
+  const cursor = props.canBeSelected ? "pointer" : "not-allowed";
 
   return (
     <div
@@ -34,20 +34,20 @@ export const Piece = (props: PieceProps) => {
     >
       <FontAwesomeIcon
         icon={iconMapping[props.piece.pieceType]}
-        size={"2xl"}
+        size={props.isSelected ? "4x" : "3x"}
         style={{ color: colour, cursor: cursor }}
-        border={props.isSelected}
         onClick={props.onClick}
+        title={`${props.piece.colour} ${props.piece.pieceType}`}
       />
     </div>
   );
 };
 
 const iconMapping = {
-  [types.PieceType.Pawn]: faChessPawn,
-  [types.PieceType.Knight]: faChessKnight,
-  [types.PieceType.Bishop]: faChessBishop,
-  [types.PieceType.Rook]: faChessRook,
-  [types.PieceType.Queen]: faChessQueen,
-  [types.PieceType.King]: faChessKing,
+  [chess.PieceType.Pawn]: faChessPawn,
+  [chess.PieceType.Knight]: faChessKnight,
+  [chess.PieceType.Bishop]: faChessBishop,
+  [chess.PieceType.Rook]: faChessRook,
+  [chess.PieceType.Queen]: faChessQueen,
+  [chess.PieceType.King]: faChessKing,
 };

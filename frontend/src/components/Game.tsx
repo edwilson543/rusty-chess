@@ -1,26 +1,32 @@
-import { faArrowsRotate, faShuffle } from "@fortawesome/free-solid-svg-icons";
+import {
+  faArrowsRotate,
+  faLink,
+  faShuffle,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useSelector } from "@xstate/react";
 
 import { Chessboard } from "./Chessboard";
 import { SelectEngine } from "./SelectEngine.tsx";
-import { GameMachineContext } from "../context.ts";
-import { GameEvent } from "../machines/game/types.ts";
+import { Colour } from "../domain/chess.ts";
+import {
+  useActiveChessGame,
+  useChessGameActions,
+  useSyncGameParamsToUrl,
+} from "../hooks/";
 
 export const Game = () => {
-  const gameMachineRef = GameMachineContext.useActorRef();
-  const game = useSelector(gameMachineRef, (state) => state.context.game);
-  const localPlayerColour = useSelector(
-    gameMachineRef,
-    (state) => state.context.localPlayerColour,
-  );
+  const { game, localPlayerColour } = useActiveChessGame();
+  const { startNewGame, swapColours } = useChessGameActions();
 
-  const startNewGame = () => {
-    gameMachineRef.send({ type: GameEvent.StartNewGame });
-  };
+  useSyncGameParamsToUrl();
 
-  const swapColours = () => {
-    gameMachineRef.send({ type: GameEvent.SwapColours });
+  const copyGameLink = () => {
+    const currentPageUrl = window.location.href;
+    const link =
+      localPlayerColour === Colour.White
+        ? currentPageUrl.replace(Colour.White, Colour.Black)
+        : currentPageUrl.replace(Colour.Black, Colour.White);
+    void navigator.clipboard.writeText(link);
   };
 
   if (game === null) {
@@ -42,7 +48,7 @@ export const Game = () => {
           {game.toPlayColour && (
             <span>
               <b>To play: </b>
-              <i>{game.toPlayColour}</i>
+              <i data-testid={"to-play-colour"}>{game.toPlayColour}</i>
             </span>
           )}
           {game.outcome && (
@@ -52,11 +58,13 @@ export const Game = () => {
           )}
           <span>
             <b>You are: </b>
-            <i>{localPlayerColour}</i>
+            <i data-testid={"local-player-colour"}>{localPlayerColour}</i>
             <FontAwesomeIcon
               onClick={swapColours}
               icon={faArrowsRotate}
               style={{ marginLeft: "5px", cursor: "pointer" }}
+              title={"Swap colours"}
+              role={"button"}
             />
           </span>
           <span>
@@ -65,6 +73,7 @@ export const Game = () => {
               onClick={startNewGame}
               icon={faShuffle}
               style={{ marginLeft: "5px", cursor: "pointer" }}
+              title={"Start new game"}
             />
           </span>
           <SelectEngine />
@@ -75,6 +84,25 @@ export const Game = () => {
             localPlayerColour={localPlayerColour}
           />
         )}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "flex-start",
+          }}
+        >
+          <span>
+            <FontAwesomeIcon
+              onClick={copyGameLink}
+              icon={faLink}
+              style={{ cursor: "pointer" }}
+              title={"Share game"}
+              role={"button"}
+            />
+            <b> Share game</b>
+          </span>
+        </div>
       </div>
     </>
   );

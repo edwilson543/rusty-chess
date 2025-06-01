@@ -1,7 +1,14 @@
 import { fromPromise } from "xstate";
 
-import { getApiClient } from "../../lib/api/client.ts";
-import * as types from "../../lib/types.ts";
+import { getApiClient } from "../../api/client.ts";
+import * as chess from "../../domain/chess.ts";
+
+export const loadGame = fromPromise(
+  ({ input }: { input: { publicGameId: number } }) => {
+    const apiClient = getApiClient();
+    return apiClient.loadGame({ publicGameId: input.publicGameId });
+  },
+);
 
 export const startGame = fromPromise(() => {
   const apiClient = getApiClient();
@@ -9,14 +16,14 @@ export const startGame = fromPromise(() => {
 });
 
 export const playMove = fromPromise(
-  ({ input }: { input: { gameId: number; move: types.Move } }) => {
+  ({ input }: { input: { gameId: number; move: chess.Move } }) => {
     const apiClient = getApiClient();
     return apiClient.playMove({ gameId: input.gameId, move: input.move });
   },
 );
 
 export const generateAndPlayNextMove = fromPromise(
-  ({ input }: { input: { gameId: number; engine: types.Engine } }) => {
+  ({ input }: { input: { gameId: number; engine: chess.Engine } }) => {
     const apiClient = getApiClient();
     return apiClient.generateAndPlayNextMove({
       gameId: input.gameId,

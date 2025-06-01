@@ -2,22 +2,26 @@ import { assertEvent, setup } from "xstate";
 
 import { actions } from "./actions.ts";
 import {
-  startGame,
-  playMove,
   generateAndPlayNextMove,
   getLegalMoves,
+  loadGame,
+  playMove,
+  startGame,
 } from "./actors.ts";
 import { guards } from "./guards.ts";
-import * as machineTypes from "./types";
-import * as types from "../../lib/types.ts";
+import * as types from "./types";
+import * as chess from "../../domain/chess.ts";
+import { Colour } from "../../domain/chess.ts";
 
-const GameMachine = setup({
+export const gameMachine = setup({
   types: {
-    context: {} as machineTypes.GameContextProps,
-    events: {} as machineTypes.GameEventProps,
+    context: {} as types.GameContextProps,
+    events: {} as types.GameEventProps,
+    input: {} as types.GameInput,
   },
   actions: actions,
   actors: {
+    loadGame,
     startGame,
     playMove,
     generateAndPlayNextMove,
@@ -29,50 +33,74 @@ const GameMachine = setup({
   guards: guards,
 }).createMachine({
   id: "game",
-  context: {
+  context: ({ input }) => ({
     game: null,
+    publicGameId: input.publicGameId,
     legalMoves: [],
-    localPlayerColour: types.Colour.White,
+    localPlayerColour: input.localPlayerColour ?? Colour.White,
     squareToMoveFrom: null,
-    engine: types.Engine.Minimax,
-  },
-  initial: machineTypes.GameState.Idle,
+    engine: chess.Engine.Random,
+  }),
   predictableActionArguments: true,
   on: {
-    [machineTypes.GameEvent.StartNewGame]: {
-      target: `.${machineTypes.GameState.StartingGame}`,
+    [types.GameEvent.StartNewGame]: {
+      target: `.${types.GameState.Initialising}`,
+      actions: types.Action.ClearActiveGame,
     },
-    [machineTypes.GameEvent.SetEngine]: {
-      actions: [machineTypes.Action.SetEngine],
+    [types.GameEvent.SetEngine]: {
+      actions: [types.Action.SetEngine],
     },
   },
+  initial: types.GameState.Initialising,
   states: {
-    [machineTypes.GameState.Idle]: {
-      always: [
-        {
-          target: machineTypes.GameState.StartingGame,
-          guard: machineTypes.Guard.GameIsUnset,
+    [types.GameState.Initialising]: {
+      initial: types.GameState.StartingNewGame,
+      states: {
+        [types.GameState.StartingNewGame]: {
+          always: {
+            target: `#game.${types.GameState.Initialising}.${types.GameState.LoadingExistingGame}`,
+            guard: types.Guard.PublicGameIdIsSet,
+          },
+          invoke: {
+            id: "startGame",
+            src: "startGame",
+            onDone: {
+              actions: [types.Action.SetActiveGame],
+              target: types.GameState.AssigningPlayerTurn,
+            },
+            onError: {
+              target: `#game.${types.GameState.Unavailable}`,
+            },
+          },
         },
-        { target: machineTypes.GameState.LocalPlayerTurn },
-      ],
-    },
-    [machineTypes.GameState.StartingGame]: {
-      invoke: {
-        id: "startGame",
-        src: "startGame",
-        onDone: {
-          actions: [
-            machineTypes.Action.SetActiveGame,
-            machineTypes.Action.SetLocalPlayerToWhite,
+        [types.GameState.LoadingExistingGame]: {
+          invoke: {
+            id: "loadGame",
+            src: "loadGame",
+            input: ({ context }) => {
+              return { publicGameId: context.publicGameId };
+            },
+            onDone: {
+              actions: [types.Action.SetActiveGame],
+              target: types.GameState.AssigningPlayerTurn,
+            },
+            onError: {
+              target: `#game.${types.GameState.Unavailable}`,
+            },
+          },
+        },
+        [types.GameState.AssigningPlayerTurn]: {
+          always: [
+            {
+              target: `#game.${types.GameState.LocalPlayerTurn}`,
+              guard: types.Guard.IsLocalPlayerTurn,
+            },
+            { target: `#game.${types.GameState.OpponentPlayerTurn}` },
           ],
-          target: machineTypes.GameState.LocalPlayerTurn,
-        },
-        onError: {
-          target: machineTypes.GameState.Unavailable,
         },
       },
     },
-    [machineTypes.GameState.LocalPlayerTurn]: {
+    [types.GameState.LocalPlayerTurn]: {
       invoke: {
         id: "getLegalMoves",
         src: "getLegalMoves",
@@ -80,37 +108,37 @@ const GameMachine = setup({
           return { gameId: context.game?.id };
         },
         onDone: {
-          actions: [machineTypes.Action.SetLegalMoves],
-          target: machineTypes.GameState.LocalPlayerTurn,
+          actions: [types.Action.SetLegalMoves],
+          target: types.GameState.LocalPlayerTurn,
         },
       },
       always: {
-        target: machineTypes.GameState.GameComplete,
-        guard: machineTypes.Guard.GameIsComplete,
+        target: types.GameState.GameComplete,
+        guard: types.Guard.GameIsComplete,
       },
       on: {
-        [machineTypes.GameEvent.SetSquareToMoveFrom]: {
-          actions: machineTypes.Action.SetSquareToMoveFrom,
+        [types.GameEvent.SetSquareToMoveFrom]: {
+          actions: types.Action.SetSquareToMoveFrom,
         },
-        [machineTypes.GameEvent.PlayMove]: {
-          target: machineTypes.GameState.SubmittingLocalPlayerMove,
+        [types.GameEvent.PlayMove]: {
+          target: types.GameState.SubmittingLocalPlayerMove,
         },
-        [machineTypes.GameEvent.SwapColours]: {
-          actions: machineTypes.Action.SwapColours,
-          target: machineTypes.GameState.OpponentPlayerTurn,
+        [types.GameEvent.SwapColours]: {
+          actions: types.Action.SwapColours,
+          target: types.GameState.OpponentPlayerTurn,
         },
       },
       exit: [
-        { type: machineTypes.Action.ClearSquareToPlayFrom },
-        { type: machineTypes.Action.ClearLegalMoves },
+        { type: types.Action.ClearSquareToPlayFrom },
+        { type: types.Action.ClearLegalMoves },
       ],
     },
-    [machineTypes.GameState.SubmittingLocalPlayerMove]: {
+    [types.GameState.SubmittingLocalPlayerMove]: {
       invoke: {
         id: "playMove",
         src: "playMove",
         input: ({ context, event }) => {
-          assertEvent(event, machineTypes.GameEvent.PlayMove);
+          assertEvent(event, types.GameEvent.PlayMove);
           return {
             gameId: context.game?.id,
             move: {
@@ -121,25 +149,24 @@ const GameMachine = setup({
           };
         },
         onDone: {
-          actions: machineTypes.Action.SetActiveGame,
-          target: machineTypes.GameState.OpponentPlayerTurn,
+          actions: types.Action.SetActiveGame,
+          target: types.GameState.OpponentPlayerTurn,
         },
         onError: {
-          target: machineTypes.GameState.LocalPlayerTurn,
+          target: types.GameState.LocalPlayerTurn,
         },
       },
     },
-    [machineTypes.GameState.OpponentPlayerTurn]: {
+    [types.GameState.OpponentPlayerTurn]: {
       always: {
-        target: machineTypes.GameState.GameComplete,
-        guard: machineTypes.Guard.GameIsComplete,
+        target: types.GameState.GameComplete,
+        guard: types.Guard.GameIsComplete,
       },
       after: {
-        opponentThinkingTimeMs:
-          machineTypes.GameState.SubmittingOpponentPlayerMove,
+        opponentThinkingTimeMs: types.GameState.SubmittingOpponentPlayerMove,
       },
     },
-    [machineTypes.GameState.SubmittingOpponentPlayerMove]: {
+    [types.GameState.SubmittingOpponentPlayerMove]: {
       invoke: {
         id: "generateAndPlayNextMove",
         src: "generateAndPlayNextMove",
@@ -147,17 +174,15 @@ const GameMachine = setup({
           return { gameId: context.game?.id, engine: context.engine };
         },
         onDone: {
-          actions: machineTypes.Action.SetActiveGame,
-          target: machineTypes.GameState.LocalPlayerTurn,
+          actions: types.Action.SetActiveGame,
+          target: types.GameState.LocalPlayerTurn,
         },
         onError: {
-          target: machineTypes.GameState.Unavailable,
+          target: types.GameState.Unavailable,
         },
       },
     },
-    [machineTypes.GameState.GameComplete]: {},
-    [machineTypes.GameState.Unavailable]: {},
+    [types.GameState.GameComplete]: {},
+    [types.GameState.Unavailable]: {},
   },
 });
-
-export default GameMachine;

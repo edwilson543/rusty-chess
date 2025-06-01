@@ -54,8 +54,21 @@ jobs:
     - name: Install frontend dependencies
       run: make install
 
+    - name: Lint
+      run: make lint
+
+    - name: Check dependency graph
+      run: make depcruiser
+
     - name: Test
       run: make test
 
-    - name: Lint
-      run: make lint
+    - name: Run Playwright tests
+      run: make playwright
+
+    - uses: actions/upload-artifact@v4
+      if: ${{ !cancelled() }}
+      with:
+        name: playwright-report
+        path: playwright-report/
+        retention-days: 1

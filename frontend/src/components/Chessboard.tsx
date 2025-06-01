@@ -1,19 +1,19 @@
 import { ChessboardSquare } from "./ChessboardSquare.tsx";
-import * as types from "../lib/types.ts";
+import * as chess from "../domain/chess.ts";
 
 interface ChessboardProps {
-  chessboard: types.Chessboard;
-  localPlayerColour: types.Colour;
+  chessboard: chess.Chessboard;
+  localPlayerColour: chess.Colour;
 }
 
 const RANK_WIDTH = 8;
 
 export const Chessboard = (props: ChessboardProps) => {
-  const ranks = Object.values(types.Rank).filter(
+  const ranks = Object.values(chess.Rank).filter(
     (item) => typeof item === "number",
   );
 
-  if (props.localPlayerColour === types.Colour.White) {
+  if (props.localPlayerColour === chess.Colour.White) {
     ranks.reverse();
   }
 
@@ -39,13 +39,13 @@ export const Chessboard = (props: ChessboardProps) => {
 };
 
 interface ChessboardRankProps {
-  rank: types.Square[];
+  rank: chess.Square[];
 }
 
 const ChessboardRank = (props: ChessboardRankProps) => {
   return (
     <div style={{ display: "flex", flexDirection: "row" }}>
-      {props.rank.map((square: types.Square) => {
+      {props.rank.map((square: chess.Square) => {
         return (
           <ChessboardSquare
             key={`${square.file}${square.rank}`}
@@ -59,8 +59,8 @@ const ChessboardRank = (props: ChessboardRankProps) => {
 
 const fileSortOrder = { A: 1, B: 2, C: 3, D: 4, E: 5, F: 6, G: 7, H: 8 };
 
-const sortPosition = (position: types.Square[]): types.Square[] => {
-  const scoreSquare = (square: types.Square): number => {
+const sortPosition = (position: chess.Square[]): chess.Square[] => {
+  const scoreSquare = (square: chess.Square): number => {
     return square.rank * 8 + fileSortOrder[square.file];
   };
 

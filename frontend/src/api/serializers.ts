@@ -1,7 +1,7 @@
 import { GameSchema, LegalMovesSchema } from "./contract.ts";
-import * as types from "../types.ts";
+import * as chess from "../domain/chess.ts";
 
-export const parseGameSchemaToGame = (game: GameSchema): types.Game => {
+export const parseGameSchemaToGame = (game: GameSchema): chess.Game => {
   const chessboardPosition = [];
 
   for (const [key, value] of Object.entries(game.chessboard.position)) {
@@ -28,25 +28,25 @@ export const parseGameSchemaToGame = (game: GameSchema): types.Game => {
   };
 };
 
-export const parseLegalMoves = (legalMoves: LegalMovesSchema): types.Move[] => {
-  const parsedMoves: types.Move[] = [];
+export const parseLegalMoves = (legalMoves: LegalMovesSchema): chess.Move[] => {
+  const parsedMoves: chess.Move[] = [];
   legalMoves.forEach((legalMove) => {
     parsedMoves.push({
       fromSquare: positionKeyToEmptySquare(legalMove.from_square),
       toSquare: positionKeyToEmptySquare(legalMove.to_square),
-      player: legalMove.player as types.Colour,
+      player: legalMove.player as chess.Colour,
     });
   });
   return parsedMoves;
 };
 
-export const squareToString = (square: types.Square): string => {
+export const squareToString = (square: chess.Square): string => {
   return `${square.file}${square.rank}`;
 };
 
 // Helpers.
 
-const positionKeyToEmptySquare = (key: string): types.Square => {
+const positionKeyToEmptySquare = (key: string): chess.Square => {
   const rank = positionKeyToRank(key);
   const file = positionKeyToFile(key);
   return {
@@ -56,17 +56,17 @@ const positionKeyToEmptySquare = (key: string): types.Square => {
   };
 };
 
-const positionKeyToRank = (key: string): types.Rank => {
-  const rank = parseInt(key[1]) as unknown as types.Rank;
-  if (Object.values(types.Rank).includes(rank)) {
-    return rank as unknown as types.Rank;
+const positionKeyToRank = (key: string): chess.Rank => {
+  const rank = parseInt(key[1]) as unknown as chess.Rank;
+  if (Object.values(chess.Rank).includes(rank)) {
+    return rank as unknown as chess.Rank;
   }
   throw new Error(`${rank} is not a recognised Rank.`);
 };
 
-const positionKeyToFile = (key: string): types.File => {
-  const file = key[0] as unknown as types.File;
-  if (Object.values(types.File).includes(file)) {
+const positionKeyToFile = (key: string): chess.File => {
+  const file = key[0] as unknown as chess.File;
+  if (Object.values(chess.File).includes(file)) {
     return file;
   }
   throw new Error(`${file} is not a recognised File.`);
@@ -78,40 +78,40 @@ const positionValueToPiece = ({
 }: {
   colour: string;
   piece_type: string;
-}): types.Piece | null => {
-  if (!Object.values(types.Colour).includes(colour)) {
+}): chess.Piece | null => {
+  if (!Object.values(chess.Colour).includes(colour)) {
     throw new Error(`${colour} is not a recognised Colour.`);
   }
 
-  if (!Object.values(types.PieceType).includes(piece_type)) {
+  if (!Object.values(chess.PieceType).includes(piece_type)) {
     throw new Error(`${piece_type} is not a recognised PieceType.`);
   }
 
   return {
-    colour: colour as unknown as types.Colour,
-    pieceType: piece_type as unknown as types.PieceType,
+    colour: colour as unknown as chess.Colour,
+    pieceType: piece_type as unknown as chess.PieceType,
   };
 };
 
-const extractToPlayColour = (game: GameSchema): types.Colour | null => {
+const extractToPlayColour = (game: GameSchema): chess.Colour | null => {
   switch (game.status) {
     case "ToPlayWhite":
-      return types.Colour.White;
+      return chess.Colour.White;
     case "ToPlayBlack":
-      return types.Colour.Black;
+      return chess.Colour.Black;
     default:
       return null;
   }
 };
 
-const extractGameOutcome = (game: GameSchema): types.GameOutcome | null => {
+const extractGameOutcome = (game: GameSchema): chess.GameOutcome | null => {
   switch (game.status) {
     case "WonByWhite":
-      return types.GameOutcome.WonByWhite;
+      return chess.GameOutcome.WonByWhite;
     case "WonByBlack":
-      return types.GameOutcome.WonByBlack;
+      return chess.GameOutcome.WonByBlack;
     case "Drawn":
-      return types.GameOutcome.Drawn;
+      return chess.GameOutcome.Drawn;
     default:
       return null;
   }

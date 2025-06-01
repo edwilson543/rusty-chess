@@ -1,14 +1,32 @@
-import * as machineTypes from "./types";
+import * as types from "./types";
 
 export const guards = {
-  [machineTypes.Guard.GameIsUnset]: (
-    context: machineTypes.GameContextProps,
-  ) => {
+  [types.Guard.PublicGameIdIsSet]: ({
+    context,
+  }: {
+    context: types.GameContextProps;
+  }) => {
+    return !!context.publicGameId;
+  },
+  [types.Guard.IsLocalPlayerTurn]: ({
+    context,
+  }: {
+    context: types.GameContextProps;
+  }) => {
+    return context.game?.toPlayColour === context.localPlayerColour;
+  },
+  [types.Guard.GameIsUnset]: ({
+    context,
+  }: {
+    context: types.GameContextProps;
+  }) => {
     return !context.game;
   },
-  [machineTypes.Guard.GameIsComplete]: (
-    context: machineTypes.GameContextProps,
-  ) => {
+  [types.Guard.GameIsComplete]: ({
+    context,
+  }: {
+    context: types.GameContextProps;
+  }) => {
     return !!context.game?.outcome;
   },
 };
