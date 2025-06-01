@@ -1,5 +1,7 @@
 import { Page, Locator } from "@playwright/test";
 
+import { Colour, PieceType } from "../src/domain/chess.ts";
+
 export const getSquare = (page: Page, square: string): Locator => {
   const squareTestId = `square-${square}`;
   return page.getByTestId(squareTestId);
@@ -8,8 +10,8 @@ export const getSquare = (page: Page, square: string): Locator => {
 export const getPieceAtSquare = (
   page: Page,
   square: string,
-  colour: string,
-  piece: string,
+  colour: Colour,
+  piece: PieceType,
 ): Locator => {
   const squareTestId = `square-${square}`;
   return page

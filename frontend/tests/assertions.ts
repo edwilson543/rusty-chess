@@ -1,10 +1,11 @@
 import { expect, Page } from "@playwright/test";
 
 import * as locators from "./locators";
+import { Colour, PieceType } from "../src/domain/chess.ts";
 
 export const expectLocalPlayerColourToBe = async (
   page: Page,
-  colour: string,
+  colour: Colour,
 ) => {
   const localPlayerColour = page.getByTestId("local-player-colour");
   await expect(localPlayerColour).toBeVisible();
@@ -16,12 +17,17 @@ export const expectToPlayColourToEqual = async (page: Page, colour: string) => {
   await expect(toPlayColour).toContainText(colour);
 };
 
-export const expectPieceToOccupySquare = async (
+export const expectPieceTypeToOccupySquare = async (
   page: Page,
   square: string,
-  colour: string,
-  piece: string,
+  colour: Colour,
+  PieceType: PieceType,
 ) => {
-  const movedPiece = locators.getPieceAtSquare(page, square, colour, piece);
-  await expect(movedPiece).toBeVisible();
+  const movedPieceType = locators.getPieceAtSquare(
+    page,
+    square,
+    colour,
+    PieceType,
+  );
+  await expect(movedPieceType).toBeVisible();
 };
