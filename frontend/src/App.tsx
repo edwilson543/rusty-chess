@@ -22,13 +22,13 @@ function App() {
 export default App;
 
 function GameMachineProvider({ children }: { children: JSX.Element }) {
-  const { publicGameId } = useParseGameParamsFromUrl();
+  const { publicGameId, localPlayerColour } = useParseGameParamsFromUrl();
 
   return (
     <>
       <GameMachineContext.Provider
         options={{
-          input: { publicGameId: publicGameId },
+          input: { publicGameId, localPlayerColour },
           inspect,
         }}
       >

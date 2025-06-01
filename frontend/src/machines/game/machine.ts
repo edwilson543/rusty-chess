@@ -11,6 +11,7 @@ import {
 import { guards } from "./guards.ts";
 import * as types from "./types";
 import * as chess from "../../domain/chess.ts";
+import { Colour } from "../../domain/chess.ts";
 
 export const gameMachine = setup({
   types: {
@@ -36,7 +37,7 @@ export const gameMachine = setup({
     game: null,
     publicGameId: input.publicGameId,
     legalMoves: [],
-    localPlayerColour: chess.Colour.White,
+    localPlayerColour: input.localPlayerColour ?? Colour.White,
     squareToMoveFrom: null,
     engine: chess.Engine.Random,
   }),
@@ -64,10 +65,7 @@ export const gameMachine = setup({
             id: "startGame",
             src: "startGame",
             onDone: {
-              actions: [
-                types.Action.SetActiveGame,
-                types.Action.SetLocalPlayerToWhite,
-              ],
+              actions: [types.Action.SetActiveGame],
               target: types.GameState.AssigningPlayerTurn,
             },
             onError: {
@@ -83,10 +81,7 @@ export const gameMachine = setup({
               return { publicGameId: context.publicGameId };
             },
             onDone: {
-              actions: [
-                types.Action.SetActiveGame,
-                types.Action.SetLocalPlayerToWhite,
-              ],
+              actions: [types.Action.SetActiveGame],
               target: types.GameState.AssigningPlayerTurn,
             },
             onError: {

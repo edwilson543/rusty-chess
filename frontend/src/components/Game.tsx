@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import { Chessboard } from "./Chessboard";
 import { SelectEngine } from "./SelectEngine.tsx";
+import { Colour } from "../domain/chess.ts";
 import {
   useActiveChessGame,
   useChessGameActions,
@@ -20,7 +21,12 @@ export const Game = () => {
   useSyncGameParamsToUrl();
 
   const copyGameLink = () => {
-    void navigator.clipboard.writeText(window.location.href);
+    const currentPageUrl = window.location.href;
+    const link =
+      localPlayerColour === Colour.White
+        ? currentPageUrl.replace(Colour.White, Colour.Black)
+        : currentPageUrl.replace(Colour.Black, Colour.White);
+    void navigator.clipboard.writeText(link);
   };
 
   if (game === null) {

@@ -34,11 +34,6 @@ export const actions: ActionFunctionMap<
       return swapper[context.localPlayerColour];
     },
   }),
-  [types.Action.SetLocalPlayerToWhite]: assign({
-    localPlayerColour: () => {
-      return chess.Colour.White;
-    },
-  }),
   [types.Action.SetEngine]: assign({
     engine: ({ event }) => {
       assertEvent(event, types.GameEvent.SetEngine);

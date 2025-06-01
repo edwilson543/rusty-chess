@@ -14,6 +14,7 @@ export interface GameContextProps {
 
 export interface GameInput {
   publicGameId: number | null;
+  localPlayerColour: chess.Colour | null;
 }
 
 // Events.
@@ -102,7 +103,6 @@ export enum GameState {
 export enum Action {
   ClearActiveGame = "clear-active-game",
   SetActiveGame = "set-active-game",
-  SetLocalPlayerToWhite = "set-local-player-to-white",
   SwapColours = "swap-colours",
   SetEngine = "set-engine",
   // Square to play from.

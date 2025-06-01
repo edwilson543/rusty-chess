@@ -141,7 +141,8 @@ test.describe("existing games", () => {
   }) => {
     await page.goto("/");
 
-    await expect(page).toHaveURL(/\?gameId=/);
+    await expect(page).toHaveURL(/\?colour=White/);
+    await expect(page).toHaveURL(/&gameId=/);
 
     // Move a piece.
     const squareE2 = locators.getSquare(page, "E2");
@@ -162,14 +163,16 @@ test.describe("existing games", () => {
     const clipboardText = await page.evaluate(() =>
       navigator.clipboard.readText(),
     );
-    expect(clipboardText).toEqual(page.url());
+    const expectedUrl = page.url().replace("White", "Black");
+    expect(clipboardText).toEqual(expectedUrl);
 
-    // Open a new page with the url.
+    // Open a new page with the url - the new page should be playing as black.
     const newPage = await context.newPage();
     await newPage.goto(clipboardText);
 
-    await assertions.expectPieceToOccupySquare(newPage, "E4", "White", "Pawn");
+    await assertions.expectLocalPlayerColourToBe(newPage, "Black");
     await assertions.expectToPlayColourToEqual(newPage, "Black");
+    await assertions.expectPieceToOccupySquare(newPage, "E4", "White", "Pawn");
   });
 
   test("can revisit game using game id pushed to url search params", async ({
@@ -177,7 +180,8 @@ test.describe("existing games", () => {
   }) => {
     await page.goto("/");
 
-    await expect(page).toHaveURL(/\?gameId=/);
+    await expect(page).toHaveURL(/\?colour=White/);
+    await expect(page).toHaveURL(/&gameId=/);
     const gameId = page.url().split("gameId=")[1];
 
     // Move a piece in the first game.
