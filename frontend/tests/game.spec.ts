@@ -102,9 +102,7 @@ test.describe("game controls", () => {
 
   test("can swap player colours", async ({ page }) => {
     // Ensure local player is initially assigned to white.
-    let playerColourText = page.getByTestId("local-player-colour");
-    await expect(playerColourText).toBeVisible();
-    await expect(playerColourText).toHaveText("White");
+    await assertions.expectLocalPlayerColourToBe(page, "White");
 
     // Swap the colours, so that the local player is assigned to black.
     const swapColours = page.getByRole("button", { name: "Swap colours" });
@@ -112,15 +110,13 @@ test.describe("game controls", () => {
 
     await swapColours.click();
 
-    playerColourText = page.getByTestId("local-player-colour");
-    await expect(playerColourText).toHaveText("Black");
+    await assertions.expectLocalPlayerColourToBe(page, "Black");
     await assertions.expectToPlayColourToEqual(page, "White");
 
     // Should not be able to swap back to white during opponent's turn.
     await swapColours.click();
 
-    playerColourText = page.getByTestId("local-player-colour");
-    await expect(playerColourText).toHaveText("Black");
+    await assertions.expectLocalPlayerColourToBe(page, "Black");
     await assertions.expectToPlayColourToEqual(page, "White");
   });
 
